@@ -16,6 +16,26 @@ func pointOnCircleDegrees(center Point2D, radius float64, angle float64) *Point2
 	return pointOnCircle(center, radius, angle*math.Pi/180)
 }
 
+// Circle represents a 2d graphical circle in a Footprint.
+type Circle struct {
+	Layer  Layer
+	Center Point2D
+	Radius float64
+	Width  float64
+}
+
+// Render generates output suitable for inclusion in a kicad_mod file.
+func (l *Circle) Render(w io.Writer) error {
+	width := l.Width
+	if width == 0 {
+		width = 0.15
+	}
+
+	end := &Point2D{X: l.Center.X + l.Radius, Y: l.Center.Y}
+	_, err := fmt.Fprintf(w, "  (fp_circle %s %s (layer %s) (width %s))\n", l.Center.Sexp("center"), end.Sexp("end"), l.Layer.Strictname(), f(width))
+	return err
+}
+
 // Arc represents a 2d graphical arc in a Footprint.
 type Arc struct {
 	Layer          Layer

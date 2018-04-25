@@ -44,22 +44,29 @@ func f(f float64) string {
 	return t
 }
 
-// Circle represents a 2d graphical circle in a Footprint.
-type Circle struct {
+// Polygon represents a 2d polygon in a Footprint.
+type Polygon struct {
 	Layer  Layer
-	Center Point2D
-	Radius float64
+	Points []Point2D
 	Width  float64
 }
 
 // Render generates output suitable for inclusion in a kicad_mod file.
-func (l *Circle) Render(w io.Writer) error {
+func (l *Polygon) Render(w io.Writer) error {
 	width := l.Width
 	if width == 0 {
 		width = 0.15
 	}
 
-	end := &Point2D{X: l.Center.X + l.Radius, Y: l.Center.Y}
-	_, err := fmt.Fprintf(w, "  (fp_circle %s %s (layer %s) (width %s))\n", l.Center.Sexp("center"), end.Sexp("end"), l.Layer.Strictname(), f(width))
+	if _, err := fmt.Fprint(w, "\n  (fp_poly\n    (pts \n"); err != nil {
+		return err
+	}
+	for i := range l.Points {
+		if _, err := fmt.Fprintf(w, "      %s\n", l.Points[i].Sexp("xy")); err != nil {
+			return err
+		}
+	}
+
+	_, err := fmt.Fprintf(w, "    )\n    (layer %s)\n    (width %s)\n  )\n", l.Layer.Strictname(), f(width))
 	return err
 }
