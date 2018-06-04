@@ -9,6 +9,9 @@ const (
 	LayerBackFab
 	LayerFrontSilkscreen
 	LayerBackSilkscreen
+	LayerEdgeCuts
+	LayerAllCopper
+	LayerAllMask
 )
 
 // Strictname returns the string representing the layer used in the Kicad 4 (and probably later) formats.
@@ -22,6 +25,12 @@ func (l Layer) Strictname() string {
 		return "F.SilkS"
 	case LayerBackSilkscreen:
 		return "B.SilkS"
+	case LayerEdgeCuts:
+		return "Edge.Cuts"
+	case LayerAllCopper:
+		return "*.Cu"
+	case LayerAllMask:
+		return "*.Mask"
 	}
 	panic("invalid layer")
 }
@@ -37,6 +46,12 @@ func (l Layer) String() string {
 		return "Front Silkscreen"
 	case LayerBackSilkscreen:
 		return "Back Silkscreen"
+	case LayerEdgeCuts:
+		return "Board Outline"
+	case LayerAllCopper:
+		return "All Copper"
+	case LayerAllMask:
+		return "All Mask"
 	}
 	return "?"
 }

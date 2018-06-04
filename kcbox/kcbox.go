@@ -77,5 +77,6 @@ func main() {
 		if *output != "" && *output != "-" { //close the file if its not standard input
 			w.Close()
 		}
+		os.Exit(4)
 	}
 }
