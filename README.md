@@ -24,7 +24,7 @@ go build -o kc-box github.com/twitchyliquid64/kcgen/kcbox
 
 Make a 40mm by 20mm box with rounded corners and edge mounts:
 
-![Box image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcoutline 40x20.png)
+![Box image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcoutline%2040x20.png)
 
 ```shell
 ./kc-outline --make-mounts 40x20 40 20
