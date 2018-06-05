@@ -15,6 +15,7 @@ go get github.com/twitchyliquid64/kcgen
 
 # Build the things
 go build -o kc-outline github.com/twitchyliquid64/kcgen/kcoutline
+go build -o kc-magnet github.com/twitchyliquid64/kcgen/kcmagnet
 go build -o kc-dash-circle github.com/twitchyliquid64/kcgen/kcdashcircle
 go build -o kc-box github.com/twitchyliquid64/kcgen/kcbox
 
@@ -44,4 +45,26 @@ USAGE: kc-outline <module-name> <width> <height>
     	Y-axis offset at which module designator is placed
   -resolution int
     	How many interpolations to make per degree
+```
+
+## kc-magnet usage
+
+Make a PCB magnet with 10 windings, with a track thickness of 0.25mm and a clearance of 0.16mm.
+
+![Magnet image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcmagnet.png)
+
+```shell
+./kc-magnet 10x-magnet-module 0.4 0.2 10
+```
+
+Usage:
+
+```
+USAGE: ./kc-magnet <module-name> <trace-thickness> <trace-clearance> <windings>
+  -o string
+    	Where output is written (default "-")
+  -resolution int
+    	How many interpolations to make per degree (default 1)
+  -skip-windings float
+    	How many windings to skip on the inside (default 1)
 ```
