@@ -12,6 +12,7 @@ const (
 	LayerEdgeCuts
 	LayerAllCopper
 	LayerAllMask
+	LayerFrontCopper
 )
 
 // Strictname returns the string representing the layer used in the Kicad 4 (and probably later) formats.
@@ -31,6 +32,8 @@ func (l Layer) Strictname() string {
 		return "*.Cu"
 	case LayerAllMask:
 		return "*.Mask"
+	case LayerFrontCopper:
+		return "F.Cu"
 	}
 	panic("invalid layer")
 }
@@ -52,6 +55,8 @@ func (l Layer) String() string {
 		return "All Copper"
 	case LayerAllMask:
 		return "All Mask"
+	case LayerFrontCopper:
+		return "Front Copper"
 	}
 	return "?"
 }

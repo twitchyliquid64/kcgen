@@ -18,6 +18,7 @@ go build -o kc-outline github.com/twitchyliquid64/kcgen/kcoutline
 go build -o kc-magnet github.com/twitchyliquid64/kcgen/kcmagnet
 go build -o kc-dash-circle github.com/twitchyliquid64/kcgen/kcdashcircle
 go build -o kc-box github.com/twitchyliquid64/kcgen/kcbox
+go build -o kc-map github.com/twitchyliquid64/kcgen/kcmap
 
 # You should now have /tmp/kcbuild/kc-outline etc
 ```
@@ -67,4 +68,36 @@ USAGE: ./kc-magnet <module-name> <trace-thickness> <trace-clearance> <windings>
     	How many interpolations to make per degree (default 1)
   -skip-windings float
     	How many windings to skip on the inside (default 1)
+```
+
+## kc-map usage
+
+Project a GeoJSON file onto the silkscreen, so you can print a map on a PCB.
+
+```shell
+./kc-map -o sf.kicad_mod san_francisco.geojson
+```
+
+Usage:
+
+```
+USAGE: ./kc-map <path to geojson file>
+  -angle float
+    	Angle to rotate the map at
+  -height float
+    	Output size (default 98)
+  -lat1 float
+    	Bounding latitude (default 37.79393471716305)
+  -lat2 float
+    	Bounding latitude (default 37.78525259209928)
+  -lng1 float
+    	Bounding longitude (default -122.40305337372274)
+  -lng2 float
+    	Bounding longitude (default -122.38693866196127)
+  -o string
+    	Where output is written (default "-")
+  -reference string
+    	Module reference (default "map")
+  -width float
+    	Output size (default 98)
 ```
