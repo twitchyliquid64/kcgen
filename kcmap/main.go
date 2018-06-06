@@ -48,6 +48,47 @@ func withinBounds(lat, lng float64) bool {
 	}).Contains(geo.NewPoint(lat, lng))
 }
 
+func boundLine(line *kcgen.Line) {
+	if line.Start.X == line.End.X {
+		panic("infinite slope not yet supported")
+	}
+	slope := (line.End.Y - line.Start.Y) / (line.End.X - line.Start.X)
+	b := line.End.Y - (slope * line.End.X) //y = mx + b which is equivalent to b = y - mx
+	if line.Start.X < (-*width/2) {
+		line.Start.Y = (slope * (-*width/2)) + b
+		line.Start.X = -*width/2
+	}
+	if line.End.X < (-*width/2) {
+		line.End.Y = (slope * (-*width/2)) + b
+		line.End.X = -*width/2
+	}
+	if line.Start.X > (*width/2) {
+		line.Start.Y = (slope * (*width/2)) + b
+		line.Start.X = *width/2
+	}
+	if line.End.X > (*width/2) {
+		line.End.Y = (slope * (*width/2)) + b
+		line.End.X = *width/2
+	}
+
+	if line.Start.Y < (-*height/2) {
+		line.Start.Y = -*height/2
+		line.Start.X = ((-*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	}
+	if line.End.Y < (-*height/2) {
+		line.End.Y = -*height/2
+		line.End.X = ((-*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	}
+	if line.Start.Y > (*height/2) {
+		line.Start.Y = *height/2
+		line.Start.X = ((*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	}
+	if line.End.Y > (*height/2) {
+		line.End.Y = *height/2
+		line.End.X = ((*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -85,19 +126,21 @@ func main() {
 			width = 0.1
 		}
 		for i, p := range f.Geometry.LineString {
-			if !withinBounds(p[1], p[0]) {
-				continue
-			}
 			if i > 0 {
 				lastPoint := f.Geometry.LineString[i-1]
+				if !withinBounds(p[1], p[0]) && !withinBounds(lastPoint[1], lastPoint[0]) {
+					continue
+				}
 				y1, x1 := mapCoordinates(lastPoint[1], lastPoint[0])
 				y2, x2 := mapCoordinates(p[1], p[0])
-				fp.Add(&kcgen.Line{
+				l := &kcgen.Line{
 					Layer: kcgen.LayerFrontSilkscreen,
 					Start: kcgen.Point2D{X: x1, Y: y1},
 					End:   kcgen.Point2D{X: x2, Y: y2},
 					Width: width,
-				})
+				}
+				boundLine(l)
+				fp.Add(l)
 			}
 		}
 	}
