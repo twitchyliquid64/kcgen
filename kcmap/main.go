@@ -54,38 +54,38 @@ func boundLine(line *kcgen.Line) {
 	}
 	slope := (line.End.Y - line.Start.Y) / (line.End.X - line.Start.X)
 	b := line.End.Y - (slope * line.End.X) //y = mx + b which is equivalent to b = y - mx
-	if line.Start.X < (-*width/2) {
-		line.Start.Y = (slope * (-*width/2)) + b
-		line.Start.X = -*width/2
+	if line.Start.X < (-*width / 2) {
+		line.Start.Y = (slope * (-*width / 2)) + b
+		line.Start.X = -*width / 2
 	}
-	if line.End.X < (-*width/2) {
-		line.End.Y = (slope * (-*width/2)) + b
-		line.End.X = -*width/2
+	if line.End.X < (-*width / 2) {
+		line.End.Y = (slope * (-*width / 2)) + b
+		line.End.X = -*width / 2
 	}
-	if line.Start.X > (*width/2) {
-		line.Start.Y = (slope * (*width/2)) + b
-		line.Start.X = *width/2
+	if line.Start.X > (*width / 2) {
+		line.Start.Y = (slope * (*width / 2)) + b
+		line.Start.X = *width / 2
 	}
-	if line.End.X > (*width/2) {
-		line.End.Y = (slope * (*width/2)) + b
-		line.End.X = *width/2
+	if line.End.X > (*width / 2) {
+		line.End.Y = (slope * (*width / 2)) + b
+		line.End.X = *width / 2
 	}
 
-	if line.Start.Y < (-*height/2) {
-		line.Start.Y = -*height/2
-		line.Start.X = ((-*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if line.Start.Y < (-*height / 2) {
+		line.Start.Y = -*height / 2
+		line.Start.X = ((-*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
 	}
-	if line.End.Y < (-*height/2) {
-		line.End.Y = -*height/2
-		line.End.X = ((-*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if line.End.Y < (-*height / 2) {
+		line.End.Y = -*height / 2
+		line.End.X = ((-*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
 	}
-	if line.Start.Y > (*height/2) {
-		line.Start.Y = *height/2
-		line.Start.X = ((*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if line.Start.Y > (*height / 2) {
+		line.Start.Y = *height / 2
+		line.Start.X = ((*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
 	}
-	if line.End.Y > (*height/2) {
-		line.End.Y = *height/2
-		line.End.X = ((*height/2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if line.End.Y > (*height / 2) {
+		line.End.Y = *height / 2
+		line.End.X = ((*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
 	}
 }
 
