@@ -146,6 +146,27 @@ func main() {
 		}
 	}
 
+	fp.Add(&kcgen.Text{
+		Layer:    kcgen.LayerFrontFab,
+		Position: kcgen.Point2D{X: 0, Y: 2},
+		Text:     fmt.Sprintf("Min Latitude: %v", *lat1),
+	})
+	fp.Add(&kcgen.Text{
+		Layer:    kcgen.LayerFrontFab,
+		Position: kcgen.Point2D{X: 0, Y: 4},
+		Text:     fmt.Sprintf("Max Latitude: %v", *lat2),
+	})
+	fp.Add(&kcgen.Text{
+		Layer:    kcgen.LayerFrontFab,
+		Position: kcgen.Point2D{X: 0, Y: 6},
+		Text:     fmt.Sprintf("Min Longitude: %v", *lng1),
+	})
+	fp.Add(&kcgen.Text{
+		Layer:    kcgen.LayerFrontFab,
+		Position: kcgen.Point2D{X: 0, Y: 8},
+		Text:     fmt.Sprintf("Mac Longitude: %v", *lng2),
+	})
+
 	// Render output.
 	w := os.Stdout
 	if *output != "" && *output != "-" {

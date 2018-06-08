@@ -70,3 +70,23 @@ func (l *Polygon) Render(w io.Writer) error {
 	_, err := fmt.Fprintf(w, "    )\n    (layer %s)\n    (width %s)\n  )\n", l.Layer.Strictname(), f(width))
 	return err
 }
+
+// Text represents a text string.
+type Text struct {
+	Layer     Layer
+	Text      string
+	Position  Point2D
+	Thickness float64
+}
+
+// Render generates output suitable for inclusion in a kicad_mod file.
+func (l *Text) Render(w io.Writer) error {
+	thickness := l.Thickness
+	if thickness == 0 {
+		thickness = 0.15
+	}
+	_, err := fmt.Fprintf(w, `(fp_text user %q %s (layer %s)
+    (effects (font (size 1 1) (thickness %s)))
+  )`+"\n", l.Text, l.Position.Sexp("at"), l.Layer.Strictname(), f(thickness))
+	return err
+}
