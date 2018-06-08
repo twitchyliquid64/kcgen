@@ -115,15 +115,16 @@ func main() {
 	}
 
 	for _, f := range geo.Features {
-		if f.Properties["layer"] != "STREETS" {
+		if f.Properties["layer"] != "STREETS" { // && f.Properties["layer"] != "PSEUDO" {
+			//fmt.Fprintf(os.Stderr, "Layer: %q\n", f.Properties)
 			continue
 		}
-		width := 0.2
+		width := 0.38
 		if f.Properties["classcode"] == "4" {
-			width = 0.35
+			width = 0.55
 		}
 		if f.Properties["classcode"] == "6" {
-			width = 0.1
+			width = 0.2
 		}
 		for i, p := range f.Geometry.LineString {
 			if i > 0 {
