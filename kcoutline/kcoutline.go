@@ -16,7 +16,7 @@ var (
 	output          = flag.String("o", "-", "Where output is written")
 	mounts          = flag.Bool("make-mounts", false, "Generate mounting holes")
 	rimming         = flag.Bool("make-rim", false, "Generate copper rim")
-	rimWidth        = flag.Float64("rim-width", 0.4, "Width of copper rim")
+	rimWidth        = flag.Float64("rim-width", 0.5, "Width of copper rim")
 )
 
 func main() {
@@ -75,53 +75,33 @@ func main() {
 		End:   kcgen.Point2D{X: halfWidth, Y: halfHeight - *radius},
 	})
 	if *rimming {
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontCopper,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: *radius - halfWidth, Y: -halfHeight + rimOffset},
-			End:   kcgen.Point2D{X: halfWidth - *radius, Y: -halfHeight + rimOffset},
+		fp.Add(&kcgen.Pad{
+			Number: 1,
+			Size:   kcgen.Point2D{X: *rimWidth, Y: height - *radius*2},
+			Center: kcgen.Point2D{X: halfWidth - rimOffset, Y: 0},
+			Type:   "smd rect",
+			Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
 		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontMask,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: *radius - halfWidth, Y: -halfHeight + rimOffset},
-			End:   kcgen.Point2D{X: halfWidth - *radius, Y: -halfHeight + rimOffset},
+		fp.Add(&kcgen.Pad{
+			Number: 1,
+			Size:   kcgen.Point2D{X: *rimWidth, Y: height - *radius*2},
+			Center: kcgen.Point2D{X: rimOffset - halfWidth, Y: 0},
+			Type:   "smd rect",
+			Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
 		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontCopper,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: *radius - halfWidth, Y: halfHeight - rimOffset},
-			End:   kcgen.Point2D{X: halfWidth - *radius, Y: halfHeight - rimOffset},
+		fp.Add(&kcgen.Pad{
+			Number: 1,
+			Size:   kcgen.Point2D{X: width - *radius*2, Y: *rimWidth},
+			Center: kcgen.Point2D{X: 0, Y: halfHeight - rimOffset},
+			Type:   "smd rect",
+			Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
 		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontMask,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: *radius - halfWidth, Y: halfHeight - rimOffset},
-			End:   kcgen.Point2D{X: halfWidth - *radius, Y: halfHeight - rimOffset},
-		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontCopper,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: -halfWidth + rimOffset, Y: *radius - halfHeight},
-			End:   kcgen.Point2D{X: -halfWidth + rimOffset, Y: halfHeight - *radius},
-		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontMask,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: -halfWidth + rimOffset, Y: *radius - halfHeight},
-			End:   kcgen.Point2D{X: -halfWidth + rimOffset, Y: halfHeight - *radius},
-		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontCopper,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: halfWidth - rimOffset, Y: *radius - halfHeight},
-			End:   kcgen.Point2D{X: halfWidth - rimOffset, Y: halfHeight - *radius},
-		})
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontMask,
-			Width: *rimWidth,
-			Start: kcgen.Point2D{X: halfWidth - rimOffset, Y: *radius - halfHeight},
-			End:   kcgen.Point2D{X: halfWidth - rimOffset, Y: halfHeight - *radius},
+		fp.Add(&kcgen.Pad{
+			Number: 1,
+			Size:   kcgen.Point2D{X: width - *radius*2, Y: *rimWidth},
+			Center: kcgen.Point2D{X: 0, Y: rimOffset - halfHeight},
+			Type:   "smd rect",
+			Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
 		})
 	}
 
