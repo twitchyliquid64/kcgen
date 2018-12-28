@@ -101,3 +101,35 @@ USAGE: ./kc-map <path to geojson file>
   -width float
     	Output size (default 98)
 ```
+
+## kcmgrid usage
+
+Generates a multiplexed array of lines for generating localized magnetic fields.
+
+`./kcmgrid --min_clearance 0.16 --trace_thicc 0.16 --via_drill 0.26 --via_size 0.42`
+
+![Grid Image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcmgrid.png)
+
+Usage:
+
+```
+Usage of ./kcmgrid:
+  -bottom_layer
+    	Put the grid on the bottom layer
+  -min_clearance float
+    	Minimum spacing between via and edges of zones (default 0.2)
+  -num_elements int
+    	Number of grid elements (default 16)
+  -num_strides int
+    	Number of strides (default 4)
+  -stride_net_start_index int
+    	Starting net index for strides (default 1)
+  -trace_thicc float
+    	Trace thickness (default 0.18)
+  -usable_width int
+    	Usable area in mm (default 15)
+  -via_drill float
+    	Size of the via drill hole in mm (default 0.4)
+  -via_size float
+    	Size of the via annular ring in mm (default 0.6)
+```
