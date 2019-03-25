@@ -4,10 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"os"
+	"strconv"
+	"strings"
+
+	"github.com/twitchyliquid64/kcgen/netparse"
 )
 
 var (
-	netIndex    = flag.Int("stride_net_start_index", 1, "Starting net index for strides")
+	strideToNet = map[int]int{}
 	numStrides  = flag.Int("num_strides", 4, "Number of strides")
 	numElements = flag.Int("num_elements", 16, "Number of grid elements")
 	usableWidth = flag.Int("usable_width", 15, "Usable area in mm")
@@ -17,6 +22,8 @@ var (
 	minClearance   = flag.Float64("min_clearance", 0.2, "Minimum spacing between via and edges of zones")
 	traceThickness = flag.Float64("trace_thicc", 0.18, "Trace thickness")
 	bottomLayer    = flag.Bool("bottom_layer", false, "Put the grid on the bottom layer")
+
+	magIndex = flag.Int("magnet", 1, "Index of the magnet, if there are multiple")
 )
 
 func viaSeparation() float64 {
@@ -62,27 +69,50 @@ func emitTrace(x1, y1, x2, y2 float64, net int, inverseLayer bool) {
 func main() {
 	flag.Parse()
 
+	nl, err := netparse.DecodeFile(flag.Arg(0))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to decode netlist %q: %v\n", flag.Arg(0), err)
+		os.Exit(1)
+	}
+	for _, net := range nl.Nets {
+		if strings.HasPrefix(net.Name, fmt.Sprintf("/magnet%d_", *magIndex)) {
+			spl := strings.Split(net.Name, "_")
+			if len(spl) > 1 {
+				n, err := strconv.Atoi(spl[1])
+				if err != nil {
+					continue
+				}
+				strideToNet[n] = net.Code
+			}
+		}
+	}
+
+	if len(strideToNet) < *numStrides {
+		fmt.Fprintf(os.Stderr, "Error: %d relevant nets found in netlist, but need %d\n", len(strideToNet), *numStrides)
+		os.Exit(1)
+	}
+
 	marginSize := wastedArea()
 	for i := 0; i < *numElements; i++ {
 		stride := i % *numStrides
 
 		viaX := viaSeparation() * float64(stride)
 		Y := float64(i) * elementSeparation()
-		emitVia(viaX, Y, *netIndex+stride)
+		emitVia(viaX, Y, strideToNet[stride+1])
 
-		emitTrace(viaX, Y, marginSize, Y, *netIndex+stride, false)
-		emitTrace(marginSize, Y, float64(*usableWidth)+marginSize, Y, *netIndex+stride, false)
+		emitTrace(viaX, Y, marginSize, Y, strideToNet[stride+1], false)
+		emitTrace(marginSize, Y, float64(*usableWidth)+marginSize, Y, strideToNet[stride+1], false)
 		endX := float64(*usableWidth) + marginSize*2 - viaX
-		emitTrace(float64(*usableWidth)+marginSize, Y, endX, Y, *netIndex+stride, false)
-		emitVia(endX, Y, *netIndex+stride)
+		emitTrace(float64(*usableWidth)+marginSize, Y, endX, Y, strideToNet[stride+1], false)
+		emitVia(endX, Y, strideToNet[stride+1])
 
 		// If there is another stride of the same net to come ...
 		if (i + *numStrides) < *numElements {
 			// Every 1/2 strides should connect the lower stride at the end/beginning.
 			if ((i / (*numStrides)) % 2) == 0 {
-				emitTrace(endX, Y, endX, Y+(float64(*numStrides)*elementSeparation()), *netIndex+stride, true)
+				emitTrace(endX, Y, endX, Y+(float64(*numStrides)*elementSeparation()), strideToNet[stride+1], true)
 			} else {
-				emitTrace(viaX, Y, viaX, Y+(float64(*numStrides)*elementSeparation()), *netIndex+stride, true)
+				emitTrace(viaX, Y, viaX, Y+(float64(*numStrides)*elementSeparation()), strideToNet[stride+1], true)
 			}
 		}
 	}

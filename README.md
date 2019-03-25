@@ -106,7 +106,9 @@ USAGE: ./kc-map <path to geojson file>
 
 Generates a multiplexed array of lines for generating localized magnetic fields.
 
-`./kcmgrid --min_clearance 0.16 --trace_thicc 0.16 --via_drill 0.26 --via_size 0.42`
+Make sure the net which should be associated with the line is named like `magnet1_1`, `magnet1_2` etc.
+
+`./kcmgrid --min_clearance 0.16 --trace_thicc 0.16 --via_drill 0.26 --via_size 0.42 projet_netlist.net`
 
 ![Grid Image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcmgrid.png)
 
@@ -133,3 +135,6 @@ Usage of ./kcmgrid:
   -via_size float
     	Size of the via annular ring in mm (default 0.6)
 ```
+
+Then, copy-paste the generated output into your `.kicad_pcb` file. To do this, open it in a text editor
+and skip to the bottom. Then, paste the content just before the last closing bracket.
