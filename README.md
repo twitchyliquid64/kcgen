@@ -1,27 +1,29 @@
 # kcgen
 
+A library & set of utilities for generating kicad symbols/footprints/PCBs.
+
 See the two example generators `kcbox/` and `kcdashcircle/`.
+
+If you are interested in using this as a go API, the two useful packages are `netparse` and `pcbparse`.
 
 ## Build instructions
 
-Go 1.8+ is required to build, so go install that first.
+Go 1.12+ is required to build, so go install that first.
 
 ```shell
 
-mkdir /tmp/kcbuild
-cd /tmp/kcbuild
-export GOPATH=/tmp/kcbuild
 go get github.com/twitchyliquid64/kcgen
 
 # Build the things
-go build -o kc-outline github.com/twitchyliquid64/kcgen/kcoutline
-go build -o kc-magnet github.com/twitchyliquid64/kcgen/kcmagnet
-go build -o kc-dash-circle github.com/twitchyliquid64/kcgen/kcdashcircle
-go build -o kc-box github.com/twitchyliquid64/kcgen/kcbox
-go build -o kc-map github.com/twitchyliquid64/kcgen/kcmap
+go build -o /tmp/kc-outline github.com/twitchyliquid64/kcgen/kcoutline
+go build -o /tmp/kc-magnet github.com/twitchyliquid64/kcgen/kcmagnet
+go build -o /tmp/kc-dash-circle github.com/twitchyliquid64/kcgen/kcdashcircle
+go build -o /tmp/kc-box github.com/twitchyliquid64/kcgen/kcbox
+go build -o /tmp/kc-map github.com/twitchyliquid64/kcgen/kcmap
 
-# You should now have /tmp/kcbuild/kc-outline etc
+# You should now have /tmp/kc-outline etc
 ```
+
 ## kc-outline  usage
 
 Make a 40mm by 20mm box with rounded corners and edge mounts:
