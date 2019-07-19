@@ -52,6 +52,18 @@ func TestPCB(t *testing.T) {
 	if got, want := p.Zones[0].Layer, "B.Cu"; got != want {
 		t.Errorf("p.Zones[0].Layer = %v, want %v", got, want)
 	}
+	if got, want := p.Zones[0].MinThickness, 0.254; got != want {
+		t.Errorf("p.Zones[0].MinThickness = %v, want %v", got, want)
+	}
+	if got, want := p.Zones[0].ConnectPads.Clearance, 0.508; got != want {
+		t.Errorf("p.Zones[0].ConnectPads.Clearance = %v, want %v", got, want)
+	}
+	if got, want := p.Zones[0].Fill.Enabled, true; got != want {
+		t.Errorf("p.Zones[0].Fill.Enabled = %v, want %v", got, want)
+	}
+	if got, want := p.Zones[0].Fill.Segments, 16; got != want {
+		t.Errorf("p.Zones[0].Fill.Segments = %v, want %v", got, want)
+	}
 
 	if got, want := len(p.Tracks), 44; got != want {
 		t.Errorf("len(p.Tracks) = %v, want %v", got, want)
