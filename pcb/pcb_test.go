@@ -15,6 +15,25 @@ func TestPCB(t *testing.T) {
 		t.Errorf("p.FormatVersion = %v, want %v", got, want)
 	}
 
+	if got, want := p.EditorSetup.SegmentWidth, 0.2; got != want {
+		t.Errorf("p.EditorSetup.SegmentWidth = %v, want %v", got, want)
+	}
+	if got, want := p.EditorSetup.UViaMinSize, 0.2; got != want {
+		t.Errorf("p.EditorSetup.UViaMinSize = %v, want %v", got, want)
+	}
+	if got, want := p.EditorSetup.TextSize, []float64{1.5, 1.5}; !reflect.DeepEqual(got, want) {
+		t.Errorf("p.EditorSetup.TextWidth = %v, want %v", got, want)
+	}
+	if got, want := p.EditorSetup.PadSize, []float64{1.524, 1.524}; !reflect.DeepEqual(got, want) {
+		t.Errorf("p.EditorSetup.PadSize = %v, want %v", got, want)
+	}
+	if got, want := p.EditorSetup.PadDrill, 0.762; got != want {
+		t.Errorf("p.EditorSetup.PadDrill = %v, want %v", got, want)
+	}
+	if got, want := p.EditorSetup.ModTextWidth, 0.15; got != want {
+		t.Errorf("p.EditorSetup.ModTextWidth = %v, want %v", got, want)
+	}
+
 	if got, want := len(p.LayersByName), 20; got != want {
 		t.Errorf("len(p.LayersByName) = %v, want %v", got, want)
 		t.Logf("p.LayersByName = %+v", p.LayersByName)

@@ -102,6 +102,8 @@ type PCB struct {
 		Version string
 	}
 
+	EditorSetup EditorSetup
+
 	LayersByName map[string]*Layer
 	Layers       map[int]*Layer
 	Tracks       []Track
@@ -109,6 +111,42 @@ type PCB struct {
 	Nets         map[int]Net
 	NetClasses   []NetClass
 	Zones        []Zone
+}
+
+// EditorSetup describes how the editor should be configured when
+// editing this PCB.
+type EditorSetup struct {
+	LastTraceWidth  float64
+	UserTraceWidths []float64
+	TraceClearance  float64
+	ZoneClearance   float64
+	Zone45Only      bool
+	TraceMin        float64
+
+	TextWidth    float64
+	TextSize     []float64
+	SegmentWidth float64
+	EdgeWidth    float64
+
+	ViaSize      float64
+	ViaMinSize   float64
+	ViaDrill     float64
+	ViaMinDrill  float64
+	UViaSize     float64
+	UViaMinSize  float64
+	UViaDrill    float64
+	UViaMinDrill float64
+	AllowUVias   bool
+
+	ModEdgeWidth       float64
+	ModTextSize        []float64
+	ModTextWidth       float64
+	PadSize            []float64
+	PadDrill           float64
+	PadToMaskClearance float64
+
+	Unrecognised map[string]sexp.Helper
+	order        int
 }
 
 // DecodeFile reads a .kicad_pcb file at fpath, returning a parsed representation.
@@ -162,6 +200,12 @@ func DecodeFile(fpath string) (*PCB, error) {
 				if err != nil {
 					return nil, errors.New("invalid format: host value[2] must be a string")
 				}
+			case "setup":
+				s, err := parseSetup(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.EditorSetup = *s
 			case "layers":
 				for x := 1; x < n.MustNode().NumChildren(); x++ {
 					c := n.Child(x)
@@ -358,4 +402,80 @@ func parseNetClass(n sexp.Helper, ordering int) (*NetClass, error) {
 		}
 	}
 	return &nc, nil
+}
+
+func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
+	e := EditorSetup{
+		order:        ordering,
+		Unrecognised: map[string]sexp.Helper{},
+	}
+	for x := 1; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "last_trace_width":
+			e.LastTraceWidth = c.Child(1).MustFloat64()
+		case "user_trace_width":
+			e.UserTraceWidths = append(e.UserTraceWidths, c.Child(1).MustFloat64())
+		case "trace_clearance":
+			e.TraceClearance = c.Child(1).MustFloat64()
+		case "zone_clearance":
+			e.ZoneClearance = c.Child(1).MustFloat64()
+		case "zone_45_only":
+			e.Zone45Only = c.Child(1).MustString() == "yes"
+		case "trace_min":
+			e.TraceMin = c.Child(1).MustFloat64()
+		case "segment_width":
+			e.SegmentWidth = c.Child(1).MustFloat64()
+		case "edge_width":
+			e.EdgeWidth = c.Child(1).MustFloat64()
+
+		case "via_size":
+			e.ViaSize = c.Child(1).MustFloat64()
+		case "via_min_size":
+			e.ViaMinSize = c.Child(1).MustFloat64()
+		case "via_min_drill":
+			e.ViaMinDrill = c.Child(1).MustFloat64()
+		case "via_drill":
+			e.ViaDrill = c.Child(1).MustFloat64()
+		case "uvia_size":
+			e.UViaSize = c.Child(1).MustFloat64()
+		case "uvia_min_size":
+			e.UViaMinSize = c.Child(1).MustFloat64()
+		case "uvia_min_drill":
+			e.UViaMinDrill = c.Child(1).MustFloat64()
+		case "uvia_drill":
+			e.UViaDrill = c.Child(1).MustFloat64()
+		case "uvias_allowed":
+			e.AllowUVias = c.Child(1).MustString() == "yes"
+
+		case "pcb_text_width":
+			e.TextWidth = c.Child(1).MustFloat64()
+		case "pcb_text_size":
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
+				e.TextSize = append(e.TextSize, c.Child(y).MustFloat64())
+			}
+
+		case "mod_edge_width":
+			e.ModEdgeWidth = c.Child(1).MustFloat64()
+		case "mod_text_size":
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
+				e.ModTextSize = append(e.ModTextSize, c.Child(y).MustFloat64())
+			}
+		case "mod_text_width":
+			e.ModTextWidth = c.Child(1).MustFloat64()
+
+		case "pad_size":
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
+				e.PadSize = append(e.PadSize, c.Child(y).MustFloat64())
+			}
+		case "pad_drill":
+			e.PadDrill = c.Child(1).MustFloat64()
+		case "pad_to_mask_clearance":
+			e.PadToMaskClearance = c.Child(1).MustFloat64()
+
+		default:
+			e.Unrecognised[c.Child(0).MustString()] = c
+		}
+	}
+	return &e, nil
 }
