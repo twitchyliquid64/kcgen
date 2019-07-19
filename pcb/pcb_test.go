@@ -63,7 +63,7 @@ func TestPCB(t *testing.T) {
 
 	if got, want := len(p.Vias), 1; got != want {
 		t.Errorf("len(p.Vias) = %v, want %v", got, want)
-		t.Logf("p.Vias = %+v", p.Tracks)
+		t.Logf("p.Vias = %+v", p.Vias)
 	}
 	if got, want := p.Vias[0].NetIndex, 1; got != want {
 		t.Errorf("p.Vias[0].NetIndex = %v, want %v", got, want)
@@ -76,5 +76,19 @@ func TestPCB(t *testing.T) {
 	}
 	if got, want := p.Vias[0].Layers, []string{"F.Cu", "B.Cu"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("p.Vias[0].Layers = %v, want %v", got, want)
+	}
+
+	if got, want := len(p.NetClasses), 1; got != want {
+		t.Errorf("len(p.NetClasses) = %v, want %v", got, want)
+		t.Logf("p.NetClasses = %+v", p.NetClasses)
+	}
+	if got, want := p.NetClasses[0].Name, "Default"; got != want {
+		t.Errorf("p.NetClasses[0].Name = %v, want %v", got, want)
+	}
+	if got, want := p.NetClasses[0].TraceWidth, 0.25; got != want {
+		t.Errorf("p.NetClasses[0].TraceWidth = %v, want %v", got, want)
+	}
+	if got, want := p.NetClasses[0].Nets[0], "/BUS_A"; got != want {
+		t.Errorf("p.NetClasses[0].Nets[0] = %v, want %v", got, want)
 	}
 }

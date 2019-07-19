@@ -24,6 +24,24 @@ type Net struct {
 	order int
 }
 
+// NetClass represents a net class.
+type NetClass struct {
+	Name        string
+	Description string
+
+	Clearance    float64
+	TraceWidth   float64
+	ViaDiameter  float64
+	ViaDrill     float64
+	UViaDiameter float64
+	UViaDrill    float64
+
+	// Nets contains the names of nets which are part of this class.
+	Nets []string
+
+	order int
+}
+
 // Via represents a via.
 type Via struct {
 	X, Y     float64
@@ -69,6 +87,7 @@ type PCB struct {
 	Tracks       []Track
 	Vias         []Via
 	Nets         map[int]Net
+	NetClasses   []NetClass
 	Zones        []Zone
 }
 
@@ -165,6 +184,13 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.Zones = append(pcb.Zones, *z)
+
+			case "net_class":
+				c, err := parseNetClass(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.NetClasses = append(pcb.NetClasses, *c)
 			}
 		}
 		ordering++
@@ -216,7 +242,6 @@ func parseVia(n sexp.Helper, ordering int) (Via, error) {
 		}
 	}
 	return v, nil
-
 }
 
 func parseZone(n sexp.Helper, ordering int) (*Zone, error) {
@@ -245,4 +270,32 @@ func parseZone(n sexp.Helper, ordering int) (*Zone, error) {
 		}
 	}
 	return &z, nil
+}
+
+func parseNetClass(n sexp.Helper, ordering int) (*NetClass, error) {
+	nc := NetClass{
+		order:       ordering,
+		Name:        n.Child(1).MustString(),
+		Description: n.Child(2).MustString(),
+	}
+	for x := 3; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "clearance":
+			nc.Clearance = c.Child(1).MustFloat64()
+		case "trace_width":
+			nc.TraceWidth = c.Child(1).MustFloat64()
+		case "via_dia":
+			nc.ViaDiameter = c.Child(1).MustFloat64()
+		case "via_drill":
+			nc.ViaDrill = c.Child(1).MustFloat64()
+		case "uvia_dia":
+			nc.UViaDiameter = c.Child(1).MustFloat64()
+		case "uvia_drill":
+			nc.UViaDrill = c.Child(1).MustFloat64()
+		case "add_net":
+			nc.Nets = append(nc.Nets, c.Child(1).MustString())
+		}
+	}
+	return &nc, nil
 }
