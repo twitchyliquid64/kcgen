@@ -1,4 +1,5 @@
-package netparse
+// Package netlist understands KiCads netlist format.
+package netlist
 
 import (
 	"errors"

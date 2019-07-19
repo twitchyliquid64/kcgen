@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/twitchyliquid64/kcgen/netparse"
+	"github.com/twitchyliquid64/kcgen/netlist"
 )
 
 var (
@@ -69,7 +69,7 @@ func emitTrace(x1, y1, x2, y2 float64, net int, inverseLayer bool) {
 func main() {
 	flag.Parse()
 
-	nl, err := netparse.DecodeFile(flag.Arg(0))
+	nl, err := netlist.DecodeFile(flag.Arg(0))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to decode netlist %q: %v\n", flag.Arg(0), err)
 		os.Exit(1)

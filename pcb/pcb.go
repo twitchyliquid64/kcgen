@@ -1,4 +1,5 @@
-package pcbparse
+// Package pcb understands KiCad PCB format.
+package pcb
 
 import (
 	"errors"

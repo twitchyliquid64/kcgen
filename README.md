@@ -4,7 +4,7 @@ A library & set of utilities for generating kicad symbols/footprints/PCBs.
 
 See the two example generators `kcbox/` and `kcdashcircle/`.
 
-If you are interested in using this as a go API, the two useful packages are `netparse` and `pcbparse`.
+If you are interested in using this as a go API, the two useful packages are `netlist` and `pcb`.
 
 ## Build instructions
 

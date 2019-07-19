@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	pip "github.com/JamesMilnerUK/pip-go"
-	"github.com/twitchyliquid64/kcgen/pcbparse"
+	"github.com/twitchyliquid64/kcgen/pcb"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 	strategy     = flag.String("placement-strategy", "grid", "grid/alternating")
 )
 
-func checkPCB(pcb *pcbparse.PCB) {
+func checkPCB(pcb *pcb.PCB) {
 	if len(pcb.Zones) < 2 {
 		fmt.Fprintf(os.Stderr, "Error: Must have at least 2 zones to via stitch between zones!\n")
 		os.Exit(1)
@@ -60,7 +60,7 @@ func f(f float64) string {
 	return t
 }
 
-func serialize(vias []pcbparse.Via) string {
+func serialize(vias []pcb.Via) string {
 	out := ""
 	for _, v := range vias {
 		out += fmt.Sprintf("  (via (at %s %s) (size %s) (drill %s) (layers %s) (net %d))\n", f(v.X), f(v.Y), f(v.Size), f(v.Drill), strings.Join(v.Layers, " "), v.NetIndex)
@@ -77,23 +77,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	pcb, err := pcbparse.DecodeFile(flag.Arg(0))
+	pcbF, err := pcb.DecodeFile(flag.Arg(0))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %+v\n", err)
 		os.Exit(1)
 	}
 
-	checkPCB(pcb)
+	checkPCB(pcbF)
 
 	netIndex := 0
-	for ind := range pcb.Nets {
-		if pcb.Nets[ind].Name == *netName {
+	for ind := range pcbF.Nets {
+		if pcbF.Nets[ind].Name == *netName {
 			netIndex = ind
 			break
 		}
 	}
 
-	geo, err := buildGeometry(*netName, pcb)
+	geo, err := buildGeometry(*netName, pcbF)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %+v\n", err)
 		os.Exit(1)
@@ -103,11 +103,11 @@ func main() {
 	fmt.Println("DONE.")
 
 	fmt.Print("Filtering invalid points....")
-	var finalVias []pcbparse.Via
+	var finalVias []pcb.Via
 	for _, pt := range pts {
 		ok, layers := geo.testPoint(pip.Point{X: pt[0], Y: pt[1]}, *minClearance+*viaSize)
 		if ok {
-			finalVias = append(finalVias, pcbparse.Via{
+			finalVias = append(finalVias, pcb.Via{
 				X:        pt[0],
 				Y:        pt[1],
 				Size:     *viaSize,

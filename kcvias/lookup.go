@@ -4,7 +4,7 @@ import (
 	"math"
 
 	pip "github.com/JamesMilnerUK/pip-go"
-	"github.com/twitchyliquid64/kcgen/pcbparse"
+	"github.com/twitchyliquid64/kcgen/pcb"
 )
 
 func pointOnCircle(center pip.Point, radius float64, angle float64) *pip.Point {
@@ -104,7 +104,7 @@ func (g *geometry) testPoint(p pip.Point, clearance float64) (bool, []string) {
 	return true, layers
 }
 
-func buildGeometry(wantNet string, pcb *pcbparse.PCB) (*geometry, error) {
+func buildGeometry(wantNet string, pcb *pcb.PCB) (*geometry, error) {
 	g := &geometry{smallest: pip.Point{999999, 999999}, largest: pip.Point{-9999999, -9999999}}
 
 	for _, z := range pcb.Zones {
