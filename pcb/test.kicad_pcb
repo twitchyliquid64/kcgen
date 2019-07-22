@@ -1,0 +1,15 @@
+(kicad_pcb (version 4) (host kcgen 0.0.1)
+
+ (general)
+
+ (page A4)
+
+ (layers
+  (0 F.Cu signal)
+  (31 B.Cu signal)
+ )
+ (setup
+  (zone_45_only no)
+  (uvias_allowed no)
+ )
+)

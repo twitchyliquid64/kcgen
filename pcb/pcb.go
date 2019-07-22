@@ -11,6 +11,7 @@ import (
 
 // Layer describes the attributes of a layer.
 type Layer struct {
+	Num  int
 	Name string
 	Type string
 
@@ -105,7 +106,7 @@ type PCB struct {
 	EditorSetup EditorSetup
 
 	LayersByName map[string]*Layer
-	Layers       map[int]*Layer
+	Layers       []*Layer
 	Tracks       []Track
 	Vias         []Via
 	Nets         map[int]Net
@@ -179,7 +180,7 @@ func DecodeFile(fpath string) (*PCB, error) {
 		return nil, errors.New("invalid format: missing leading element kicad_pcb")
 	}
 
-	pcb := &PCB{Layers: map[int]*Layer{}, LayersByName: map[string]*Layer{}, Nets: map[int]Net{}}
+	pcb := &PCB{LayersByName: map[string]*Layer{}, Nets: map[int]Net{}}
 	var ordering int
 
 	for i := 1; i < mainAST.NumChildren(); i++ {
@@ -213,12 +214,14 @@ func DecodeFile(fpath string) (*PCB, error) {
 					if err2 != nil {
 						return nil, err
 					}
-					pcb.Layers[num] = &Layer{
+					l := &Layer{
+						Num:   num,
 						Name:  c.Child(1).MustString(),
 						Type:  c.Child(2).MustString(),
 						order: ordering,
 					}
-					pcb.LayersByName[c.Child(1).MustString()] = pcb.Layers[num]
+					pcb.Layers = append(pcb.Layers, l)
+					pcb.LayersByName[c.Child(1).MustString()] = l
 					ordering++
 				}
 			case "net":
