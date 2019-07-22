@@ -3,6 +3,7 @@ package pcb
 import (
 	"fmt"
 	"io"
+	"sort"
 
 	"github.com/twitchyliquid64/kcgen/swriter"
 )
@@ -78,7 +79,42 @@ func (p *PCB) Write(w io.Writer) error {
 		return err
 	}
 
+	// Nets
+	if err := p.writeNets(sw); err != nil {
+		return err
+	}
+
 	return sw.CloseList()
+}
+
+type netPair struct {
+	num int
+	net Net
+}
+
+func (p *PCB) writeNets(sw *swriter.SExpWriter) error {
+	var nets []netPair
+	for num, net := range p.Nets {
+		nets = append(nets, netPair{num: num, net: net})
+	}
+	sort.Slice(nets, func(i, j int) bool {
+		return nets[i].num < nets[j].num
+	})
+
+	for _, n := range nets {
+		sw.StartList(true)
+		sw.StringScalar("net")
+		sw.IntScalar(n.num)
+		sw.StringScalar(n.net.Name)
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+
+	if len(nets) > 0 {
+		sw.Newlines(1)
+	}
+	return nil
 }
 
 // write generates an s-expression describing the layer.

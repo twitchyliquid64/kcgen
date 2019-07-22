@@ -30,6 +30,18 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n  (0 F.Cu signal)\n  (31 B.Cu signal)\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n)",
 		},
+		{
+			name: "nets",
+			pcb: PCB{
+				FormatVersion: 4,
+				Nets: map[int]Net{
+					0: {Name: ""},
+					1: {Name: "+5C"},
+					2: {Name: "GND"},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (net 0 \"\")\n (net 1 +5C)\n (net 2 GND)\n)",
+		},
 	}
 
 	for _, tc := range tcs {

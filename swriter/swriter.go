@@ -12,7 +12,7 @@ var (
 	alphaLower         = "abcdefghijklmnopqrstuvwxyz"
 	alphaUpper         = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	num                = "0123456789"
-	special            = "._"
+	special            = "._+-/"
 	allowedStringChars = alphaLower + alphaUpper + num + special
 )
 
@@ -63,7 +63,9 @@ func (w *SExpWriter) StringScalar(in string) {
 	}
 
 	if w.needsQuoting(in) {
-		panic("not implemented")
+		w.writer.WriteRune('"')
+		w.writer.WriteString(in)
+		w.writer.WriteRune('"')
 	} else {
 		w.writer.WriteString(in)
 	}
@@ -80,6 +82,10 @@ func (w *SExpWriter) IntScalar(in int) {
 }
 
 func (w *SExpWriter) needsQuoting(in string) bool {
+	if in == "" {
+		return true
+	}
+
 outer:
 	for _, c := range in {
 		for _, a := range allowedStringChars {
