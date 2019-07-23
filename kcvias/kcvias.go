@@ -63,7 +63,7 @@ func f(f float64) string {
 func serialize(vias []pcb.Via) string {
 	out := ""
 	for _, v := range vias {
-		out += fmt.Sprintf("  (via (at %s %s) (size %s) (drill %s) (layers %s) (net %d))\n", f(v.X), f(v.Y), f(v.Size), f(v.Drill), strings.Join(v.Layers, " "), v.NetIndex)
+		out += fmt.Sprintf("  (via (at %s %s) (size %s) (drill %s) (layers %s) (net %d))\n", f(v.At.X), f(v.At.Y), f(v.Size), f(v.Drill), strings.Join(v.Layers, " "), v.NetIndex)
 	}
 	return out
 }
@@ -108,8 +108,7 @@ func main() {
 		ok, layers := geo.testPoint(pip.Point{X: pt[0], Y: pt[1]}, *minClearance+*viaSize)
 		if ok {
 			finalVias = append(finalVias, pcb.Via{
-				X:        pt[0],
-				Y:        pt[1],
+				At:       pcb.XY{X: pt[0], Y: pt[1]},
 				Size:     *viaSize,
 				Drill:    *viaDrill,
 				Layers:   layers,

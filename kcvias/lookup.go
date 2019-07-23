@@ -113,19 +113,19 @@ func buildGeometry(wantNet string, pcb *pcb.PCB) (*geometry, error) {
 			for _, section := range z.Polys {
 				pg := pip.Polygon{}
 				for _, point := range section {
-					pg.Points = append(pg.Points, pip.Point{X: point[0], Y: point[1]})
+					pg.Points = append(pg.Points, pip.Point{X: point.X, Y: point.Y})
 
-					if point[0] < g.smallest.X {
-						g.smallest.X = point[0]
+					if point.X < g.smallest.X {
+						g.smallest.X = point.X
 					}
-					if point[1] < g.smallest.Y {
-						g.smallest.Y = point[1]
+					if point.Y < g.smallest.Y {
+						g.smallest.Y = point.Y
 					}
-					if point[0] > g.largest.X {
-						g.largest.X = point[0]
+					if point.X > g.largest.X {
+						g.largest.X = point.X
 					}
-					if point[1] > g.largest.Y {
-						g.largest.Y = point[1]
+					if point.Y > g.largest.Y {
+						g.largest.Y = point.Y
 					}
 				}
 				p.sections = append(p.sections, pg)
