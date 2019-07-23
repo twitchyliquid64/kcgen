@@ -67,6 +67,17 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 0) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n  (pad_drill 0.762)\n  (pcbplotparams\n   (layerselection 0x010f0_80000001)\n   (scaleselection 1)\n   (usegerberextensions true))\n )\n)",
 		},
+		{
+			name: "vias",
+			pcb: PCB{
+				FormatVersion: 4,
+				Vias: []Via{
+					{At: XY{X: 100, Y: 32.5}, Layers: []string{"F.Cu", "B.Cu"}, NetIndex: 2},
+					{At: XY{X: 10, Y: 32.5}, Layers: []string{"F.Cu", "B.Cu"}, NetIndex: 2},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n)",
+		},
 	}
 
 	for _, tc := range tcs {

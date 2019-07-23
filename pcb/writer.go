@@ -91,6 +91,13 @@ func (p *PCB) Write(w io.Writer) error {
 		}
 	}
 
+	// Vias
+	for _, v := range p.Vias {
+		if err := v.write(sw); err != nil {
+			return err
+		}
+	}
+
 	return sw.CloseList()
 }
 
@@ -148,6 +155,56 @@ func f(f float64) string {
 		}
 	}
 	return t
+}
+
+// write generates an s-expression describing the point.
+func (p *XY) write(prefix string, sw *swriter.SExpWriter) error {
+	sw.StartList(false)
+	sw.StringScalar(prefix)
+	sw.StringScalar(f(p.X))
+	sw.StringScalar(f(p.Y))
+	return sw.CloseList()
+}
+
+// write generates an s-expression describing the via.
+func (v *Via) write(sw *swriter.SExpWriter) error {
+	sw.StartList(true)
+	sw.StringScalar("via")
+	if err := v.At.write("at", sw); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("size")
+	sw.StringScalar(f(v.Size))
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("drill")
+	sw.StringScalar(f(v.Drill))
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("layers")
+	for _, l := range v.Layers {
+		sw.StringScalar(l)
+	}
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("net")
+	sw.IntScalar(v.NetIndex)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	return sw.CloseList()
 }
 
 // write generates an s-expression describing the layer.
