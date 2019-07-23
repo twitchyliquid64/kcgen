@@ -33,6 +33,13 @@ func TestPCB(t *testing.T) {
 	if got, want := p.EditorSetup.ModTextWidth, 0.15; got != want {
 		t.Errorf("p.EditorSetup.ModTextWidth = %v, want %v", got, want)
 	}
+	if got, want := p.EditorSetup.PlotParams["linewidth"], (PlotParam{
+		name:   "linewidth",
+		values: []string{"0.100000"},
+		order:  4,
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("p.EditorSetup.PlotParams['linewidth'] = %v, want %v", got, want)
+	}
 
 	if got, want := len(p.LayersByName), 20; got != want {
 		t.Errorf("len(p.LayersByName) = %v, want %v", got, want)

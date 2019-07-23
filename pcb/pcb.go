@@ -146,8 +146,18 @@ type EditorSetup struct {
 	PadDrill           float64
 	PadToMaskClearance float64
 
+	PlotParams map[string]PlotParam
+
 	Unrecognised map[string]sexp.Helper
 	order        int
+}
+
+// PlotParam describes a setting for rendering the PCB to another format.
+type PlotParam struct {
+	name   string
+	values []string
+
+	order int
 }
 
 // DecodeFile reads a .kicad_pcb file at fpath, returning a parsed representation.
@@ -475,6 +485,20 @@ func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
 			e.PadDrill = c.Child(1).MustFloat64()
 		case "pad_to_mask_clearance":
 			e.PadToMaskClearance = c.Child(1).MustFloat64()
+
+		case "pcbplotparams":
+			e.PlotParams = map[string]PlotParam{}
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
+				c := c.Child(y)
+				param := PlotParam{
+					name:  c.Child(0).MustString(),
+					order: y,
+				}
+				for z := 1; z < c.MustNode().NumChildren(); z++ {
+					param.values = append(param.values, c.Child(z).MustString())
+				}
+				e.PlotParams[param.name] = param
+			}
 
 		default:
 			e.Unrecognised[c.Child(0).MustString()] = c

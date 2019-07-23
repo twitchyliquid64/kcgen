@@ -42,6 +42,31 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (net 0 \"\")\n (net 1 +5C)\n (net 2 GND)\n)",
 		},
+		{
+			name: "net classes",
+			pcb: PCB{
+				FormatVersion: 4,
+				NetClasses: []NetClass{
+					{Name: "Default", Description: "This is the default net class.",
+						Clearance: 0.2, TraceWidth: 0.25, Nets: []string{"+5C", "GND"}},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (net_class Default \"This is the default net class.\"\n  (clearance 0.2)\n  (trace_width 0.25)\n  (add_net +5C)\n  (add_net GND)\n ))",
+		},
+		{
+			name: "plot params",
+			pcb: PCB{
+				EditorSetup: EditorSetup{
+					PadDrill: 0.762,
+					PlotParams: map[string]PlotParam{
+						"usegerberextensions": PlotParam{name: "usegerberextensions", values: []string{"true"}, order: 11},
+						"scaleselection":      PlotParam{name: "scaleselection", values: []string{"1"}, order: 10},
+						"layerselection":      PlotParam{name: "layerselection", values: []string{"0x010f0_80000001"}},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 0) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n  (pad_drill 0.762)\n  (pcbplotparams\n   (layerselection 0x010f0_80000001)\n   (scaleselection 1)\n   (usegerberextensions true))\n )\n)",
+		},
 	}
 
 	for _, tc := range tcs {

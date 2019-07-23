@@ -84,6 +84,13 @@ func (p *PCB) Write(w io.Writer) error {
 		return err
 	}
 
+	// Net classes
+	for _, nc := range p.NetClasses {
+		if err := nc.write(sw); err != nil {
+			return err
+		}
+	}
+
 	return sw.CloseList()
 }
 
@@ -363,10 +370,104 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		}
 	}
 
+	if len(l.PlotParams) > 0 {
+		sw.StartList(true)
+		sw.StringScalar("pcbplotparams")
+		var pps []PlotParam
+		for _, pp := range l.PlotParams {
+			pps = append(pps, pp)
+		}
+		sort.Slice(pps, func(i, j int) bool {
+			return pps[i].order < pps[j].order
+		})
+
+		for _, pp := range pps {
+			sw.StartList(true)
+			sw.StringScalar(pp.name)
+			for _, v := range pp.values {
+				sw.StringScalar(v)
+			}
+			if err := sw.CloseList(); err != nil {
+				return err
+			}
+		}
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+
 	sw.Newlines(1)
 	if err := sw.CloseList(); err != nil {
 		return err
 	}
 	sw.Newlines(1)
 	return nil
+}
+
+// write generates an s-expression describing the layer.
+func (c *NetClass) write(sw *swriter.SExpWriter) error {
+	sw.StartList(true)
+	sw.StringScalar("net_class")
+	sw.StringScalar(c.Name)
+	sw.StringScalar(c.Description)
+
+	if c.Clearance > 0 {
+		sw.StartList(true)
+		sw.StringScalar("clearance")
+		sw.StringScalar(f(c.Clearance))
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+	if c.TraceWidth > 0 {
+		sw.StartList(true)
+		sw.StringScalar("trace_width")
+		sw.StringScalar(f(c.TraceWidth))
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+	if c.ViaDiameter > 0 {
+		sw.StartList(true)
+		sw.StringScalar("via_dia")
+		sw.StringScalar(f(c.ViaDiameter))
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+	if c.ViaDrill > 0 {
+		sw.StartList(true)
+		sw.StringScalar("via_drill")
+		sw.StringScalar(f(c.ViaDrill))
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+	if c.UViaDiameter > 0 {
+		sw.StartList(true)
+		sw.StringScalar("uvia_dia")
+		sw.StringScalar(f(c.UViaDiameter))
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+	if c.UViaDrill > 0 {
+		sw.StartList(true)
+		sw.StringScalar("uvia_drill")
+		sw.StringScalar(f(c.UViaDrill))
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+
+	for _, net := range c.Nets {
+		sw.StartList(true)
+		sw.StringScalar("add_net")
+		sw.StringScalar(net)
+		if err := sw.CloseList(); err != nil {
+			return err
+		}
+	}
+	sw.Newlines(1)
+	return sw.CloseList()
 }
