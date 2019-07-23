@@ -54,11 +54,11 @@ type Zone struct {
 
 // Track represents a PCB track.
 type Track struct {
-	StartX, StartY float64
-	EndX, EndY     float64
-	Width          float64
-	Layer          string
-	NetIndex       int
+	Start    XY
+	End      XY
+	Width    float64
+	Layer    string
+	NetIndex int
 
 	order int
 }
@@ -166,11 +166,9 @@ func parseSegment(n sexp.Helper, ordering int) (Track, error) {
 		case "layer":
 			t.Layer = c.Child(1).MustString()
 		case "start":
-			t.StartX = c.Child(1).MustFloat64()
-			t.StartY = c.Child(2).MustFloat64()
+			t.Start = XY{X: c.Child(1).MustFloat64(), Y: c.Child(2).MustFloat64()}
 		case "end":
-			t.EndX = c.Child(1).MustFloat64()
-			t.EndY = c.Child(2).MustFloat64()
+			t.End = XY{X: c.Child(1).MustFloat64(), Y: c.Child(2).MustFloat64()}
 		}
 	}
 	return t, nil

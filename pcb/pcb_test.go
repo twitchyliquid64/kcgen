@@ -98,6 +98,9 @@ func TestPCB(t *testing.T) {
 	if got, want := p.Tracks[11].NetIndex, 2; got != want {
 		t.Errorf("p.Tracks[11].NetIndex = %v, want %v", got, want)
 	}
+	if got, want := p.Tracks[11].Start.X, 136.652; got != want {
+		t.Errorf("p.Tracks[11].Start.X = %v, want %v", got, want)
+	}
 
 	if got, want := len(p.Vias), 1; got != want {
 		t.Errorf("len(p.Vias) = %v, want %v", got, want)
