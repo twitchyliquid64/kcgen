@@ -64,6 +64,9 @@ type PCB struct {
 	Nets       map[int]Net
 	NetClasses []NetClass
 	Zones      []Zone
+
+	// TODO(twitchyliquid64): Compute these & expose them.
+	generalFields [][]string
 }
 
 // EditorSetup describes how the editor should be configured when
@@ -97,6 +100,9 @@ type EditorSetup struct {
 	PadSize            []float64
 	PadDrill           float64
 	PadToMaskClearance float64
+
+	AuxAxisOrigin   []float64
+	VisibleElements string
 
 	PlotParams map[string]PlotParam
 
@@ -169,6 +175,17 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.EditorSetup = *s
+
+			case "general":
+				for y := 1; y < n.MustNode().NumChildren(); y++ {
+					c := n.Child(y)
+					var params []string
+					for z := 0; z < c.MustNode().NumChildren(); z++ {
+						params = append(params, c.Child(z).MustString())
+					}
+					pcb.generalFields = append(pcb.generalFields, params)
+				}
+
 			case "layers":
 				for x := 1; x < n.MustNode().NumChildren(); x++ {
 					c := n.Child(x)
@@ -338,6 +355,13 @@ func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
 			e.PadDrill = c.Child(1).MustFloat64()
 		case "pad_to_mask_clearance":
 			e.PadToMaskClearance = c.Child(1).MustFloat64()
+
+		case "aux_axis_origin":
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
+				e.AuxAxisOrigin = append(e.AuxAxisOrigin, c.Child(y).MustFloat64())
+			}
+		case "visible_elements":
+			e.VisibleElements = c.Child(1).MustString()
 
 		case "pcbplotparams":
 			e.PlotParams = map[string]PlotParam{}

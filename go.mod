@@ -10,5 +10,7 @@ require (
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/nsf/sexp v0.0.0-20130620094510-d3d2f2591f1d
 	github.com/paulmach/go.geojson v1.4.0
+	github.com/sergi/go-diff v1.0.0
+	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
 )

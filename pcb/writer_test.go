@@ -2,8 +2,11 @@ package pcb
 
 import (
 	"bytes"
-	// "io/ioutil"
+	"io/ioutil"
+	"path"
 	"testing"
+
+	diff "github.com/sergi/go-diff/diffmatchpatch"
 )
 
 func TestPCBWrite(t *testing.T) {
@@ -17,7 +20,7 @@ func TestPCBWrite(t *testing.T) {
 			pcb: PCB{
 				FormatVersion: 4,
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n)",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n)\n",
 		},
 		{
 			name: "layers",
@@ -28,7 +31,7 @@ func TestPCBWrite(t *testing.T) {
 					{Num: 31, Name: "B.Cu", Type: "signal"},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n  (0 F.Cu signal)\n  (31 B.Cu signal)\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n)",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers\n    (0 F.Cu signal)\n    (31 B.Cu signal)\n  )\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n)\n",
 		},
 		{
 			name: "nets",
@@ -40,7 +43,7 @@ func TestPCBWrite(t *testing.T) {
 					2: {Name: "GND"},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (net 0 \"\")\n (net 1 +5C)\n (net 2 GND)\n)",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (net 0 \"\")\n  (net 1 +5C)\n  (net 2 GND)\n\n \n)\n",
 		},
 		{
 			name: "net classes",
@@ -51,7 +54,7 @@ func TestPCBWrite(t *testing.T) {
 						Clearance: 0.2, TraceWidth: 0.25, Nets: []string{"+5C", "GND"}},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (net_class Default \"This is the default net class.\"\n  (clearance 0.2)\n  (trace_width 0.25)\n  (add_net +5C)\n  (add_net GND)\n ))",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (net_class Default \"This is the default net class.\"\n    (clearance 0.2)\n    (trace_width 0.25)\n    (add_net +5C)\n    (add_net GND)\n  )\n\n \n)\n",
 		},
 		{
 			name: "plot params",
@@ -65,7 +68,7 @@ func TestPCBWrite(t *testing.T) {
 					},
 				},
 			},
-			expected: "(kicad_pcb (version 0) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n  (pad_drill 0.762)\n  (pcbplotparams\n   (layerselection 0x010f0_80000001)\n   (scaleselection 1)\n   (usegerberextensions true))\n )\n)",
+			expected: "(kicad_pcb (version 0) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n    (pad_drill 0.762)\n    (pcbplotparams\n      (layerselection 0x010f0_80000001)\n      (scaleselection 1)\n      (usegerberextensions true))\n  )\n\n \n)\n",
 		},
 		{
 			name: "vias",
@@ -76,7 +79,7 @@ func TestPCBWrite(t *testing.T) {
 					{At: XY{X: 10, Y: 32.5}, Layers: []string{"F.Cu", "B.Cu"}, NetIndex: 2},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (via (at 100 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2))\n (via (at 10 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2)))",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n\n  (via (at 100 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2))\n  (via (at 10 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2))\n)\n",
 		},
 		{
 			name: "tracks",
@@ -86,7 +89,7 @@ func TestPCBWrite(t *testing.T) {
 					{Start: XY{X: 100, Y: 32.5}, End: XY{X: 10, Y: 32.5}, Layer: "F.Cu", NetIndex: 2},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (segment (start 100 32.5) (end 10 32.5) (width 0) (layer F.Cu) (net 2)))",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n  (segment (start 100 32.5) (end 10 32.5) (width 0) (layer F.Cu) (net 2))\n)\n",
 		},
 		{
 			name: "lines",
@@ -96,7 +99,7 @@ func TestPCBWrite(t *testing.T) {
 					{Start: XY{X: 100, Y: 32.5}, End: XY{X: 10, Y: 32.5}, Layer: "Edge.Cuts", Width: 2},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (gr_line (start 100 32.5) (end 10 32.5) (layer Edge.Cuts) (width 2)))",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n  (gr_line (start 100 32.5) (end 10 32.5) (layer Edge.Cuts) (width 2))\n\n \n)\n",
 		},
 		{
 			name: "text",
@@ -112,7 +115,7 @@ func TestPCBWrite(t *testing.T) {
 					}},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (gr_text Oops (at 100 32.5) (layer F.SilkS)\n  (effects (font (size 1.5 1.5) (thickness 0.3)))\n ))",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (gr_text Oops (at 100 32.5) (layer F.SilkS)\n    (effects (font (size 1.5 1.5) (thickness 0.3)))\n  )\n)\n",
 		},
 	}
 
@@ -128,6 +131,46 @@ func TestPCBWrite(t *testing.T) {
 				t.Logf("got  = %q", b.String())
 			}
 			// ioutil.WriteFile("test.kicad_pcb", b.Bytes(), 0755)
+		})
+	}
+}
+
+func TestDecodeThenSerializeMatches(t *testing.T) {
+	tcs := []struct {
+		name  string
+		fname string
+	}{
+		{
+			name:  "simple",
+			fname: "simple_equality.kicad_pcb",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			pcb, err := DecodeFile(path.Join("testdata", tc.fname))
+			if err != nil {
+				t.Fatalf("DecodeFile(%q) failed: %v", tc.fname, err)
+			}
+			var serialized bytes.Buffer
+			if err := pcb.Write(&serialized); err != nil {
+				t.Fatalf("Write() failed: %v", err)
+			}
+
+			d, err := ioutil.ReadFile(path.Join("testdata", tc.fname))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			// ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
+			if !bytes.Equal(d, serialized.Bytes()) {
+				t.Error("outputs differ")
+				diffs := diff.New()
+				dm := diffs.DiffMain(string(d), serialized.String(), false)
+				// t.Log(diffs.DiffPrettyText(dm))
+				// t.Log(diffs.DiffToDelta(dm))
+				t.Log(diffs.PatchToText(diffs.PatchMake(dm)))
+			}
 		})
 	}
 }

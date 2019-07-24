@@ -21,16 +21,24 @@ func (p *PCB) Write(w io.Writer) error {
 	sw.StartList(false)
 	sw.StringScalar("version")
 	sw.IntScalar(p.FormatVersion)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
 	// EG: host pcbnew 4.0.7
 	sw.StartList(false)
 	sw.StringScalar("host")
-	sw.StringScalar("kcgen")
-	sw.StringScalar("0.0.1")
-	if err := sw.CloseList(); err != nil {
+	if p.CreatedBy.Tool == "" {
+		sw.StringScalar("kcgen")
+	} else {
+		sw.StringScalar(p.CreatedBy.Tool)
+	}
+	if p.CreatedBy.Version == "" {
+		sw.StringScalar("0.0.1")
+	} else {
+		sw.StringScalar(p.CreatedBy.Version)
+	}
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 	sw.Newlines(2)
@@ -38,41 +46,57 @@ func (p *PCB) Write(w io.Writer) error {
 	// EG: general (no_connects 0) ...
 	sw.StartList(false)
 	sw.StringScalar("general")
-	// sw.StartList(true)
-	// sw.StringScalar("no_connects")
-	// sw.IntScalar(0)
-	// if err := sw.CloseList(); err != nil {
-	// 	return err
-	// }
-	// sw.Newlines(1)
-	if err := sw.CloseList(); err != nil {
-		return err
+	if len(p.generalFields) > 0 {
+		for _, section := range p.generalFields {
+			sw.StartList(true)
+			for _, v := range section {
+				sw.StringScalar(v)
+			}
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
+		}
+		if err := sw.CloseList(true); err != nil {
+			return err
+		}
+	} else {
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
-	sw.Newlines(1)
+	sw.Separator()
 
 	// EG: page A4
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("page")
 	sw.StringScalar("A4")
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 	sw.Newlines(1)
 
 	// Layers
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("layers")
-	sw.Newlines(1)
-	for _, layer := range p.Layers {
-		if err := layer.write(sw); err != nil {
+	if len(p.Layers) > 0 {
+		sw.Newlines(1)
+		for i, layer := range p.Layers {
+			if err := layer.write(sw); err != nil {
+				return err
+			}
+			if i < len(p.Layers)-1 {
+				sw.Newlines(1)
+			}
+		}
+		if err := sw.CloseList(len(p.Layers) > 0); err != nil {
 			return err
 		}
-		sw.Newlines(1)
+	} else {
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
-	if err := sw.CloseList(); err != nil {
-		return err
-	}
-	sw.Newlines(1)
+	sw.Separator()
 
 	// Setup
 	if err := p.EditorSetup.write(sw); err != nil {
@@ -90,6 +114,9 @@ func (p *PCB) Write(w io.Writer) error {
 			return err
 		}
 	}
+	if len(p.NetClasses) > 0 {
+		sw.Separator()
+	}
 
 	// (Graphical) Text
 	for _, t := range p.Texts {
@@ -99,27 +126,48 @@ func (p *PCB) Write(w io.Writer) error {
 	}
 
 	// (Graphical) Lines
-	for _, l := range p.Lines {
+	if len(p.Lines) > 0 {
+		sw.Newlines(1)
+	}
+	for i, l := range p.Lines {
 		if err := l.write(sw); err != nil {
 			return err
 		}
+		if i < len(p.Lines)-1 {
+			sw.Newlines(1)
+		}
+	}
+	if len(p.Lines) > 0 || len(p.Vias) > 0 {
+		sw.Separator()
 	}
 
 	// Vias
-	for _, v := range p.Vias {
+	for i, v := range p.Vias {
 		if err := v.write(sw); err != nil {
 			return err
 		}
+		if i < len(p.Vias)-1 {
+			sw.Newlines(1)
+		}
 	}
-
 	// Tracks
-	for _, t := range p.Tracks {
+	if len(p.Tracks) > 0 {
+		sw.Newlines(1)
+	}
+	for i, t := range p.Tracks {
 		if err := t.write(sw); err != nil {
 			return err
 		}
+		if i < len(p.Tracks)-1 {
+			sw.Newlines(1)
+		}
 	}
 
-	return sw.CloseList()
+	if err := sw.CloseList(true); err != nil {
+		return err
+	}
+	w.Write([]byte("\n"))
+	return nil
 }
 
 type netPair struct {
@@ -136,18 +184,21 @@ func (p *PCB) writeNets(sw *swriter.SExpWriter) error {
 		return nets[i].num < nets[j].num
 	})
 
-	for _, n := range nets {
-		sw.StartList(true)
+	for i, n := range nets {
+		sw.StartList(false)
 		sw.StringScalar("net")
 		sw.IntScalar(n.num)
 		sw.StringScalar(n.net.Name)
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
+		}
+		if i < len(nets)-1 {
+			sw.Newlines(1)
 		}
 	}
 
 	if len(nets) > 0 {
-		sw.Newlines(1)
+		sw.Separator()
 	}
 	return nil
 }
@@ -158,7 +209,7 @@ func (l *Layer) write(sw *swriter.SExpWriter) error {
 	sw.IntScalar(l.Num)
 	sw.StringScalar(l.Name)
 	sw.StringScalar(l.Type)
-	return sw.CloseList()
+	return sw.CloseList(false)
 }
 
 func f(f float64) string {
@@ -184,12 +235,12 @@ func (p *XY) write(prefix string, sw *swriter.SExpWriter) error {
 	sw.StringScalar(prefix)
 	sw.StringScalar(f(p.X))
 	sw.StringScalar(f(p.Y))
-	return sw.CloseList()
+	return sw.CloseList(false)
 }
 
 // write generates an s-expression describing the via.
 func (v *Via) write(sw *swriter.SExpWriter) error {
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("via")
 	if err := v.At.write("at", sw); err != nil {
 		return err
@@ -198,14 +249,14 @@ func (v *Via) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("size")
 	sw.StringScalar(f(v.Size))
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
 	sw.StartList(false)
 	sw.StringScalar("drill")
 	sw.StringScalar(f(v.Drill))
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
@@ -214,23 +265,23 @@ func (v *Via) write(sw *swriter.SExpWriter) error {
 	for _, l := range v.Layers {
 		sw.StringScalar(l)
 	}
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
 	sw.StartList(false)
 	sw.StringScalar("net")
 	sw.IntScalar(v.NetIndex)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
-	return sw.CloseList()
+	return sw.CloseList(false)
 }
 
 // write generates an s-expression describing the track.
 func (t *Track) write(sw *swriter.SExpWriter) error {
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("segment")
 	if err := t.Start.write("start", sw); err != nil {
 		return err
@@ -242,30 +293,30 @@ func (t *Track) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("width")
 	sw.StringScalar(f(t.Width))
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
 	sw.StartList(false)
 	sw.StringScalar("layer")
 	sw.StringScalar(t.Layer)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
 	sw.StartList(false)
 	sw.StringScalar("net")
 	sw.IntScalar(t.NetIndex)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
-	return sw.CloseList()
+	return sw.CloseList(false)
 }
 
 // write generates an s-expression describing the line.
 func (l *Line) write(sw *swriter.SExpWriter) error {
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("gr_line")
 	if err := l.Start.write("start", sw); err != nil {
 		return err
@@ -277,23 +328,23 @@ func (l *Line) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("layer")
 	sw.StringScalar(l.Layer)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
 	sw.StartList(false)
 	sw.StringScalar("width")
 	sw.StringScalar(f(l.Width))
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
-	return sw.CloseList()
+	return sw.CloseList(false)
 }
 
 // write generates an s-expression describing the text.
 func (t *Text) write(sw *swriter.SExpWriter) error {
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("gr_text")
 	sw.StringScalar(t.Text)
 	if err := t.At.write("at", sw); err != nil {
@@ -303,7 +354,7 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("layer")
 	sw.StringScalar(t.Layer)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
@@ -317,18 +368,17 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("thickness")
 	sw.StringScalar(f(t.Effects.Thickness))
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
-	sw.Newlines(1)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(true); err != nil {
 		return err
 	}
 	return nil
@@ -343,7 +393,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("last_trace_width")
 		sw.StringScalar(f(l.LastTraceWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -351,7 +401,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("user_trace_width")
 		sw.StringScalar(f(w))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -359,7 +409,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("trace_clearance")
 		sw.StringScalar(f(l.TraceClearance))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -367,7 +417,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("zone_clearance")
 		sw.StringScalar(f(l.ZoneClearance))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -378,14 +428,14 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 	} else {
 		sw.StringScalar("no")
 	}
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 	if l.TraceMin > 0 {
 		sw.StartList(true)
 		sw.StringScalar("trace_min")
 		sw.StringScalar(f(l.TraceMin))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -393,7 +443,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("segment_width")
 		sw.StringScalar(f(l.SegmentWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -401,7 +451,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("edge_width")
 		sw.StringScalar(f(l.EdgeWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -410,23 +460,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("via_size")
 		sw.StringScalar(f(l.ViaSize))
-		if err := sw.CloseList(); err != nil {
-			return err
-		}
-	}
-	if l.ViaMinSize > 0 {
-		sw.StartList(true)
-		sw.StringScalar("via_min_size")
-		sw.StringScalar(f(l.ViaMinSize))
-		if err := sw.CloseList(); err != nil {
-			return err
-		}
-	}
-	if l.ViaMinDrill > 0 {
-		sw.StartList(true)
-		sw.StringScalar("via_min_drill")
-		sw.StringScalar(f(l.ViaMinDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -434,7 +468,23 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("via_drill")
 		sw.StringScalar(f(l.ViaDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if l.ViaMinSize > 0 {
+		sw.StartList(true)
+		sw.StringScalar("via_min_size")
+		sw.StringScalar(f(l.ViaMinSize))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if l.ViaMinDrill > 0 {
+		sw.StartList(true)
+		sw.StringScalar("via_min_drill")
+		sw.StringScalar(f(l.ViaMinDrill))
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -442,23 +492,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("uvia_size")
 		sw.StringScalar(f(l.UViaSize))
-		if err := sw.CloseList(); err != nil {
-			return err
-		}
-	}
-	if l.UViaMinSize > 0 {
-		sw.StartList(true)
-		sw.StringScalar("uvia_min_size")
-		sw.StringScalar(f(l.UViaMinSize))
-		if err := sw.CloseList(); err != nil {
-			return err
-		}
-	}
-	if l.UViaMinDrill > 0 {
-		sw.StartList(true)
-		sw.StringScalar("uvia_min_drill")
-		sw.StringScalar(f(l.UViaMinDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -466,7 +500,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("uvia_drill")
 		sw.StringScalar(f(l.UViaDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -477,15 +511,31 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 	} else {
 		sw.StringScalar("no")
 	}
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(false); err != nil {
 		return err
+	}
+	if l.UViaMinSize > 0 {
+		sw.StartList(true)
+		sw.StringScalar("uvia_min_size")
+		sw.StringScalar(f(l.UViaMinSize))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if l.UViaMinDrill > 0 {
+		sw.StartList(true)
+		sw.StringScalar("uvia_min_drill")
+		sw.StringScalar(f(l.UViaMinDrill))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
 
 	if l.TextWidth > 0 {
 		sw.StartList(true)
 		sw.StringScalar("pcb_text_width")
 		sw.StringScalar(f(l.TextWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -495,7 +545,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		for _, w := range l.TextSize {
 			sw.StringScalar(f(w))
 		}
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -504,7 +554,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("mod_edge_width")
 		sw.StringScalar(f(l.ModEdgeWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -514,7 +564,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		for _, w := range l.ModTextSize {
 			sw.StringScalar(f(w))
 		}
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -522,7 +572,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("mod_text_width")
 		sw.StringScalar(f(l.ModTextWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -533,7 +583,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		for _, w := range l.PadSize {
 			sw.StringScalar(f(w))
 		}
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -541,7 +591,7 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("pad_drill")
 		sw.StringScalar(f(l.PadDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -549,7 +599,26 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("pad_to_mask_clearance")
 		sw.StringScalar(f(l.PadToMaskClearance))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
+	if len(l.AuxAxisOrigin) > 0 {
+		sw.StartList(true)
+		sw.StringScalar("aux_axis_origin")
+		for _, i := range l.AuxAxisOrigin {
+			sw.StringScalar(f(i))
+		}
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if l.VisibleElements != "" {
+		sw.StartList(true)
+		sw.StringScalar("visible_elements")
+		sw.StringScalar(l.VisibleElements)
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -571,26 +640,25 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 			for _, v := range pp.values {
 				sw.StringScalar(v)
 			}
-			if err := sw.CloseList(); err != nil {
+			if err := sw.CloseList(false); err != nil {
 				return err
 			}
 		}
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
 
-	sw.Newlines(1)
-	if err := sw.CloseList(); err != nil {
+	if err := sw.CloseList(true); err != nil {
 		return err
 	}
-	sw.Newlines(1)
+	sw.Separator()
 	return nil
 }
 
 // write generates an s-expression describing the layer.
 func (c *NetClass) write(sw *swriter.SExpWriter) error {
-	sw.StartList(true)
+	sw.StartList(false)
 	sw.StringScalar("net_class")
 	sw.StringScalar(c.Name)
 	sw.StringScalar(c.Description)
@@ -599,7 +667,7 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("clearance")
 		sw.StringScalar(f(c.Clearance))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -607,7 +675,7 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("trace_width")
 		sw.StringScalar(f(c.TraceWidth))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -615,7 +683,7 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("via_dia")
 		sw.StringScalar(f(c.ViaDiameter))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -623,7 +691,7 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("via_drill")
 		sw.StringScalar(f(c.ViaDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -631,7 +699,7 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("uvia_dia")
 		sw.StringScalar(f(c.UViaDiameter))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -639,7 +707,7 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("uvia_drill")
 		sw.StringScalar(f(c.UViaDrill))
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
@@ -648,10 +716,12 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("add_net")
 		sw.StringScalar(net)
-		if err := sw.CloseList(); err != nil {
+		if err := sw.CloseList(false); err != nil {
 			return err
 		}
 	}
-	sw.Newlines(1)
-	return sw.CloseList()
+	if err := sw.CloseList(true); err != nil {
+		return err
+	}
+	return nil
 }

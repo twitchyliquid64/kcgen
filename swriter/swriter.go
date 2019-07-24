@@ -42,7 +42,7 @@ func (w *SExpWriter) StartList(newBlock bool) {
 		w.needSeparator = false
 	}
 	w.writer.WriteRune('(')
-	w.indent++
+	w.indent += 2
 }
 
 // Newlines emits the given number of newlines.
@@ -53,6 +53,12 @@ func (w *SExpWriter) Newlines(num int) {
 	if num > 0 {
 		w.indentNewline()
 	}
+}
+
+// Separator spaces out the output.
+func (w *SExpWriter) Separator() {
+	w.writer.WriteRune('\n')
+	w.indentNewline()
 }
 
 // StringScalar writes a scalar string value to the next position,
@@ -99,13 +105,18 @@ outer:
 }
 
 // CloseList closes the outermost list.
-func (w *SExpWriter) CloseList() error {
+func (w *SExpWriter) CloseList(newline bool) error {
 	if w.indent <= 0 {
 		return errors.New("no open list")
 	}
 
-	w.writer.WriteRune(')')
 	w.indent--
+	if newline {
+		w.Newlines(1)
+	}
+	w.indent--
+
+	w.writer.WriteRune(')')
 	return w.writer.Flush()
 }
 
