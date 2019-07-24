@@ -76,7 +76,17 @@ func TestPCBWrite(t *testing.T) {
 					{At: XY{X: 10, Y: 32.5}, Layers: []string{"F.Cu", "B.Cu"}, NetIndex: 2},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n)",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (via (at 100 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2))\n (via (at 10 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2)))",
+		},
+		{
+			name: "tracks",
+			pcb: PCB{
+				FormatVersion: 4,
+				Tracks: []Track{
+					{Start: XY{X: 100, Y: 32.5}, End: XY{X: 10, Y: 32.5}, Layer: "F.Cu", NetIndex: 2},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (segment (start 100 32.5) (end 10 32.5) (width 0) (layer F.Cu) (net 2)))",
 		},
 	}
 

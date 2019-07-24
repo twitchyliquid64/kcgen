@@ -98,6 +98,13 @@ func (p *PCB) Write(w io.Writer) error {
 		}
 	}
 
+	// Tracks
+	for _, t := range p.Tracks {
+		if err := t.write(sw); err != nil {
+			return err
+		}
+	}
+
 	return sw.CloseList()
 }
 
@@ -200,6 +207,41 @@ func (v *Via) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("net")
 	sw.IntScalar(v.NetIndex)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	return sw.CloseList()
+}
+
+// write generates an s-expression describing the track.
+func (t *Track) write(sw *swriter.SExpWriter) error {
+	sw.StartList(true)
+	sw.StringScalar("segment")
+	if err := t.Start.write("start", sw); err != nil {
+		return err
+	}
+	if err := t.End.write("end", sw); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("width")
+	sw.StringScalar(f(t.Width))
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("layer")
+	sw.StringScalar(t.Layer)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("net")
+	sw.IntScalar(t.NetIndex)
 	if err := sw.CloseList(); err != nil {
 		return err
 	}
