@@ -28,6 +28,8 @@ type Zone struct {
 	NetName string
 	Layer   string
 
+	Tstamp string
+
 	Hatch struct {
 		Mode string
 		Size float64
@@ -97,6 +99,8 @@ func parseZone(n sexp.Helper, ordering int) (*Zone, error) {
 			z.NetName = c.Child(1).MustString()
 		case "layer":
 			z.Layer = c.Child(1).MustString()
+		case "tstamp":
+			z.Tstamp = c.Child(1).MustString()
 
 		case "hatch":
 			z.Hatch.Mode = c.Child(1).MustString()

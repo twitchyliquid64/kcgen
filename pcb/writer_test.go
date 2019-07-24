@@ -117,6 +117,23 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (gr_text Oops (at 100 32.5) (layer F.SilkS)\n    (effects (font (size 1.5 1.5) (thickness 0.3)))\n  )\n)\n",
 		},
+		{
+			name: "zones",
+			pcb: PCB{
+				FormatVersion: 4,
+				Zones: []Zone{
+					{NetNum: 42, Tstamp: "0", Layer: "F.Cu", NetName: "DBUS", MinThickness: 0.254,
+						BasePolys: [][]XY{
+							[]XY{{X: 11, Y: 22}, {X: 11.1, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}},
+						},
+						Polys: [][]XY{
+							[]XY{{X: 11, Y: 22}, {X: 11.1, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}, {X: 11, Y: 22}},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n\n  (zone (net 42) (net_name DBUS) (layer F.Cu) (tstamp 0) (hatch \"\" 0)\n    (connect_pads (clearance 0))\n    (min_thickness 0.254)\n    (fill no (arc_segments 0) (thermal_gap 0) (thermal_bridge_width 0))\n    (polygon\n      (pts\n        (xy 11 22) (xy 11.1 22) (xy 11 22) (xy 11 22) (xy 11 22)\n        (xy 11 22) (xy 11 22)\n      )\n    )\n    (filled_polygon\n      (pts\n        (xy 11 22) (xy 11.1 22) (xy 11 22) (xy 11 22) (xy 11 22)\n        (xy 11 22) (xy 11 22)\n      )\n    )\n  )\n)\n",
+		},
 	}
 
 	for _, tc := range tcs {
@@ -143,6 +160,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 		{
 			name:  "simple",
 			fname: "simple_equality.kicad_pcb",
+		},
+		{
+			name:  "zone",
+			fname: "zone_equality.kicad_pcb",
 		},
 	}
 
