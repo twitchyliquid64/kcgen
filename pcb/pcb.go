@@ -55,11 +55,14 @@ type PCB struct {
 
 	LayersByName map[string]*Layer
 	Layers       []*Layer
-	Tracks       []Track
-	Vias         []Via
-	Nets         map[int]Net
-	NetClasses   []NetClass
-	Zones        []Zone
+
+	Tracks []Track
+	Vias   []Via
+	Lines  []Line
+
+	Nets       map[int]Net
+	NetClasses []NetClass
+	Zones      []Zone
 }
 
 // EditorSetup describes how the editor should be configured when
@@ -209,6 +212,13 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.Zones = append(pcb.Zones, *z)
+
+			case "gr_line":
+				l, err := parseGRLine(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.Lines = append(pcb.Lines, l)
 
 			case "net_class":
 				c, err := parseNetClass(n, ordering)

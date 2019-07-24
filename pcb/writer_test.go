@@ -88,6 +88,16 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (segment (start 100 32.5) (end 10 32.5) (width 0) (layer F.Cu) (net 2)))",
 		},
+		{
+			name: "lines",
+			pcb: PCB{
+				FormatVersion: 4,
+				Lines: []Line{
+					{Start: XY{X: 100, Y: 32.5}, End: XY{X: 10, Y: 32.5}, Layer: "Edge.Cuts", Width: 2},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (gr_line (start 100 32.5) (end 10 32.5) (layer Edge.Cuts) (width 2)))",
+		},
 	}
 
 	for _, tc := range tcs {

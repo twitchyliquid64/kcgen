@@ -132,4 +132,15 @@ func TestPCB(t *testing.T) {
 	if got, want := p.NetClasses[0].Nets[0], "/BUS_A"; got != want {
 		t.Errorf("p.NetClasses[0].Nets[0] = %v, want %v", got, want)
 	}
+
+	if got, want := len(p.Lines), 4; got != want {
+		t.Errorf("len(p.Lines) = %v, want %v", got, want)
+		t.Logf("p.Lines = %+v", p.Lines)
+	}
+	if got, want := p.Lines[0].Width, 0.15; got != want {
+		t.Errorf("p.Lines[0].Width = %v, want %v", got, want)
+	}
+	if got, want := p.Lines[0].Start.X, 173.736; got != want {
+		t.Errorf("p.Lines[0].Start.X = %v, want %v", got, want)
+	}
 }

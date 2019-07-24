@@ -91,6 +91,13 @@ func (p *PCB) Write(w io.Writer) error {
 		}
 	}
 
+	// (Graphical) Lines
+	for _, l := range p.Lines {
+		if err := l.write(sw); err != nil {
+			return err
+		}
+	}
+
 	// Vias
 	for _, v := range p.Vias {
 		if err := v.write(sw); err != nil {
@@ -242,6 +249,34 @@ func (t *Track) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("net")
 	sw.IntScalar(t.NetIndex)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	return sw.CloseList()
+}
+
+// write generates an s-expression describing the line.
+func (l *Line) write(sw *swriter.SExpWriter) error {
+	sw.StartList(true)
+	sw.StringScalar("gr_line")
+	if err := l.Start.write("start", sw); err != nil {
+		return err
+	}
+	if err := l.End.write("end", sw); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("layer")
+	sw.StringScalar(l.Layer)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("width")
+	sw.StringScalar(f(l.Width))
 	if err := sw.CloseList(); err != nil {
 		return err
 	}
