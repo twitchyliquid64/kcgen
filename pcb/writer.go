@@ -91,6 +91,13 @@ func (p *PCB) Write(w io.Writer) error {
 		}
 	}
 
+	// (Graphical) Text
+	for _, t := range p.Texts {
+		if err := t.write(sw); err != nil {
+			return err
+		}
+	}
+
 	// (Graphical) Lines
 	for _, l := range p.Lines {
 		if err := l.write(sw); err != nil {
@@ -282,6 +289,49 @@ func (l *Line) write(sw *swriter.SExpWriter) error {
 	}
 
 	return sw.CloseList()
+}
+
+// write generates an s-expression describing the text.
+func (t *Text) write(sw *swriter.SExpWriter) error {
+	sw.StartList(true)
+	sw.StringScalar("gr_text")
+	sw.StringScalar(t.Text)
+	if err := t.At.write("at", sw); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("layer")
+	sw.StringScalar(t.Layer)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.StartList(true)
+	sw.StringScalar("effects")
+	sw.StartList(false)
+	sw.StringScalar("font")
+	if err := t.Effects.FontSize.write("size", sw); err != nil {
+		return err
+	}
+	sw.StartList(false)
+	sw.StringScalar("thickness")
+	sw.StringScalar(f(t.Effects.Thickness))
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+
+	sw.Newlines(1)
+	if err := sw.CloseList(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // write generates an s-expression describing the layer.

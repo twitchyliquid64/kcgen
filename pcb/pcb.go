@@ -59,6 +59,7 @@ type PCB struct {
 	Tracks []Track
 	Vias   []Via
 	Lines  []Line
+	Texts  []Text
 
 	Nets       map[int]Net
 	NetClasses []NetClass
@@ -219,6 +220,13 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.Lines = append(pcb.Lines, l)
+
+			case "gr_text":
+				t, err := parseGRText(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.Texts = append(pcb.Texts, t)
 
 			case "net_class":
 				c, err := parseNetClass(n, ordering)

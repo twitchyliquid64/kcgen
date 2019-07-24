@@ -98,6 +98,22 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (gr_line (start 100 32.5) (end 10 32.5) (layer Edge.Cuts) (width 2)))",
 		},
+		{
+			name: "text",
+			pcb: PCB{
+				FormatVersion: 4,
+				Texts: []Text{
+					{At: XY{X: 100, Y: 32.5}, Text: "Oops", Layer: "F.SilkS", Effects: struct {
+						FontSize  XY
+						Thickness float64
+					}{
+						FontSize:  XY{X: 1.5, Y: 1.5},
+						Thickness: 0.3,
+					}},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n (general)\n\n (page A4)\n\n (layers\n )\n (setup\n  (zone_45_only no)\n  (uvias_allowed no)\n )\n\n (gr_text Oops (at 100 32.5) (layer F.SilkS)\n  (effects (font (size 1.5 1.5) (thickness 0.3)))\n ))",
+		},
 	}
 
 	for _, tc := range tcs {

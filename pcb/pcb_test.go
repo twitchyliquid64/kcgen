@@ -143,4 +143,15 @@ func TestPCB(t *testing.T) {
 	if got, want := p.Lines[0].Start.X, 173.736; got != want {
 		t.Errorf("p.Lines[0].Start.X = %v, want %v", got, want)
 	}
+
+	if got, want := len(p.Texts), 1; got != want {
+		t.Errorf("len(p.Texts) = %v, want %v", got, want)
+		t.Logf("p.Texts = %+v", p.Texts)
+	}
+	if got, want := p.Texts[0].Text, "Oops"; got != want {
+		t.Errorf("p.Texts[0].Text = %v, want %v", got, want)
+	}
+	if got, want := p.Texts[0].Effects.FontSize.X, 1.5; got != want {
+		t.Errorf("p.Texts[0].Effects.FontSize.X = %v, want %v", got, want)
+	}
 }
