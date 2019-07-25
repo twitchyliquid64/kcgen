@@ -29,6 +29,7 @@ type Module struct {
 	order       int
 
 	Graphics []ModGraphic
+	Pads     []Pad
 	Model    *ModModel
 }
 
@@ -46,7 +47,7 @@ type ModGraphic struct {
 type renderable interface {
 }
 
-// ModText represents a text drawing in a module.
+// ModText represents text drawn in a module.
 type ModText struct {
 	Kind ModTextKind
 	Text string
@@ -65,12 +66,29 @@ const (
 	ValueText
 )
 
-// ModLine represents a line drawing in a module.
+// ModLine represents a line drawn in a module.
 type ModLine struct {
 	Start XY
 	End   XY
 
 	Layer string
+	Width float64
+}
+
+// ModCircle represents a circle drawn in a module.
+type ModCircle struct {
+	Center XY
+	End    XY
+	Layer  string
+	Width  float64
+}
+
+// ModArc represents an arc drawn in a module.
+type ModArc struct {
+	Start XY
+	End   XY
+	Layer string
+	Angle float64
 	Width float64
 }
 
@@ -82,19 +100,57 @@ type ModModel struct {
 	Rotate XYZ
 }
 
-// PadType enumerates valid kinds of copper pads.
-type PadType uint8
+type PadSurface uint8
 
-// Valid PadTypes.
+type PadShape uint8
+
+// Pad constants
 const (
-	PadInvalid PadType = iota
-	ThroughHole
-	SurfaceMount
+	ShapeInvalid PadShape = iota
+	ShapeRect
+	ShapeOval
+	ShapeCircle
+	ShapeTrapezoid
+	ShapeRoundRect
+	ShapeCustom
+	ShapeDrillOblong
+
+	SurfaceInvalid PadSurface = iota
+	SurfaceSMD
+	SurfaceTH
+	SurfaceNPTH
+	SurfaceConnect
 )
 
 // Pad represents a copper pad.
-type Pad interface {
-	Type() PadType
+type Pad struct {
+	Ident   string
+	NetNum  int
+	NetName string
+
+	At     XYZ
+	Size   XY
+	Layers []string
+
+	RectDelta XY
+
+	DrillOffset XY
+	DrillSize   XY
+	DrillShape  PadShape
+
+	DieLength         float64
+	ZoneConnect       float64
+	ThermalWidth      float64
+	ThermalGap        float64
+	RoundRectRRatio   float64
+	ChamferRation     float64
+	SolderMaskMargin  float64
+	SolderPasteMargin float64
+	SolderPasteRatio  float64
+	Clearance         float64
+
+	Surface PadSurface
+	Shape   PadShape
 }
 
 func parseModule(n sexp.Helper, ordering int) (*Module, error) {
@@ -157,6 +213,35 @@ func parseModule(n sexp.Helper, ordering int) (*Module, error) {
 				Ident:      c.Child(0).MustString(),
 				Renderable: l,
 			})
+
+		case "fp_arc":
+			a, err := parseModArc(c)
+			if err != nil {
+				return nil, err
+			}
+			m.Graphics = append(m.Graphics, ModGraphic{
+				Ident:      c.Child(0).MustString(),
+				Renderable: a,
+			})
+
+		case "fp_circle":
+			a, err := parseModCircle(c)
+			if err != nil {
+				return nil, err
+			}
+			m.Graphics = append(m.Graphics, ModGraphic{
+				Ident:      c.Child(0).MustString(),
+				Renderable: a,
+			})
+
+			// TODO: poly, curve
+
+		case "pad":
+			pad, err := parseModPad(c)
+			if err != nil {
+				return nil, err
+			}
+			m.Pads = append(m.Pads, *pad)
 
 		case "model":
 			model, err := parseModModel(c)
@@ -226,6 +311,157 @@ func parseModLine(n sexp.Helper) (*ModLine, error) {
 	}
 
 	return &l, nil
+}
+
+func parseModArc(n sexp.Helper) (*ModArc, error) {
+	a := ModArc{}
+	for x := 1; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "start":
+			a.Start.X = c.Child(1).MustFloat64()
+			a.Start.Y = c.Child(2).MustFloat64()
+		case "end":
+			a.End.X = c.Child(1).MustFloat64()
+			a.End.Y = c.Child(2).MustFloat64()
+		case "layer":
+			a.Layer = c.Child(1).MustString()
+		case "width":
+			a.Width = c.Child(1).MustFloat64()
+		case "angle":
+			a.Angle = c.Child(1).MustFloat64()
+		}
+	}
+
+	return &a, nil
+}
+
+func parseModCircle(n sexp.Helper) (*ModCircle, error) {
+	a := ModCircle{}
+	for x := 1; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "center":
+			a.Center.X = c.Child(1).MustFloat64()
+			a.Center.Y = c.Child(2).MustFloat64()
+		case "end":
+			a.End.X = c.Child(1).MustFloat64()
+			a.End.Y = c.Child(2).MustFloat64()
+		case "layer":
+			a.Layer = c.Child(1).MustString()
+		case "width":
+			a.Width = c.Child(1).MustFloat64()
+		}
+	}
+
+	return &a, nil
+}
+
+func parseModPad(n sexp.Helper) (*Pad, error) {
+	p := Pad{
+		Ident: n.Child(1).MustString(),
+	}
+
+	switch n.Child(2).MustString() {
+	case "smd":
+		p.Surface = SurfaceSMD
+	case "thru_hole":
+		p.Surface = SurfaceTH
+	case "np_thru_hole":
+		p.Surface = SurfaceNPTH
+	case "connect":
+		p.Surface = SurfaceConnect
+	}
+
+	switch n.Child(3).MustString() {
+	case "rect":
+		p.Shape = ShapeRect
+	case "oval":
+		p.Shape = ShapeOval
+	case "circle":
+		p.Shape = ShapeCircle
+	case "trapezoid":
+		p.Shape = ShapeTrapezoid
+	case "roundrect":
+		p.Shape = ShapeRoundRect
+	case "custom":
+		p.Shape = ShapeCustom
+	}
+
+	for x := 4; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "at":
+			p.At.X = c.Child(1).MustFloat64()
+			p.At.Y = c.Child(2).MustFloat64()
+			if c.MustNode().NumChildren() >= 4 {
+				p.At.Z = c.Child(3).MustFloat64()
+				p.At.ZPresent = true
+			}
+		case "size":
+			p.Size.X = c.Child(1).MustFloat64()
+			p.Size.Y = c.Child(2).MustFloat64()
+		case "layers":
+			for j := 1; j < c.MustNode().NumChildren(); j++ {
+				p.Layers = append(p.Layers, c.Child(j).MustString())
+			}
+
+		case "rect_delta":
+			p.RectDelta.X = c.Child(1).MustFloat64()
+			p.RectDelta.Y = c.Child(2).MustFloat64()
+
+		case "drill":
+			readWidth := false
+			for z := 1; z < c.MustNode().NumChildren(); z++ {
+				c := c.Child(z)
+				if c.IsList() {
+					switch c.Child(0).MustString() {
+					case "oval":
+						p.DrillShape = ShapeDrillOblong
+					case "offset":
+						p.DrillOffset = XY{X: c.Child(1).MustFloat64(), Y: c.Child(2).MustFloat64()}
+					}
+				} else {
+					// Width or height
+					if readWidth {
+						p.DrillSize.Y = c.MustFloat64()
+					} else {
+						p.DrillSize.X = c.MustFloat64()
+						readWidth = true
+					}
+				}
+			}
+
+		case "net":
+			p.NetNum = c.Child(1).MustInt()
+			p.NetName = c.Child(2).MustString()
+
+		case "clearance":
+			p.Clearance = c.Child(1).MustFloat64()
+		case "die_length":
+			p.DieLength = c.Child(1).MustFloat64()
+		case "solder_paste_margin":
+			p.SolderPasteMargin = c.Child(1).MustFloat64()
+		case "solder_mask_margin":
+			p.SolderMaskMargin = c.Child(1).MustFloat64()
+		case "solder_paste_ratio":
+			p.SolderPasteRatio = c.Child(1).MustFloat64()
+		case "zone_connect":
+			p.ZoneConnect = c.Child(1).MustFloat64()
+		case "thermal_width":
+			p.ThermalWidth = c.Child(1).MustFloat64()
+		case "thermal_gap":
+			p.ThermalGap = c.Child(1).MustFloat64()
+		case "roundrect_rratio":
+			p.RoundRectRRatio = c.Child(1).MustFloat64()
+		case "chamfer_ratio":
+			p.ChamferRation = c.Child(1).MustFloat64()
+
+			// TODO: chamfer, options, primitives
+		}
+	}
+
+	return &p, nil
 }
 
 func parseModModel(n sexp.Helper) (*ModModel, error) {

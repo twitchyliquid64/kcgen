@@ -113,6 +113,132 @@ func TestParseMod(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "pad TH",
+			input: `
+(module Gauge_50mm_Type2_SilkScreenTop (layer F.Cu)
+  (at 0 0)
+  (descr "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,")
+  (tags "Gauge Massstab 50mm SilkScreenTop Type 2")
+  (attr virtual)
+  (pad 1 thru_hole rect (at 0 0) (size 1.7 1.8) (drill 1) (layers *.Cu *.Mask)
+    (net 1 GND))
+)
+    `,
+			expected: Module{
+				Name:        "Gauge_50mm_Type2_SilkScreenTop",
+				Layer:       "F.Cu",
+				Description: "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,",
+				Tags:        []string{"Gauge", "Massstab", "50mm", "SilkScreenTop", "Type", "2"},
+				Attrs:       []string{"virtual"},
+				Pads: []Pad{
+					{
+						Ident:     "1",
+						Shape:     ShapeRect,
+						Surface:   SurfaceTH,
+						Size:      XY{X: 1.7, Y: 1.8},
+						DrillSize: XY{X: 1},
+						Layers:    []string{"*.Cu", "*.Mask"},
+						NetNum:    1,
+						NetName:   "GND",
+					},
+				},
+			},
+		},
+		{
+			name: "pad SMD",
+			input: `
+(module Gauge_50mm_Type2_SilkScreenTop (layer F.Cu)
+  (at 0 0)
+  (descr "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,")
+  (tags "Gauge Massstab 50mm SilkScreenTop Type 2")
+  (attr virtual)
+  (pad 2 smd oval (at 1.35 0 90) (size 1.5 1.3) (layers F.Cu F.Paste F.Mask)
+    (net 2 /BUS_B))
+)
+    `,
+			expected: Module{
+				Name:        "Gauge_50mm_Type2_SilkScreenTop",
+				Layer:       "F.Cu",
+				Description: "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,",
+				Tags:        []string{"Gauge", "Massstab", "50mm", "SilkScreenTop", "Type", "2"},
+				Attrs:       []string{"virtual"},
+				Pads: []Pad{
+					{
+						Ident:   "2",
+						Shape:   ShapeOval,
+						Surface: SurfaceSMD,
+						At:      XYZ{X: 1.35, Z: 90, ZPresent: true},
+						Size:    XY{X: 1.5, Y: 1.3},
+						Layers:  []string{"F.Cu", "F.Paste", "F.Mask"},
+						NetNum:  2,
+						NetName: "/BUS_B",
+					},
+				},
+			},
+		},
+		{
+			name: "pad circle",
+			input: `
+(module Gauge_50mm_Type2_SilkScreenTop (layer F.Cu)
+  (at 0 0)
+  (descr "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,")
+  (tags "Gauge Massstab 50mm SilkScreenTop Type 2")
+  (attr virtual)
+  (pad 1 smd circle (at 0 0) (size 3 3) (layers F.Cu F.Mask)
+    (net 28 +5C))
+)
+    `,
+			expected: Module{
+				Name:        "Gauge_50mm_Type2_SilkScreenTop",
+				Layer:       "F.Cu",
+				Description: "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,",
+				Tags:        []string{"Gauge", "Massstab", "50mm", "SilkScreenTop", "Type", "2"},
+				Attrs:       []string{"virtual"},
+				Pads: []Pad{
+					{
+						Ident:   "1",
+						Shape:   ShapeCircle,
+						Surface: SurfaceSMD,
+						Size:    XY{X: 3, Y: 3},
+						Layers:  []string{"F.Cu", "F.Mask"},
+						NetNum:  28,
+						NetName: "+5C",
+					},
+				},
+			},
+		},
+		{
+			name: "pad npth",
+			input: `
+(module Gauge_50mm_Type2_SilkScreenTop (layer F.Cu)
+  (at 0 0)
+  (descr "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,")
+  (tags "Gauge Massstab 50mm SilkScreenTop Type 2")
+  (attr virtual)
+  (pad "" np_thru_hole circle (at 0 0) (size 2.75 2.75) (drill 2.75) (layers *.Cu *.Mask)
+    (solder_mask_margin 1.725) (clearance 1.725))
+)
+    `,
+			expected: Module{
+				Name:        "Gauge_50mm_Type2_SilkScreenTop",
+				Layer:       "F.Cu",
+				Description: "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,",
+				Tags:        []string{"Gauge", "Massstab", "50mm", "SilkScreenTop", "Type", "2"},
+				Attrs:       []string{"virtual"},
+				Pads: []Pad{
+					{
+						Shape:            ShapeCircle,
+						Surface:          SurfaceNPTH,
+						Size:             XY{X: 2.75, Y: 2.75},
+						DrillSize:        XY{X: 2.75},
+						Layers:           []string{"*.Cu", "*.Mask"},
+						SolderMaskMargin: 1.725,
+						Clearance:        1.725,
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range tcs {
