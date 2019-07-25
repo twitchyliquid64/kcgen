@@ -166,7 +166,7 @@ func TestPCBWrite(t *testing.T) {
 					},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (dimension 12.446 (width 0.3) (layer F.Fab)\n    (gr_text \"12.446 mm\" (at 125.396 93.853 90) (layer F.Fab)\n      (effects (font (size 1.5 1.5) (thickness 0.3)))\n    )\n    (feature1 (pts (xy 173.736 100.076) (xy 173.736 106.586)))\n    (feature2 (pts (xy 132.08 100.076) (xy 132.08 106.586)))\n  )\n)\n",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (dimension 12.446 (width 0.3) (layer F.Fab)\n    (gr_text \"12.446 mm\" (at 125.396 93.853 90) (layer F.Fab)\n      (effects (font (size 1.5 1.5) (thickness 0.3)))\n    )\n    (feature1 (pts (xy 173.736 100.076) (xy 173.736 106.586)))\n    (feature2 (pts (xy 132.08 100.076) (xy 132.08 106.586)))\n  )\n \n)\n",
 		},
 	}
 
@@ -198,6 +198,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 		{
 			name:  "zone",
 			fname: "zone_equality.kicad_pcb",
+		},
+		{
+			name:  "dimension",
+			fname: "dimension_equality.kicad_pcb",
 		},
 	}
 

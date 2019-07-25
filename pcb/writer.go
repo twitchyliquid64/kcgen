@@ -123,6 +123,7 @@ func (p *PCB) Write(w io.Writer) error {
 		if err := d.write(sw); err != nil {
 			return err
 		}
+		sw.Newlines(1)
 	}
 	// (Graphical) Text
 	for _, t := range p.Texts {
