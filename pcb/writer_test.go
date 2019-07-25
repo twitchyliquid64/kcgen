@@ -106,10 +106,7 @@ func TestPCBWrite(t *testing.T) {
 			pcb: PCB{
 				FormatVersion: 4,
 				Texts: []Text{
-					{At: XYZ{X: 100, Y: 32.5}, Text: "Oops", Layer: "F.SilkS", Effects: struct {
-						FontSize  XY
-						Thickness float64
-					}{
+					{At: XYZ{X: 100, Y: 32.5}, Text: "Oops", Layer: "F.SilkS", Effects: TextEffects{
 						FontSize:  XY{X: 1.5, Y: 1.5},
 						Thickness: 0.3,
 					}},
@@ -146,10 +143,7 @@ func TestPCBWrite(t *testing.T) {
 						Text: Text{
 							At:    XYZ{X: 125.396, Y: 93.853, Z: 90, ZPresent: true},
 							Text:  "12.446 mm",
-							Layer: "F.Fab", Effects: struct {
-								FontSize  XY
-								Thickness float64
-							}{
+							Layer: "F.Fab", Effects: TextEffects{
 								FontSize:  XY{X: 1.5, Y: 1.5},
 								Thickness: 0.3,
 							}},

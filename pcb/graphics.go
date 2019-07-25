@@ -4,18 +4,24 @@ import (
 	"github.com/nsf/sexp"
 )
 
+// TODO(twitchyliquid64): Refactor graphical features to implement
+// some common interface.
+
 // Text represents some text to be rendered.
 type Text struct {
 	Text  string
 	Layer string
 	At    XYZ
 
-	Effects struct {
-		FontSize  XY
-		Thickness float64
-	}
+	Effects TextEffects
 
 	order int
+}
+
+// TextEffects describes styling which can be applied to a text drawing.
+type TextEffects struct {
+	FontSize  XY
+	Thickness float64
 }
 
 // Line represents a graphical line.
@@ -108,25 +114,35 @@ func parseGRText(n sexp.Helper, ordering int) (Text, error) {
 		case "layer":
 			t.Layer = c.Child(1).MustString()
 		case "effects":
-			for y := 1; y < c.MustNode().NumChildren(); y++ {
-				c := c.Child(y)
+			effects, err := parseTextEffects(c)
+			if err != nil {
+				return Text{}, err
+			}
+			t.Effects = effects
+		}
+	}
+	return t, nil
+}
+
+func parseTextEffects(n sexp.Helper) (TextEffects, error) {
+	var e TextEffects
+	for y := 1; y < n.MustNode().NumChildren(); y++ {
+		c := n.Child(y)
+		switch c.Child(0).MustString() {
+		case "font":
+			for z := 1; z < c.MustNode().NumChildren(); z++ {
+				c := c.Child(z)
 				switch c.Child(0).MustString() {
-				case "font":
-					for z := 1; z < c.MustNode().NumChildren(); z++ {
-						c := c.Child(z)
-						switch c.Child(0).MustString() {
-						case "size":
-							t.Effects.FontSize.X = c.Child(1).MustFloat64()
-							t.Effects.FontSize.Y = c.Child(2).MustFloat64()
-						case "thickness":
-							t.Effects.Thickness = c.Child(1).MustFloat64()
-						}
-					}
+				case "size":
+					e.FontSize.X = c.Child(1).MustFloat64()
+					e.FontSize.Y = c.Child(2).MustFloat64()
+				case "thickness":
+					e.Thickness = c.Child(1).MustFloat64()
 				}
 			}
 		}
 	}
-	return t, nil
+	return e, nil
 }
 
 func parseGRLine(n sexp.Helper, ordering int) (Line, error) {
