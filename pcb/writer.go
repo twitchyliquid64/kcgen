@@ -118,6 +118,12 @@ func (p *PCB) Write(w io.Writer) error {
 		sw.Separator()
 	}
 
+	// Dimensions
+	for _, d := range p.Dimensions {
+		if err := d.write(sw); err != nil {
+			return err
+		}
+	}
 	// (Graphical) Text
 	for _, t := range p.Texts {
 		if err := t.write(sw); err != nil {
@@ -250,6 +256,18 @@ func (p *XY) write(prefix string, sw *swriter.SExpWriter) error {
 	return sw.CloseList(false)
 }
 
+// write generates an s-expression describing the point.
+func (p *XYZ) write(prefix string, sw *swriter.SExpWriter) error {
+	sw.StartList(false)
+	sw.StringScalar(prefix)
+	sw.StringScalar(f(p.X))
+	sw.StringScalar(f(p.Y))
+	if p.ZPresent {
+		sw.StringScalar(f(p.Z))
+	}
+	return sw.CloseList(false)
+}
+
 // write generates an s-expression describing the line.
 func (l *Line) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
@@ -312,6 +330,60 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	}
 	if err := sw.CloseList(false); err != nil {
 		return err
+	}
+
+	if err := sw.CloseList(true); err != nil {
+		return err
+	}
+	return nil
+}
+
+// write generates an s-expression describing the dimension.
+func (d *Dimension) write(sw *swriter.SExpWriter) error {
+	sw.StartList(false)
+	sw.StringScalar("dimension")
+	sw.StringScalar(f(d.CurrentMeasurement))
+
+	sw.StartList(false)
+	sw.StringScalar("width")
+	sw.StringScalar(f(d.Width))
+	if err := sw.CloseList(false); err != nil {
+		return err
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("layer")
+	sw.StringScalar(d.Layer)
+	if err := sw.CloseList(false); err != nil {
+		return err
+	}
+	sw.Newlines(1)
+
+	if err := d.Text.write(sw); err != nil {
+		return err
+	}
+	sw.Newlines(1)
+
+	for i, f := range d.Features {
+		sw.StartList(false)
+		sw.StringScalar(f.Feature)
+
+		sw.StartList(false)
+		sw.StringScalar("pts")
+		for _, pt := range f.Points {
+			if err := pt.write("xy", sw); err != nil {
+				return err
+			}
+		}
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+		if i < len(d.Features)-1 {
+			sw.Newlines(1)
+		}
 	}
 
 	if err := sw.CloseList(true); err != nil {

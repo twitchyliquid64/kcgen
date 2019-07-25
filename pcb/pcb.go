@@ -56,10 +56,11 @@ type PCB struct {
 	LayersByName map[string]*Layer
 	Layers       []*Layer
 
-	Tracks []Track
-	Vias   []Via
-	Lines  []Line
-	Texts  []Text
+	Tracks     []Track
+	Vias       []Via
+	Lines      []Line
+	Texts      []Text
+	Dimensions []Dimension
 
 	Nets       map[int]Net
 	NetClasses []NetClass
@@ -244,6 +245,13 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.Texts = append(pcb.Texts, t)
+
+			case "dimension":
+				d, err := parseDimension(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.Dimensions = append(pcb.Dimensions, d)
 
 			case "net_class":
 				c, err := parseNetClass(n, ordering)

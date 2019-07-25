@@ -11,6 +11,12 @@ type XY struct {
 	X, Y float64
 }
 
+// XYX represents a point in 3d space.
+type XYZ struct {
+	X, Y, Z  float64
+	ZPresent bool
+}
+
 // Via represents a via.
 type Via struct {
 	At       XY

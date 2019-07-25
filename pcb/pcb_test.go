@@ -154,4 +154,18 @@ func TestPCB(t *testing.T) {
 	if got, want := p.Texts[0].Effects.FontSize.X, 1.5; got != want {
 		t.Errorf("p.Texts[0].Effects.FontSize.X = %v, want %v", got, want)
 	}
+
+	if got, want := len(p.Dimensions), 2; got != want {
+		t.Errorf("len(p.Dimensions) = %v, want %v", got, want)
+		t.Logf("p.Dimensions = %+v", p.Dimensions)
+	}
+	if got, want := p.Dimensions[0].Width, 0.3; got != want {
+		t.Errorf("p.Dimensions[0].Width = %v, want %v", got, want)
+	}
+	if got, want := p.Dimensions[0].Text.Text, "12.446 mm"; got != want {
+		t.Errorf("p.Dimensions[0].Text.Text = %v, want %v", got, want)
+	}
+	if got, want := p.Dimensions[0].Features[1].Feature, "feature2"; got != want {
+		t.Errorf("p.Dimensions[0].Features[1].Feature = %v, want %v", got, want)
+	}
 }

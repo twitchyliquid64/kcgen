@@ -106,7 +106,7 @@ func TestPCBWrite(t *testing.T) {
 			pcb: PCB{
 				FormatVersion: 4,
 				Texts: []Text{
-					{At: XY{X: 100, Y: 32.5}, Text: "Oops", Layer: "F.SilkS", Effects: struct {
+					{At: XYZ{X: 100, Y: 32.5}, Text: "Oops", Layer: "F.SilkS", Effects: struct {
 						FontSize  XY
 						Thickness float64
 					}{
@@ -133,6 +133,40 @@ func TestPCBWrite(t *testing.T) {
 				},
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n\n  (zone (net 42) (net_name DBUS) (layer F.Cu) (tstamp 0) (hatch \"\" 0)\n    (connect_pads (clearance 0))\n    (min_thickness 0.254)\n    (fill no (arc_segments 0) (thermal_gap 0) (thermal_bridge_width 0))\n    (polygon\n      (pts\n        (xy 11 22) (xy 11.1 22) (xy 11 22) (xy 11 22) (xy 11 22)\n        (xy 11 22) (xy 11 22)\n      )\n    )\n    (filled_polygon\n      (pts\n        (xy 11 22) (xy 11.1 22) (xy 11 22) (xy 11 22) (xy 11 22)\n        (xy 11 22) (xy 11 22)\n      )\n    )\n  )\n)\n",
+		},
+		{
+			name: "dimensions",
+			pcb: PCB{
+				FormatVersion: 4,
+				Dimensions: []Dimension{
+					{
+						CurrentMeasurement: 12.446,
+						Width:              0.3,
+						Layer:              "F.Fab",
+						Text: Text{
+							At:    XYZ{X: 125.396, Y: 93.853, Z: 90, ZPresent: true},
+							Text:  "12.446 mm",
+							Layer: "F.Fab", Effects: struct {
+								FontSize  XY
+								Thickness float64
+							}{
+								FontSize:  XY{X: 1.5, Y: 1.5},
+								Thickness: 0.3,
+							}},
+						Features: []DimensionFeature{
+							{
+								Feature: "feature1",
+								Points:  []XY{{X: 173.736, Y: 100.076}, {X: 173.736, Y: 106.586}},
+							},
+							{
+								Feature: "feature2",
+								Points:  []XY{{X: 132.08, Y: 100.076}, {X: 132.08, Y: 106.586}},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (dimension 12.446 (width 0.3) (layer F.Fab)\n    (gr_text \"12.446 mm\" (at 125.396 93.853 90) (layer F.Fab)\n      (effects (font (size 1.5 1.5) (thickness 0.3)))\n    )\n    (feature1 (pts (xy 173.736 100.076) (xy 173.736 106.586)))\n    (feature2 (pts (xy 132.08 100.076) (xy 132.08 106.586)))\n  )\n)\n",
 		},
 	}
 
