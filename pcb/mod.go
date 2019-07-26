@@ -47,6 +47,14 @@ type ModGraphic struct {
 type renderable interface {
 }
 
+// ModPolygon represents a polygon drawn in a module.
+type ModPolygon struct {
+	At     XY
+	Points []XY
+	Layer  string
+	Width  float64
+}
+
 // ModText represents text drawn in a module.
 type ModText struct {
 	Kind ModTextKind
@@ -234,7 +242,17 @@ func parseModule(n sexp.Helper, ordering int) (*Module, error) {
 				Renderable: a,
 			})
 
-			// TODO: poly, curve
+		case "fp_poly":
+			a, err := parseModPolygon(c)
+			if err != nil {
+				return nil, err
+			}
+			m.Graphics = append(m.Graphics, ModGraphic{
+				Ident:      c.Child(0).MustString(),
+				Renderable: a,
+			})
+
+			// TODO: curve
 
 		case "pad":
 			pad, err := parseModPad(c)
@@ -311,6 +329,32 @@ func parseModLine(n sexp.Helper) (*ModLine, error) {
 	}
 
 	return &l, nil
+}
+
+func parseModPolygon(n sexp.Helper) (*ModPolygon, error) {
+	p := ModPolygon{}
+	for x := 1; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "at":
+			p.At.X = c.Child(1).MustFloat64()
+			p.At.Y = c.Child(2).MustFloat64()
+		case "pts":
+			for j := 1; j < c.MustNode().NumChildren(); j++ {
+				c := c.Child(j)
+				if marker := c.Child(0).MustString(); marker != "xy" {
+					return nil, fmt.Errorf("expected 'xy', got %q", marker)
+				}
+				p.Points = append(p.Points, XY{X: c.Child(1).MustFloat64(), Y: c.Child(2).MustFloat64()})
+			}
+		case "layer":
+			p.Layer = c.Child(1).MustString()
+		case "width":
+			p.Width = c.Child(1).MustFloat64()
+		}
+	}
+
+	return &p, nil
 }
 
 func parseModArc(n sexp.Helper) (*ModArc, error) {

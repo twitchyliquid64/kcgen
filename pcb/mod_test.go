@@ -239,6 +239,42 @@ func TestParseMod(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "polygon",
+			input: `
+(module Gauge_50mm_Type2_SilkScreenTop (layer F.Cu)
+  (at 0 0)
+  (descr "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,")
+  (tags "Gauge Massstab 50mm SilkScreenTop Type 2")
+  (attr virtual)
+	(fp_poly (pts (xy 3.461372 5.976471) (xy -3.511177 5.976471) (xy -3.511177 4.258235) (xy 3.461372 4.258235)
+		    (xy 3.461372 5.976471)) (layer F.SilkS) (width 0.01))
+)
+    `,
+			expected: Module{
+				Name:        "Gauge_50mm_Type2_SilkScreenTop",
+				Layer:       "F.Cu",
+				Description: "Gauge, Massstab, 50mm, SilkScreenTop, Type 2,",
+				Tags:        []string{"Gauge", "Massstab", "50mm", "SilkScreenTop", "Type", "2"},
+				Attrs:       []string{"virtual"},
+				Graphics: []ModGraphic{
+					{
+						Ident: "fp_poly",
+						Renderable: &ModPolygon{
+							Layer: "F.SilkS",
+							Width: 0.01,
+							Points: []XY{
+								{3.461372, 5.976471},
+								{-3.511177, 5.976471},
+								{-3.511177, 4.258235},
+								{3.461372, 4.258235},
+								{3.461372, 5.976471},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range tcs {
