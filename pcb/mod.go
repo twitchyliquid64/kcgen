@@ -72,6 +72,7 @@ type ModTextKind uint8
 const (
 	RefText ModTextKind = iota
 	ValueText
+	UserText
 )
 
 // ModLine represents a line drawn in a module.
@@ -283,8 +284,10 @@ func parseModText(n sexp.Helper) (*ModText, error) {
 		t.Kind = RefText
 	case "value":
 		t.Kind = ValueText
+	case "user":
+		t.Kind = UserText
 	default:
-		return nil, fmt.Errorf("unknown fp_line type: %v", n.Child(1).MustString())
+		return nil, fmt.Errorf("unknown fp_text type: %v", n.Child(1).MustString())
 	}
 
 	for x := 3; x < n.MustNode().NumChildren(); x++ {

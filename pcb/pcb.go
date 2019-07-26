@@ -65,6 +65,7 @@ type PCB struct {
 	Nets       map[int]Net
 	NetClasses []NetClass
 	Zones      []Zone
+	Modules    []Module
 
 	// TODO(twitchyliquid64): Compute these & expose them.
 	generalFields [][]string
@@ -259,6 +260,13 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.NetClasses = append(pcb.NetClasses, *c)
+
+			case "module":
+				m, err := parseModule(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.Modules = append(pcb.Modules, *m)
 			}
 		}
 		ordering++

@@ -118,6 +118,16 @@ func (p *PCB) Write(w io.Writer) error {
 		sw.Separator()
 	}
 
+	// Modules
+	for _, m := range p.Modules {
+		if err := m.write(sw, true); err != nil {
+			return err
+		}
+	}
+	if len(p.Modules) > 0 {
+		sw.Separator()
+	}
+
 	// Dimensions
 	for _, d := range p.Dimensions {
 		if err := d.write(sw); err != nil {

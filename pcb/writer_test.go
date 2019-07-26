@@ -162,6 +162,49 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (dimension 12.446 (width 0.3) (layer F.Fab)\n    (gr_text \"12.446 mm\" (at 125.396 93.853 90) (layer F.Fab)\n      (effects (font (size 1.5 1.5) (thickness 0.3)))\n    )\n    (feature1 (pts (xy 173.736 100.076) (xy 173.736 106.586)))\n    (feature2 (pts (xy 132.08 100.076) (xy 132.08 106.586)))\n  )\n \n)\n",
 		},
+		{
+			name: "mod simple",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Placement: ModPlacement{
+							At: XYZ{X: 159.850666, Y: 90},
+						},
+						Description: "Through hole straight pin header, 1x04, 2.54mm pitch, single row",
+						Tags:        []string{"Through", "hole", "pin", "header", "THT", "1x04", "2.54mm", "single", "row"},
+						Path:        "/5ADA7034",
+						Attrs:       []string{"smd"},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 159.850666 90)\n    (descr \"Through hole straight pin header, 1x04, 2.54mm pitch, single row\")\n    (tags \"Through hole pin header THT 1x04 2.54mm single row\")\n    (path /5ADA7034)\n    (attr smd)\n  )\n\n \n)\n",
+		},
+		{
+			name: "mod model",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Model: &ModModel{
+							Path:   "Resistors_SMD.3dshapes/R_0805_HandSoldering.wrl",
+							At:     XYZ{ZPresent: true},
+							Scale:  XYZ{X: 1, Y: 1, Z: 1, ZPresent: true},
+							Rotate: XYZ{ZPresent: true},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (model Resistors_SMD.3dshapes/R_0805_HandSoldering.wrl\n      (at (xyz 0 0 0))\n      (scale (xyz 1 1 1))\n      (rotate (xyz 0 0 0))\n    )\n  )\n\n \n)\n",
+		},
 	}
 
 	for _, tc := range tcs {
