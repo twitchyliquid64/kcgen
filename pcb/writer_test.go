@@ -205,6 +205,146 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (model Resistors_SMD.3dshapes/R_0805_HandSoldering.wrl\n      (at (xyz 0 0 0))\n      (scale (xyz 1 1 1))\n      (rotate (xyz 0 0 0))\n    )\n  )\n\n \n)\n",
 		},
+		{
+			name: "mod text",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Graphics: []ModGraphic{
+							{
+								Ident: "fp_text",
+								Renderable: &ModText{
+									Kind:  RefText,
+									Text:  "R9",
+									At:    XYZ{X: -1, Y: 0.625},
+									Layer: "F.Fab",
+									Effects: TextEffects{
+										FontSize:  XY{X: 1, Y: 1},
+										Thickness: 0.15,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_text reference R9 (at -1 0.625) (layer F.Fab)\n      (effects (font (size 1 1) (thickness 0.15)))\n    )\n  )\n\n \n)\n",
+		},
+		{
+			name: "mod line",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Graphics: []ModGraphic{
+							{
+								Ident: "fp_line",
+								Renderable: &ModLine{
+									Start: XY{X: -1, Y: 0.625},
+									End:   XY{X: -1, Y: -0.625},
+									Layer: "F.Fab",
+									Width: 0.1,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_line (start -1 0.625) (end -1 -0.625) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
+		},
+		{
+			name: "mod circle",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Graphics: []ModGraphic{
+							{
+								Ident: "fp_circle",
+								Renderable: &ModCircle{
+									Center: XY{X: -1, Y: 0.625},
+									End:    XY{X: -1, Y: -0.625},
+									Layer:  "F.Fab",
+									Width:  0.1,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_circle (center -1 0.625) (end -1 -0.625) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
+		},
+		{
+			name: "mod arc",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Graphics: []ModGraphic{
+							{
+								Ident: "fp_arc",
+								Renderable: &ModArc{
+									Start: XY{X: -1, Y: 0.625},
+									End:   XY{X: -1, Y: -0.625},
+									Angle: 90,
+									Layer: "F.Fab",
+									Width: 0.1,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_arc (start -1 0.625) (end -1 -0.625) (angle 90) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
+		},
+		{
+			name: "mod polygon",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Graphics: []ModGraphic{
+							{
+								Ident: "fp_poly",
+								Renderable: &ModPolygon{
+									Points: []XY{
+										{},
+										{X: 1},
+										{X: 1, Y: 1},
+										{Y: 1},
+										{},
+									},
+									Layer: "F.Fab",
+									Width: 0.1,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_poly (pts (xy 0 0) (xy 1 0) (xy 1 1) (xy 0 1)\n        (xy 0 0)) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
+		},
 	}
 
 	for _, tc := range tcs {

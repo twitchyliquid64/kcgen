@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/nsf/sexp"
+	"github.com/twitchyliquid64/kcgen/swriter"
 )
 
 // Module describes a KiCad module.
@@ -41,10 +42,11 @@ type ModPlacement struct {
 // ModGraphic represents a graphical feature in a module.
 type ModGraphic struct {
 	Ident      string
-	Renderable renderable
+	Renderable modDrawable
 }
 
-type renderable interface {
+type modDrawable interface {
+	write(sw *swriter.SExpWriter) error
 }
 
 // ModPolygon represents a polygon drawn in a module.
@@ -67,6 +69,18 @@ type ModText struct {
 
 // ModTextKind describes the type of text drawing.
 type ModTextKind uint8
+
+func (k ModTextKind) String() string {
+	switch k {
+	case RefText:
+		return "reference"
+	case UserText:
+		return "user"
+	case ValueText:
+		return "value"
+	}
+	return "?????"
+}
 
 // Valid ModTextKind values.
 const (
