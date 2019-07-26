@@ -120,6 +120,7 @@ const (
 	ShapeCircle
 	ShapeTrapezoid
 	ShapeRoundRect
+	ShapeChamferedRect
 	ShapeCustom
 	ShapeDrillOblong
 
@@ -146,16 +147,16 @@ type Pad struct {
 	DrillSize   XY
 	DrillShape  PadShape
 
-	DieLength         float64
-	ZoneConnect       float64
-	ThermalWidth      float64
-	ThermalGap        float64
-	RoundRectRRatio   float64
-	ChamferRation     float64
-	SolderMaskMargin  float64
-	SolderPasteMargin float64
-	SolderPasteRatio  float64
-	Clearance         float64
+	DieLength              float64
+	ZoneConnect            int
+	ThermalWidth           float64
+	ThermalGap             float64
+	RoundRectRRatio        float64
+	ChamferRatio           float64
+	SolderMaskMargin       float64
+	SolderPasteMargin      float64
+	SolderPasteMarginRatio float64
+	Clearance              float64
 
 	Surface PadSurface
 	Shape   PadShape
@@ -460,18 +461,21 @@ func parseModPad(n sexp.Helper) (*Pad, error) {
 				c := c.Child(z)
 				if c.IsList() {
 					switch c.Child(0).MustString() {
-					case "oval":
-						p.DrillShape = ShapeDrillOblong
 					case "offset":
 						p.DrillOffset = XY{X: c.Child(1).MustFloat64(), Y: c.Child(2).MustFloat64()}
 					}
 				} else {
-					// Width or height
-					if readWidth {
-						p.DrillSize.Y = c.MustFloat64()
-					} else {
-						p.DrillSize.X = c.MustFloat64()
-						readWidth = true
+					switch {
+					case c.MustString() == "oval":
+						p.DrillShape = ShapeDrillOblong
+					default:
+						// Width or height
+						if readWidth {
+							p.DrillSize.Y = c.MustFloat64()
+						} else {
+							p.DrillSize.X = c.MustFloat64()
+							readWidth = true
+						}
 					}
 				}
 			}
@@ -488,10 +492,10 @@ func parseModPad(n sexp.Helper) (*Pad, error) {
 			p.SolderPasteMargin = c.Child(1).MustFloat64()
 		case "solder_mask_margin":
 			p.SolderMaskMargin = c.Child(1).MustFloat64()
-		case "solder_paste_ratio":
-			p.SolderPasteRatio = c.Child(1).MustFloat64()
+		case "solder_paste_margin_ratio":
+			p.SolderPasteMarginRatio = c.Child(1).MustFloat64()
 		case "zone_connect":
-			p.ZoneConnect = c.Child(1).MustFloat64()
+			p.ZoneConnect = c.Child(1).MustInt()
 		case "thermal_width":
 			p.ThermalWidth = c.Child(1).MustFloat64()
 		case "thermal_gap":
@@ -499,7 +503,10 @@ func parseModPad(n sexp.Helper) (*Pad, error) {
 		case "roundrect_rratio":
 			p.RoundRectRRatio = c.Child(1).MustFloat64()
 		case "chamfer_ratio":
-			p.ChamferRation = c.Child(1).MustFloat64()
+			p.ChamferRatio = c.Child(1).MustFloat64()
+			if p.ChamferRatio > 0 {
+				p.Shape = ShapeChamferedRect
+			}
 
 			// TODO: chamfer, options, primitives
 		}
