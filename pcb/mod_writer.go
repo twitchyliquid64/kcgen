@@ -86,6 +86,12 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 		}
 	}
 
+	for _, p := range m.Pads {
+		if err := p.write(sw); err != nil {
+			return err
+		}
+	}
+
 	if m.Model != nil {
 		sw.StartList(true)
 		sw.StringScalar("model")
@@ -247,6 +253,14 @@ func (t *ModText) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
+	if t.Effects.Justify != JustifyNone {
+		sw.StartList(false)
+		sw.StringScalar("justify")
+		sw.StringScalar(t.Effects.Justify.String())
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
@@ -288,6 +302,151 @@ func (p *ModPolygon) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
+
+	return sw.CloseList(false)
+}
+
+func (p *Pad) write(sw *swriter.SExpWriter) error {
+	sw.StartList(true)
+	sw.StringScalar("pad")
+	sw.StringScalar(p.Ident)
+	sw.StringScalar(p.Surface.String())
+	sw.StringScalar(p.Shape.String())
+
+	if err := p.At.write("at", sw); err != nil {
+		return err
+	}
+	if err := p.Size.write("size", sw); err != nil {
+		return err
+	}
+
+	if p.RectDelta.X != 0 || p.RectDelta.Y != 0 {
+		if err := p.RectDelta.write("rect_delta", sw); err != nil {
+			return err
+		}
+	}
+
+	if p.DrillSize.X > 0 || p.DrillSize.Y > 0 || p.DrillOffset.X != 0 || p.DrillOffset.Y != 0 {
+		sw.StartList(false)
+		sw.StringScalar("drill")
+		if p.DrillShape == ShapeDrillOblong {
+			sw.StringScalar("oval")
+		}
+
+		if p.DrillSize.X > 0 {
+			sw.StringScalar(f(p.DrillSize.X))
+		}
+		if p.DrillSize.Y > 0 && p.DrillSize.Y != p.DrillSize.X {
+			sw.StringScalar(f(p.DrillSize.Y))
+		}
+		if p.DrillOffset.X != 0 || p.DrillOffset.Y != 0 {
+			if err := p.DrillOffset.write("offset", sw); err != nil {
+				return err
+			}
+		}
+
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
+	sw.StartList(false)
+	sw.StringScalar("layers")
+	for _, l := range p.Layers {
+		sw.StringScalar(l)
+	}
+	if err := sw.CloseList(false); err != nil {
+		return err
+	}
+	sw.Newlines(1)
+
+	if p.Shape == ShapeRoundRect || p.Shape == ShapeChamferedRect {
+		sw.StartList(false)
+		sw.StringScalar("roundrect_rratio")
+		sw.StringScalar(f(p.RoundRectRRatio))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	// if p.Shape == ShapeChamferedRect {
+	//   sw.Newlines(1)
+	//   // TODO: Implement
+	// }
+	if p.NetNum != 0 {
+		sw.StartList(false)
+		sw.StringScalar("net")
+		sw.IntScalar(p.NetNum)
+		sw.StringScalar(p.NetName)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
+	if p.DieLength != 0 {
+		sw.StartList(false)
+		sw.StringScalar("die_length")
+		sw.StringScalar(f(p.DieLength))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.SolderMaskMargin != 0 {
+		sw.StartList(false)
+		sw.StringScalar("solder_mask_margin")
+		sw.StringScalar(f(p.SolderMaskMargin))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.SolderPasteMargin != 0 {
+		sw.StartList(false)
+		sw.StringScalar("solder_paste_margin")
+		sw.StringScalar(f(p.SolderPasteMargin))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.SolderPasteMarginRatio != 0 {
+		sw.StartList(false)
+		sw.StringScalar("solder_paste_margin_ratio")
+		sw.StringScalar(f(p.SolderPasteMarginRatio))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.Clearance != 0 {
+		sw.StartList(false)
+		sw.StringScalar("clearance")
+		sw.StringScalar(f(p.Clearance))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.ZoneConnect != 0 {
+		sw.StartList(false)
+		sw.StringScalar("zone_connect")
+		sw.IntScalar(p.ZoneConnect)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.ThermalWidth != 0 {
+		sw.StartList(false)
+		sw.StringScalar("thermal_width")
+		sw.StringScalar(f(p.ThermalWidth))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if p.ThermalGap != 0 {
+		sw.StartList(false)
+		sw.StringScalar("thermal_gap")
+		sw.StringScalar(f(p.ThermalGap))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	// TODO: Custom mode.
 
 	return sw.CloseList(false)
 }

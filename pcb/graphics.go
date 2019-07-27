@@ -1,6 +1,8 @@
 package pcb
 
 import (
+	"fmt"
+
 	"github.com/nsf/sexp"
 )
 
@@ -9,19 +11,49 @@ import (
 
 // Text represents some text to be rendered.
 type Text struct {
-	Text  string
-	Layer string
-	At    XYZ
+	Text     string
+	Layer    string
+	At       XYZ
+	Unlocked bool
 
 	Effects TextEffects
+	Hidden  bool
 
 	order int
 }
+
+type TextJustify uint8
+
+func (j TextJustify) String() string {
+	switch j {
+	case JustifyMirror:
+		return "mirror"
+	case JustifyLeft:
+		return "left"
+	case JustifyRight:
+		return "right"
+	case JustifyTop:
+		return "top"
+	case JustifyBottom:
+		return "bottom"
+	}
+	return "???????"
+}
+
+const (
+	JustifyNone TextJustify = iota
+	JustifyMirror
+	JustifyLeft
+	JustifyRight
+	JustifyTop
+	JustifyBottom
+)
 
 // TextEffects describes styling which can be applied to a text drawing.
 type TextEffects struct {
 	FontSize  XY
 	Thickness float64
+	Justify   TextJustify
 }
 
 // Line represents a graphical line.
@@ -108,9 +140,15 @@ func parseGRText(n sexp.Helper, ordering int) (Text, error) {
 			t.At.X = c.Child(1).MustFloat64()
 			t.At.Y = c.Child(2).MustFloat64()
 			if c.MustNode().NumChildren() >= 4 {
-				t.At.Z = c.Child(3).MustFloat64()
-				t.At.ZPresent = true
+				if f, err := c.Child(3).Float64(); err == nil {
+					t.At.Z = f
+					t.At.ZPresent = true
+				} else if c.Child(3).MustString() == "unlocked" {
+					t.Unlocked = true
+				}
 			}
+		case "hide":
+			t.Hidden = true
 		case "layer":
 			t.Layer = c.Child(1).MustString()
 		case "effects":
@@ -139,6 +177,21 @@ func parseTextEffects(n sexp.Helper) (TextEffects, error) {
 				case "thickness":
 					e.Thickness = c.Child(1).MustFloat64()
 				}
+			}
+		case "justify":
+			switch c.Child(1).MustString() {
+			case "mirror":
+				e.Justify = JustifyMirror
+			case "top":
+				e.Justify = JustifyTop
+			case "bottom":
+				e.Justify = JustifyBottom
+			case "left":
+				e.Justify = JustifyLeft
+			case "right":
+				e.Justify = JustifyRight
+			default:
+				return TextEffects{}, fmt.Errorf("unknown justify value: %q", c.Child(1).MustString())
 			}
 		}
 	}

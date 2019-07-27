@@ -125,7 +125,39 @@ type ModModel struct {
 
 type PadSurface uint8
 
+func (s PadSurface) String() string {
+	switch s {
+	case SurfaceSMD:
+		return "smd"
+	case SurfaceTH:
+		return "thru_hole"
+	case SurfaceNPTH:
+		return "np_thru_hole"
+	case SurfaceConnect:
+		return "connect"
+	}
+	return "????"
+}
+
 type PadShape uint8
+
+func (s PadShape) String() string {
+	switch s {
+	case ShapeRect:
+		return "rect"
+	case ShapeOval:
+		return "oval"
+	case ShapeCircle:
+		return "circle"
+	case ShapeTrapezoid:
+		return "trapezoid"
+	case ShapeRoundRect:
+		return "roundrect"
+	case ShapeCustom:
+		return "custom"
+	}
+	return "????"
+}
 
 // Pad constants
 const (

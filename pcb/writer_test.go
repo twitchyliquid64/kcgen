@@ -345,6 +345,33 @@ func TestPCBWrite(t *testing.T) {
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_poly (pts (xy 0 0) (xy 1 0) (xy 1 1) (xy 0 1)\n        (xy 0 0)) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
 		},
+		{
+			name: "mod pad",
+			pcb: PCB{
+				FormatVersion: 4,
+				Modules: []Module{
+					{
+						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:  "F.Cu",
+						Tedit:  "5ADA75A0",
+						Tstamp: "5AE3D8AB",
+						Pads: []Pad{
+							{
+								Ident:     "1",
+								NetNum:    1,
+								NetName:   "GND",
+								Layers:    []string{"*.Cu", "*.Mask"},
+								Surface:   SurfaceTH,
+								Shape:     ShapeRect,
+								DrillSize: XY{X: 1, Y: 1},
+								Size:      XY{X: 1.7, Y: 1.7},
+							},
+						},
+					},
+				},
+			},
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (pad 1 thru_hole rect (at 0 0) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)\n      (net 1 GND))\n  )\n\n \n)\n",
+		},
 	}
 
 	for _, tc := range tcs {
@@ -380,6 +407,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 			name:  "dimension",
 			fname: "dimension_equality.kicad_pcb",
 		},
+		{
+			name:  "t1",
+			fname: "t1.kicad_pcb",
+		},
 	}
 
 	for _, tc := range tcs {
@@ -398,7 +429,7 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			// ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
+			ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
 			if !bytes.Equal(d, serialized.Bytes()) {
 				t.Error("outputs differ")
 				diffs := diff.New()

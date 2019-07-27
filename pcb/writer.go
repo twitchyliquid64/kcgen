@@ -119,9 +119,12 @@ func (p *PCB) Write(w io.Writer) error {
 	}
 
 	// Modules
-	for _, m := range p.Modules {
+	for i, m := range p.Modules {
 		if err := m.write(sw, true); err != nil {
 			return err
+		}
+		if i < len(p.Modules)-1 {
+			sw.Separator()
 		}
 	}
 	if len(p.Modules) > 0 {
@@ -316,6 +319,10 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 		return err
 	}
 
+	if t.Hidden {
+		sw.StringScalar("hide")
+	}
+
 	sw.StartList(false)
 	sw.StringScalar("layer")
 	sw.StringScalar(t.Layer)
@@ -338,6 +345,14 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	}
 	if err := sw.CloseList(false); err != nil {
 		return err
+	}
+	if t.Effects.Justify != JustifyNone {
+		sw.StartList(false)
+		sw.StringScalar("justify")
+		sw.StringScalar(t.Effects.Justify.String())
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
 	if err := sw.CloseList(false); err != nil {
 		return err
