@@ -10,39 +10,39 @@ import (
 
 // Module describes a KiCad module.
 type Module struct {
-	Name      string
-	Placement ModPlacement
+	Name      string       `json:"name"`
+	Placement ModPlacement `json:"placement"`
 
-	Layer string
+	Layer string `json:"layer"`
 
-	SolderMaskMargin  float64
-	SolderPasteMargin float64
-	SolderPasteRatio  float64
-	Clearance         float64
+	SolderMaskMargin  float64 `json:"solder_mask_margin,omitempty"`
+	SolderPasteMargin float64 `json:"solder_paste_margin,omitempty"`
+	SolderPasteRatio  float64 `json:"solder_paste_ratio,omitempty"`
+	Clearance         float64 `json:"clearance,omitempty"`
 
-	Tedit  string
-	Tstamp string
-	Path   string
+	Tedit  string `json:"tedit"`
+	Tstamp string `json:"tstamp"`
+	Path   string `json:"path"`
 
-	Description string
-	Tags        []string
-	Attrs       []string
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+	Attrs       []string `json:"attrs"`
 	order       int
 
-	Graphics []ModGraphic
-	Pads     []Pad
-	Model    *ModModel
+	Graphics []ModGraphic `json:"graphics"`
+	Pads     []Pad        `json:"pads"`
+	Model    *ModModel    `json:"model,omitempty"`
 }
 
 // ModPlacement describes the positioning of a module on a PCB.
 type ModPlacement struct {
-	At XYZ
+	At XYZ `json:"position"`
 }
 
 // ModGraphic represents a graphical feature in a module.
 type ModGraphic struct {
-	Ident      string
-	Renderable modDrawable
+	Ident      string      `json:"type"`
+	Renderable modDrawable `json:"renderable"`
 }
 
 type modDrawable interface {
@@ -51,20 +51,20 @@ type modDrawable interface {
 
 // ModPolygon represents a polygon drawn in a module.
 type ModPolygon struct {
-	At     XY
-	Points []XY
-	Layer  string
-	Width  float64
+	At     XY      `json:"position"`
+	Points []XY    `json:"points"`
+	Layer  string  `json:"layer"`
+	Width  float64 `json:"width"`
 }
 
 // ModText represents text drawn in a module.
 type ModText struct {
-	Kind ModTextKind
-	Text string
-	At   XYZ
+	Kind ModTextKind `json:"kind"`
+	Text string      `json:"value"`
+	At   XYZ         `json:"position"`
 
-	Layer   string
-	Effects TextEffects
+	Layer   string      `json:"layer"`
+	Effects TextEffects `json:"effects"`
 }
 
 // ModTextKind describes the type of text drawing.
@@ -91,36 +91,36 @@ const (
 
 // ModLine represents a line drawn in a module.
 type ModLine struct {
-	Start XY
-	End   XY
+	Start XY `json:"start"`
+	End   XY `json:"end"`
 
-	Layer string
-	Width float64
+	Layer string  `json:"layer"`
+	Width float64 `json:"width"`
 }
 
 // ModCircle represents a circle drawn in a module.
 type ModCircle struct {
-	Center XY
-	End    XY
-	Layer  string
-	Width  float64
+	Center XY      `json:"center"`
+	End    XY      `json:"end"`
+	Layer  string  `json:"layer"`
+	Width  float64 `json:"width"`
 }
 
 // ModArc represents an arc drawn in a module.
 type ModArc struct {
-	Start XY
-	End   XY
-	Layer string
-	Angle float64
-	Width float64
+	Start XY      `json:"start"`
+	End   XY      `json:"end"`
+	Layer string  `json:"layer"`
+	Angle float64 `json:"angle"`
+	Width float64 `json:"width"`
 }
 
 // ModModel describes configuration for rendering a 3d model of the part.
 type ModModel struct {
-	Path   string
-	At     XYZ
-	Scale  XYZ
-	Rotate XYZ
+	Path   string `json:"path"`
+	At     XYZ    `json:"position"`
+	Scale  XYZ    `json:"scale"`
+	Rotate XYZ    `json:"rotate"`
 }
 
 type PadSurface uint8
@@ -180,33 +180,33 @@ const (
 
 // Pad represents a copper pad.
 type Pad struct {
-	Ident   string
-	NetNum  int
-	NetName string
+	Ident   string `json:"pin"`
+	NetNum  int    `json:"net_num"`
+	NetName string `json:"net_name"`
 
-	At     XYZ
-	Size   XY
-	Layers []string
+	At     XYZ      `json:"position"`
+	Size   XY       `json:"size"`
+	Layers []string `json:"layers"`
 
-	RectDelta XY
+	RectDelta XY `json:"rect_delta,omitempty"`
 
-	DrillOffset XY
-	DrillSize   XY
-	DrillShape  PadShape
+	DrillOffset XY       `json:"drill_offset"`
+	DrillSize   XY       `json:"drill_size"`
+	DrillShape  PadShape `json:"drill_shape"`
 
-	DieLength              float64
-	ZoneConnect            int
-	ThermalWidth           float64
-	ThermalGap             float64
-	RoundRectRRatio        float64
-	ChamferRatio           float64
-	SolderMaskMargin       float64
-	SolderPasteMargin      float64
-	SolderPasteMarginRatio float64
-	Clearance              float64
+	DieLength              float64 `json:"die_length,omitempty"`
+	ZoneConnect            int     `json:"zone_connect,omitempty"`
+	ThermalWidth           float64 `json:"thermal_width,omitempty"`
+	ThermalGap             float64 `json:"thermal_gap,omitempty"`
+	RoundRectRRatio        float64 `json:"roundrect_rratio,omitempty"`
+	ChamferRatio           float64 `json:"chamfer_ratio,omitempty"`
+	SolderMaskMargin       float64 `json:"solder_mask_margin,omitempty"`
+	SolderPasteMargin      float64 `json:"solder_paste_margin,omitempty"`
+	SolderPasteMarginRatio float64 `json:"solder_paste_margin_ratio,omitempty"`
+	Clearance              float64 `json:"clearance,omitempty"`
 
-	Surface PadSurface
-	Shape   PadShape
+	Surface PadSurface `json:"surface"`
+	Shape   PadShape   `json:"shape"`
 }
 
 func parseModule(n sexp.Helper, ordering int) (*Module, error) {

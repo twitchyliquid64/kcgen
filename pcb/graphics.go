@@ -11,13 +11,13 @@ import (
 
 // Text represents some text to be rendered.
 type Text struct {
-	Text     string
-	Layer    string
-	At       XYZ
-	Unlocked bool
+	Text     string `json:"value"`
+	Layer    string `json:"layer"`
+	At       XYZ    `json:"position"`
+	Unlocked bool   `json:"unlocked"`
 
-	Effects TextEffects
-	Hidden  bool
+	Effects TextEffects `json:"effects"`
+	Hidden  bool        `json:"hidden"`
 
 	order int
 }
@@ -51,30 +51,30 @@ const (
 
 // TextEffects describes styling which can be applied to a text drawing.
 type TextEffects struct {
-	FontSize  XY
-	Thickness float64
-	Justify   TextJustify
+	FontSize  XY          `json:"size"`
+	Thickness float64     `json:"thickness"`
+	Justify   TextJustify `json:"justify"`
 }
 
 // Line represents a graphical line.
 type Line struct {
-	Start XY
-	End   XY
-	Layer string
-	Width float64
+	Start XY      `json:"start"`
+	End   XY      `json:"end"`
+	Layer string  `json:"layer"`
+	Width float64 `json:"width"`
 
 	order int
 }
 
 // Dimension represents a measurement graphic.
 type Dimension struct {
-	CurrentMeasurement float64
+	CurrentMeasurement float64 `json:"value"`
 
-	Text     Text
-	Features []DimensionFeature
+	Text     Text               `json:"text"`
+	Features []DimensionFeature `json:"features"`
 
-	Width float64
-	Layer string
+	Width float64 `json:"width"`
+	Layer string  `json:"layer"`
 
 	order int
 }
@@ -82,8 +82,8 @@ type Dimension struct {
 // DimensionFeature is a graphical element used as part of a
 // dimension.
 type DimensionFeature struct {
-	Feature string
-	Points  []XY
+	Feature string `json:"feature"`
+	Points  []XY   `json:"points,omitempty"`
 }
 
 func parseDimension(n sexp.Helper, ordering int) (Dimension, error) {

@@ -11,61 +11,61 @@ import (
 
 // Layer describes the attributes of a layer.
 type Layer struct {
-	Num  int
-	Name string
-	Type string
+	Num  int    `json:"num"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 
 	order int
 }
 
 // Net represents a netlist.
 type Net struct {
-	Name string
+	Name string `json:"name"`
 
 	order int
 }
 
 // NetClass represents a net class.
 type NetClass struct {
-	Name        string
-	Description string
+	Name        string `json:"name"`
+	Description string `json:"description"`
 
-	Clearance    float64
-	TraceWidth   float64
-	ViaDiameter  float64
-	ViaDrill     float64
-	UViaDiameter float64
-	UViaDrill    float64
+	Clearance    float64 `json:"clearance"`
+	TraceWidth   float64 `json:"trace_width"`
+	ViaDiameter  float64 `json:"via_dia"`
+	ViaDrill     float64 `json:"via_drill"`
+	UViaDiameter float64 `json:"uvia_dia"`
+	UViaDrill    float64 `json:"uvia_drill"`
 
 	// Nets contains the names of nets which are part of this class.
-	Nets []string
+	Nets []string `json:"connect_pads"`
 
 	order int
 }
 
 // PCB represents the parsed contents of a kicad_pcb file.
 type PCB struct {
-	FormatVersion int
+	FormatVersion int `json:"format_version"`
 	CreatedBy     struct {
-		Tool    string
-		Version string
-	}
+		Tool    string `json:"tool"`
+		Version string `json:"version"`
+	} `json:"created_by"`
 
-	EditorSetup EditorSetup
+	EditorSetup EditorSetup `json:"editor_setup"`
 
-	LayersByName map[string]*Layer
-	Layers       []*Layer
+	LayersByName map[string]*Layer `json:"-"`
+	Layers       []*Layer          `json:"layers"`
 
-	Tracks     []Track
-	Vias       []Via
-	Lines      []Line
-	Texts      []Text
-	Dimensions []Dimension
+	Tracks     []Track     `json:"tracks"`
+	Vias       []Via       `json:"vias"`
+	Lines      []Line      `json:"lines"`
+	Texts      []Text      `json:"texts"`
+	Dimensions []Dimension `json:"dimensions"`
 
-	Nets       map[int]Net
-	NetClasses []NetClass
-	Zones      []Zone
-	Modules    []Module
+	Nets       map[int]Net `json:"nets"`
+	NetClasses []NetClass  `json:"net_classes"`
+	Zones      []Zone      `json:"zones"`
+	Modules    []Module    `json:"modules"`
 
 	// TODO(twitchyliquid64): Compute these & expose them.
 	generalFields [][]string

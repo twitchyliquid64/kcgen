@@ -8,65 +8,68 @@ import (
 
 // XY represents a point in space.
 type XY struct {
-	X, Y float64
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 // XYX represents a point in 3d space.
 type XYZ struct {
-	X, Y, Z  float64
-	ZPresent bool
+	X        float64 `json:"x"`
+	Y        float64 `json:"y"`
+	Z        float64 `json:"z"`
+	ZPresent bool    `json:"z_present"`
 }
 
 // Via represents a via.
 type Via struct {
-	At       XY
-	Size     float64
-	Drill    float64
-	Layers   []string
-	NetIndex int
+	At       XY       `json:"position"`
+	Size     float64  `json:"size"`
+	Drill    float64  `json:"drill,omitempty"`
+	Layers   []string `json:"layers"`
+	NetIndex int      `json:"net_index"`
 
 	order int
 }
 
 // Zone represents a zone.
 type Zone struct {
-	NetNum  int
-	NetName string
-	Layer   string
+	NetNum  int    `json:"net_num"`
+	NetName string `json:"net_name"`
+	Layer   string `json:"layer"`
 
-	Tstamp string
+	Tstamp string `json:"tstamp"`
 
 	Hatch struct {
-		Mode string
-		Size float64
-	}
+		Mode string  `json:"mode"`
+		Size float64 `json:"size"`
+	} `json:"hatch"`
 
 	ConnectPads struct {
-		Clearance float64
-	}
+		Clearance float64 `json:"clearance"`
+	} `json:"connect_pads"`
 
 	Fill struct {
-		Enabled            bool
-		Segments           int
-		ThermalGap         float64
-		ThermalBridgeWidth float64
-	}
+		Enabled            bool    `json:"enabled"`
+		Segments           int     `json:"segments"`
+		ThermalGap         float64 `json:"thermal_gap"`
+		ThermalBridgeWidth float64 `json:"thermal_bridge_width"`
+	} `json:"fill"`
 
-	MinThickness float64
+	MinThickness float64 `json:"min_thickness"`
 
-	Polys     [][]XY
-	BasePolys [][]XY
+	Polys     [][]XY `json:"polys,omitempty"`
+	BasePolys [][]XY `json:"base_polys,omitempty"`
 
 	order int
 }
 
 // Track represents a PCB track.
 type Track struct {
-	Start    XY
-	End      XY
-	Width    float64
-	Layer    string
-	NetIndex int
+	Start    XY      `json:"start"`
+	End      XY      `json:"end"`
+	Width    float64 `json:"width"`
+	Layer    string  `json:"layer"`
+	NetIndex int     `json:"net_index"`
 
 	order int
 }
