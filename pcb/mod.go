@@ -2,6 +2,7 @@ package pcb
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/nsf/sexp"
@@ -207,6 +208,14 @@ type Pad struct {
 
 	Surface PadSurface `json:"surface"`
 	Shape   PadShape   `json:"shape"`
+}
+
+func ParseModule(r io.RuneReader) (*Module, error) {
+	ast, err := sexp.Parse(r, nil)
+	if err != nil {
+		return nil, err
+	}
+	return parseModule(sexp.Help(ast).Child(0), 0)
 }
 
 func parseModule(n sexp.Helper, ordering int) (*Module, error) {

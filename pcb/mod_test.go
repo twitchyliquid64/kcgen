@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/nsf/sexp"
 )
 
 func TestParseMod(t *testing.T) {
@@ -279,12 +277,7 @@ func TestParseMod(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			ast, err := sexp.Parse(strings.NewReader(tc.input), nil)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			mod, err := parseModule(sexp.Help(ast).Child(0), 0)
+			mod, err := ParseModule(strings.NewReader(tc.input))
 			if err != nil {
 				t.Fatalf("parseModule() failed: %v", err)
 			}
