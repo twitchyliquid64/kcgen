@@ -2,6 +2,7 @@ package pcb
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/nsf/sexp"
 )
@@ -127,9 +128,18 @@ func parseZone(n sexp.Helper, ordering int) (*Zone, error) {
 				}
 			}
 		case "fill":
-			z.Fill.Enabled = c.Child(1).MustString() == "yes"
-			for y := 2; y < c.MustNode().NumChildren(); y++ {
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
 				c2 := c.Child(y)
+				if c2.IsScalar() {
+					switch c2.MustNode().Value {
+					case "yes":
+						z.Fill.Enabled = true
+					default:
+						return nil, fmt.Errorf("unhandled scalar in zone fill: %v", c2.MustNode().Value)
+					}
+					continue
+				}
+
 				switch c2.Child(0).MustString() {
 				case "arc_segments":
 					z.Fill.Segments = c2.Child(1).MustInt()

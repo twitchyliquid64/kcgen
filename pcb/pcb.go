@@ -102,6 +102,7 @@ type EditorSetup struct {
 	PadSize            []float64
 	PadDrill           float64
 	PadToMaskClearance float64
+	SolderMaskMinWidth float64
 
 	AuxAxisOrigin   []float64
 	VisibleElements string
@@ -371,6 +372,8 @@ func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
 			e.PadDrill = c.Child(1).MustFloat64()
 		case "pad_to_mask_clearance":
 			e.PadToMaskClearance = c.Child(1).MustFloat64()
+		case "solder_mask_min_width":
+			e.SolderMaskMinWidth = c.Child(1).MustFloat64()
 
 		case "aux_axis_origin":
 			for y := 1; y < c.MustNode().NumChildren(); y++ {

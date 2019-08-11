@@ -36,7 +36,7 @@ func (p *PCB) Write(w io.Writer) error {
 	if p.CreatedBy.Version == "" {
 		sw.StringScalar("0.0.1")
 	} else {
-		sw.StringScalar(p.CreatedBy.Version)
+		sw.StringScalarNoQuotes(p.CreatedBy.Version)
 	}
 	if err := sw.CloseList(false); err != nil {
 		return err
@@ -109,9 +109,12 @@ func (p *PCB) Write(w io.Writer) error {
 	}
 
 	// Net classes
-	for _, nc := range p.NetClasses {
+	for i, nc := range p.NetClasses {
 		if err := nc.write(sw); err != nil {
 			return err
+		}
+		if i < len(p.NetClasses)-1 {
+			sw.Separator()
 		}
 	}
 	if len(p.NetClasses) > 0 {
@@ -261,6 +264,23 @@ func f(f float64) string {
 	return t
 }
 
+func fPrecise(f float64, precision int) string {
+	t := fmt.Sprintf("%."+fmt.Sprint(precision)+"f", f)
+	if t[len(t)-1] != '0' {
+		return t
+	}
+
+	for i := len(t) - 1; i >= 0; i-- {
+		if t[i] != '0' {
+			if t[i] == '.' {
+				return t[:i]
+			}
+			return t[:i+1]
+		}
+	}
+	return t
+}
+
 // write generates an s-expression describing the point.
 func (p *XY) write(prefix string, sw *swriter.SExpWriter) error {
 	sw.StartList(false)
@@ -278,6 +298,18 @@ func (p *XYZ) write(prefix string, sw *swriter.SExpWriter) error {
 	sw.StringScalar(f(p.Y))
 	if p.ZPresent {
 		sw.StringScalar(f(p.Z))
+	}
+	return sw.CloseList(false)
+}
+
+// writeDouble generates an s-expression describing the point with double precision.
+func (p *XYZ) writeDouble(prefix string, sw *swriter.SExpWriter) error {
+	sw.StartList(false)
+	sw.StringScalar(prefix)
+	sw.StringScalar(fPrecise(p.X, 16))
+	sw.StringScalar(fPrecise(p.Y, 16))
+	if p.ZPresent {
+		sw.StringScalar(fPrecise(p.Z, 16))
 	}
 	return sw.CloseList(false)
 }
@@ -637,6 +669,14 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
+	if l.SolderMaskMinWidth > 0 {
+		sw.StartList(true)
+		sw.StringScalar("solder_mask_min_width")
+		sw.StringScalar(f(l.SolderMaskMinWidth))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
 
 	if len(l.AuxAxisOrigin) > 0 {
 		sw.StartList(true)
@@ -672,7 +712,11 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 			sw.StartList(true)
 			sw.StringScalar(pp.name)
 			for _, v := range pp.values {
-				sw.StringScalar(v)
+				if alwaysQuotePlotParams[pp.name] {
+					sw.StringScalarQuotes(v)
+				} else {
+					sw.StringScalar(v)
+				}
 			}
 			if err := sw.CloseList(false); err != nil {
 				return err
@@ -688,6 +732,10 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 	}
 	sw.Separator()
 	return nil
+}
+
+var alwaysQuotePlotParams = map[string]bool{
+	"outputdirectory": true,
 }
 
 // write generates an s-expression describing the layer.

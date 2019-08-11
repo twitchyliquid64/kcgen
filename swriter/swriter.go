@@ -78,6 +78,30 @@ func (w *SExpWriter) StringScalar(in string) {
 	w.needSeparator = true
 }
 
+// StringScalarNoQuotes writes a scalar string value to the next position,
+// never using quotes.
+func (w *SExpWriter) StringScalarNoQuotes(in string) {
+	if w.needSeparator {
+		w.writer.WriteRune(' ')
+	}
+	w.writer.WriteString(in)
+	w.needSeparator = true
+}
+
+// StringScalarQuotes writes a scalar string value to the next position,
+// never using quotes.
+func (w *SExpWriter) StringScalarQuotes(in string) {
+	if w.needSeparator {
+		w.writer.WriteRune(' ')
+	}
+
+	w.writer.WriteRune('"')
+	w.writer.WriteString(in)
+	w.writer.WriteRune('"')
+
+	w.needSeparator = true
+}
+
 // IntScalar writes a int string value to the next position.
 func (w *SExpWriter) IntScalar(in int) {
 	if w.needSeparator {

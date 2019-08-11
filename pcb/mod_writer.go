@@ -97,17 +97,30 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 		sw.StringScalar("model")
 		sw.StringScalar(m.Model.Path)
 
-		sw.StartList(true)
-		sw.StringScalar("at")
-		if err := m.Model.At.write("xyz", sw); err != nil {
-			return err
+		if m.Model.At.X == 0 && m.Model.At.Y == 0 && m.Model.At.Z == 0 &&
+			(m.Model.Offset.X != 0 || m.Model.Offset.Y != 0 || m.Model.Offset.Z != 0) {
+			sw.StartList(true)
+			sw.StringScalar("offset")
+			if err := m.Model.Offset.writeDouble("xyz", sw); err != nil {
+				return err
+			}
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
+		} else {
+			sw.StartList(true)
+			sw.StringScalar("at")
+			if err := m.Model.At.writeDouble("xyz", sw); err != nil {
+				return err
+			}
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
 		}
-		if err := sw.CloseList(false); err != nil {
-			return err
-		}
+
 		sw.StartList(true)
 		sw.StringScalar("scale")
-		if err := m.Model.Scale.write("xyz", sw); err != nil {
+		if err := m.Model.Scale.writeDouble("xyz", sw); err != nil {
 			return err
 		}
 		if err := sw.CloseList(false); err != nil {
@@ -115,7 +128,7 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 		}
 		sw.StartList(true)
 		sw.StringScalar("rotate")
-		if err := m.Model.Rotate.write("xyz", sw); err != nil {
+		if err := m.Model.Rotate.writeDouble("xyz", sw); err != nil {
 			return err
 		}
 		if err := sw.CloseList(false); err != nil {
@@ -235,6 +248,9 @@ func (t *ModText) write(sw *swriter.SExpWriter) error {
 	sw.StringScalar(t.Layer)
 	if err := sw.CloseList(false); err != nil {
 		return err
+	}
+	if t.Hidden {
+		sw.StringScalar("hide")
 	}
 
 	sw.StartList(true)
