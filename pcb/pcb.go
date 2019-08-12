@@ -58,7 +58,7 @@ type PCB struct {
 	Layers       []*Layer          `json:"layers"`
 
 	Segments []NetSegment `json:"segments"`
-	Drawings []Drawing `json:"drawings"`
+	Drawings []Drawing    `json:"drawings"`
 
 	Nets       map[int]Net `json:"nets"`
 	NetClasses []NetClass  `json:"net_classes"`
@@ -70,7 +70,7 @@ type PCB struct {
 }
 
 // Drawing represents a drawable element.
-type Drawing interface{
+type Drawing interface {
 	write(sw *swriter.SExpWriter) error
 }
 

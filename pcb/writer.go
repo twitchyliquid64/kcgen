@@ -143,7 +143,7 @@ func (p *PCB) Write(w io.Writer) error {
 			sw.Newlines(1)
 		}
 	}
-	if len(p.Drawings) > 0 {
+	if len(p.Drawings) > 0 && len(p.Segments) > 0 {
 		sw.Separator()
 	}
 
@@ -156,14 +156,11 @@ func (p *PCB) Write(w io.Writer) error {
 			sw.Newlines(1)
 		}
 	}
-	if len(p.Segments) > 0 {
+	if len(p.Segments) > 0 && len(p.Zones) > 0 {
 		sw.Separator()
 	}
 
 	// Zones
-	if len(p.Zones) > 0 {
-		sw.Separator()
-	}
 	for i, z := range p.Zones {
 		if err := z.write(sw); err != nil {
 			return err

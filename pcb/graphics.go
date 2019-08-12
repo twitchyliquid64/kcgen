@@ -67,9 +67,9 @@ type Line struct {
 	End   XY      `json:"end"`
 	Angle float64 `json:"angle"`
 
-	Layer string  `json:"layer"`
-	Width float64 `json:"width"`
-	Tstamp string `json:"tstamp"`
+	Layer  string  `json:"layer"`
+	Width  float64 `json:"width"`
+	Tstamp string  `json:"tstamp"`
 
 	order int
 }
@@ -80,9 +80,9 @@ type Arc struct {
 	End   XY      `json:"end"`
 	Angle float64 `json:"angle"`
 
-	Tstamp string `json:"tstamp"`
-	Layer string  `json:"layer"`
-	Width float64 `json:"width"`
+	Tstamp string  `json:"tstamp"`
+	Layer  string  `json:"layer"`
+	Width  float64 `json:"width"`
 
 	order int
 }
