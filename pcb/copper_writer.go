@@ -224,5 +224,14 @@ func (t *Track) write(sw *swriter.SExpWriter) error {
 		return err
 	}
 
+	if t.Tstamp != "" {
+		sw.StartList(false)
+		sw.StringScalar("tstamp")
+		sw.StringScalar(t.Tstamp)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
 	return sw.CloseList(false)
 }

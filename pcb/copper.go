@@ -73,6 +73,8 @@ type Track struct {
 	Layer    string  `json:"layer"`
 	NetIndex int     `json:"net_index"`
 
+	Tstamp string `json:"tstamp"`
+
 	order int
 }
 
@@ -189,6 +191,8 @@ func parseSegment(n sexp.Helper, ordering int) (Track, error) {
 			t.NetIndex = c.Child(1).MustInt()
 		case "layer":
 			t.Layer = c.Child(1).MustString()
+		case "tstamp":
+			t.Tstamp = c.Child(1).MustString()
 		case "start":
 			t.Start = XY{X: c.Child(1).MustFloat64(), Y: c.Child(2).MustFloat64()}
 		case "end":
