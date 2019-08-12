@@ -36,7 +36,7 @@ func (p *PCB) Write(w io.Writer) error {
 	if p.CreatedBy.Version == "" {
 		sw.StringScalar("0.0.1")
 	} else {
-		sw.StringScalarNoQuotes(p.CreatedBy.Version)
+		sw.StringScalar(p.CreatedBy.Version)
 	}
 	if err := sw.CloseList(false); err != nil {
 		return err
@@ -74,6 +74,13 @@ func (p *PCB) Write(w io.Writer) error {
 		return err
 	}
 	sw.Newlines(1)
+
+	if p.TitleInfo != nil {
+		if err := p.TitleInfo.write(sw); err != nil {
+			return err
+		}
+		sw.Separator()
+	}
 
 	// Layers
 	sw.StartList(false)
@@ -416,6 +423,14 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
+
+	if t.Effects.Bold {
+		sw.StringScalar("bold")
+	}
+	if t.Effects.Italic {
+		sw.StringScalar("italic")
+	}
+
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
@@ -842,6 +857,50 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
+	if err := sw.CloseList(true); err != nil {
+		return err
+	}
+	return nil
+}
+
+// write generates an s-expression describing the title block.
+func (t *TitleInfo) write(sw *swriter.SExpWriter) error {
+	sw.StartList(false)
+	sw.StringScalar("title_block")
+
+	if t.Title != "" {
+		sw.StartList(true)
+		sw.StringScalar("title")
+		sw.StringScalar(t.Title)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if t.Date != "" {
+		sw.StartList(true)
+		sw.StringScalar("date")
+		sw.StringScalar(t.Date)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if t.Revision != "" {
+		sw.StartList(true)
+		sw.StringScalar("rev")
+		sw.StringScalar(t.Revision)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if t.Company != "" {
+		sw.StartList(true)
+		sw.StringScalar("company")
+		sw.StringScalar(t.Company)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
 	if err := sw.CloseList(true); err != nil {
 		return err
 	}

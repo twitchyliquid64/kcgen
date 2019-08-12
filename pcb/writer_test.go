@@ -79,7 +79,7 @@ func TestPCBWrite(t *testing.T) {
 					&Via{At: XY{X: 10, Y: 32.5}, Layers: []string{"F.Cu", "B.Cu"}, NetIndex: 2},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (via (at 100 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2))\n  (via (at 10 32.5) (size 0) (drill 0) (layers F.Cu B.Cu) (net 2))\n)\n",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (via (at 100 32.5) (size 0) (layers F.Cu B.Cu) (net 2))\n  (via (at 10 32.5) (size 0) (layers F.Cu B.Cu) (net 2))\n)\n",
 		},
 		{
 			name: "tracks",
@@ -415,6 +415,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 			name:  "fume extractor",
 			fname: "anavi-fume-extractor.kicad_pcb",
 		},
+		{
+			name:  "cseduino",
+			fname: "cseduino-v4.kicad_pcb",
+		},
 	}
 
 	for _, tc := range tcs {
@@ -440,7 +444,7 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 				// t.Log(diffs.DiffPrettyText(dm))
 				// t.Log(diffs.DiffToDelta(dm))
 				t.Log(diffs.PatchToText(diffs.PatchMake(dm)))
-				// ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
+				ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
 			}
 		})
 	}

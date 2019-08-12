@@ -19,6 +19,7 @@ type Module struct {
 
 	Layer string `json:"layer"`
 
+	ZoneConnect       int     `json:"zone_connect,omitempty"`
 	SolderMaskMargin  float64 `json:"solder_mask_margin,omitempty"`
 	SolderPasteMargin float64 `json:"solder_paste_margin,omitempty"`
 	SolderPasteRatio  float64 `json:"solder_paste_ratio,omitempty"`
@@ -275,6 +276,8 @@ func parseModule(n sexp.Helper, ordering int) (*Module, error) {
 			m.SolderMaskMargin = c.Child(1).MustFloat64()
 		case "solder_paste_ratio":
 			m.SolderPasteRatio = c.Child(1).MustFloat64()
+		case "zone_connect":
+			m.ZoneConnect = c.Child(1).MustInt()
 
 		case "fp_text":
 			t, err := parseModText(c)

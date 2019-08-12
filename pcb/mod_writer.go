@@ -69,6 +69,15 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 		}
 	}
 
+	if m.ZoneConnect != 0 {
+		sw.StartList(true)
+		sw.StringScalar("zone_connect")
+		sw.IntScalar(m.ZoneConnect)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
 	if len(m.Attrs) > 0 {
 		sw.StartList(true)
 		sw.StringScalar("attr")
@@ -266,6 +275,14 @@ func (t *ModText) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
+
+	if t.Effects.Bold {
+		sw.StringScalar("bold")
+	}
+	if t.Effects.Italic {
+		sw.StringScalar("italic")
+	}
+
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}

@@ -52,6 +52,7 @@ type PCB struct {
 		Version string `json:"version"`
 	} `json:"created_by"`
 
+	TitleInfo   *TitleInfo  `json:"title_info"`
 	EditorSetup EditorSetup `json:"editor_setup"`
 
 	LayersByName map[string]*Layer `json:"-"`
@@ -77,6 +78,16 @@ type Drawing interface {
 // NetSegment represents copper regions which form part of a net.
 type NetSegment interface {
 	write(sw *swriter.SExpWriter) error
+}
+
+// TitleInfo describes information about the document.
+type TitleInfo struct {
+	Title    string `json:"title"`
+	Date     string `json:"date"`
+	Revision string `json:"revision"`
+	Company  string `json:"company"`
+
+	order int
 }
 
 // EditorSetup describes how the editor should be configured when
@@ -186,6 +197,13 @@ func DecodeFile(fpath string) (*PCB, error) {
 					return nil, err
 				}
 				pcb.EditorSetup = *s
+
+			case "title_block":
+				t, err := parseTitleBlock(n, ordering)
+				if err != nil {
+					return nil, err
+				}
+				pcb.TitleInfo = t
 
 			case "general":
 				for y := 1; y < n.MustNode().NumChildren(); y++ {
@@ -317,6 +335,24 @@ func parseNetClass(n sexp.Helper, ordering int) (*NetClass, error) {
 		}
 	}
 	return &nc, nil
+}
+
+func parseTitleBlock(n sexp.Helper, ordering int) (*TitleInfo, error) {
+	t := TitleInfo{order: ordering}
+	for x := 1; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "title":
+			t.Title = c.Child(1).MustString()
+		case "date":
+			t.Date = c.Child(1).MustString()
+		case "rev":
+			t.Revision = c.Child(1).MustString()
+		case "company":
+			t.Company = c.Child(1).MustString()
+		}
+	}
+	return &t, nil
 }
 
 func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
