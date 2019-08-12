@@ -11,10 +11,12 @@ import (
 
 // Text represents some text to be rendered.
 type Text struct {
-	Text     string `json:"value"`
-	Layer    string `json:"layer"`
-	At       XYZ    `json:"position"`
-	Unlocked bool   `json:"unlocked"`
+	Text   string `json:"value"`
+	Layer  string `json:"layer"`
+	Tstamp string `json:"tstamp"`
+
+	At       XYZ  `json:"position"`
+	Unlocked bool `json:"unlocked"`
 
 	Effects TextEffects `json:"effects"`
 	Hidden  bool        `json:"hidden"`
@@ -154,6 +156,8 @@ func parseGRText(n sexp.Helper, ordering int) (Text, error) {
 			t.Hidden = true
 		case "layer":
 			t.Layer = c.Child(1).MustString()
+		case "tstamp":
+			t.Tstamp = c.Child(1).MustString()
 		case "effects":
 			effects, err := parseTextEffects(c)
 			if err != nil {

@@ -372,7 +372,7 @@
     (pad 3 thru_hole oval (at 0 5.08 90) (size 2.032 1.7272) (drill 1.016) (layers *.Cu *.Mask)
       (net 7 "Net-(ESP-12-Pad15)"))
     (model Pin_Headers.3dshapes/Pin_Header_Straight_1x03.wrl
-      (offset (xyz 0 -2.539999961853027 0))
+      (offset (xyz 0 -2.5399999618530269 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 90))
     )

@@ -6,13 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
 var (
 	alphaLower         = "abcdefghijklmnopqrstuvwxyz"
 	alphaUpper         = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	num                = "0123456789"
-	special            = "._+-/:*%${}"
+	special            = "._+-/:*%${},|<"
 	allowedStringChars = alphaLower + alphaUpper + num + special
 )
 
@@ -70,6 +71,7 @@ func (w *SExpWriter) StringScalar(in string) {
 
 	if w.needsQuoting(in) {
 		w.writer.WriteRune('"')
+		in = strings.Replace(in, "\n", "\\n", -1)
 		w.writer.WriteString(in)
 		w.writer.WriteRune('"')
 	} else {
@@ -126,6 +128,12 @@ outer:
 		return true
 	}
 	return false
+}
+
+// AdjustIndent allows customization of the indent level to support unusual
+// serialization logic.
+func (w *SExpWriter) AdjustIndent(amt int) {
+	w.indent += amt
 }
 
 // CloseList closes the outermost list.

@@ -293,14 +293,16 @@ func (p *ModPolygon) write(sw *swriter.SExpWriter) error {
 
 	sw.StartList(false)
 	sw.StringScalar("pts")
+	sw.AdjustIndent(-2)
 	for i, pts := range p.Points {
 		if err := pts.write("xy", sw); err != nil {
 			return err
 		}
-		if i%4 == 3 {
+		if (i%4 == 3) && i < len(p.Points)-1 {
 			sw.Newlines(1)
 		}
 	}
+	sw.AdjustIndent(2)
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
@@ -374,7 +376,15 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
-	sw.Newlines(1)
+
+	doNewline := p.NetNum != 0 ||
+		p.DieLength != 0 ||
+		p.SolderMaskMargin != 0 ||
+		p.SolderPasteMargin != 0 ||
+		p.SolderPasteMarginRatio != 0 ||
+		p.Clearance != 0 ||
+		p.ThermalWidth != 0 ||
+		p.ThermalGap != 0
 
 	if p.Shape == ShapeRoundRect || p.Shape == ShapeChamferedRect {
 		sw.StartList(false)
@@ -384,6 +394,11 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
+
+	if doNewline {
+		sw.Newlines(1)
+	}
+
 	// if p.Shape == ShapeChamferedRect {
 	//   sw.Newlines(1)
 	//   // TODO: Implement

@@ -146,6 +146,7 @@ func (p *PCB) Write(w io.Writer) error {
 		if err := t.write(sw); err != nil {
 			return err
 		}
+		sw.Newlines(1)
 	}
 
 	// (Graphical) Lines
@@ -361,6 +362,14 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
+	if t.Tstamp != "" {
+		sw.StartList(false)
+		sw.StringScalar("tstamp")
+		sw.StringScalar(t.Tstamp)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
 
 	sw.StartList(true)
 	sw.StringScalar("effects")
@@ -389,7 +398,6 @@ func (t *Text) write(sw *swriter.SExpWriter) error {
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
-
 	if err := sw.CloseList(true); err != nil {
 		return err
 	}

@@ -112,7 +112,7 @@ func TestPCBWrite(t *testing.T) {
 					}},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (gr_text Oops (at 100 32.5) (layer F.SilkS)\n    (effects (font (size 1.5 1.5) (thickness 0.3)))\n  )\n)\n",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (gr_text Oops (at 100 32.5) (layer F.SilkS)\n    (effects (font (size 1.5 1.5) (thickness 0.3)))\n  )\n \n)\n",
 		},
 		{
 			name: "zones",
@@ -343,7 +343,7 @@ func TestPCBWrite(t *testing.T) {
 					},
 				},
 			},
-			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_poly (pts (xy 0 0) (xy 1 0) (xy 1 1) (xy 0 1)\n        (xy 0 0)) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
+			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers)\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n  (module Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm (layer F.Cu) (tedit 5ADA75A0) (tstamp 5AE3D8AB)\n    (at 0 0)\n    (fp_poly (pts (xy 0 0) (xy 1 0) (xy 1 1) (xy 0 1)\n      (xy 0 0)) (layer F.Fab) (width 0.1))\n  )\n\n \n)\n",
 		},
 		{
 			name: "mod pad",
@@ -410,6 +410,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 		{
 			name:  "t1",
 			fname: "t1.kicad_pcb",
+		},
+		{
+			name:  "fume extractor",
+			fname: "anavi-fume-extractor.kicad_pcb",
 		},
 	}
 
