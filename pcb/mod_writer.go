@@ -90,7 +90,7 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 	}
 
 	for _, g := range m.Graphics {
-		if err := g.Renderable.write(sw); err != nil {
+		if err := g.Renderable.write(sw, g.Ident); err != nil {
 			return err
 		}
 	}
@@ -155,9 +155,9 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 	return nil
 }
 
-func (l *ModLine) write(sw *swriter.SExpWriter) error {
+func (l *ModLine) write(sw *swriter.SExpWriter, ident string) error {
 	sw.StartList(true)
-	sw.StringScalar("fp_line")
+	sw.StringScalar(ident)
 	if err := l.Start.write("start", sw); err != nil {
 		return err
 	}
@@ -182,9 +182,9 @@ func (l *ModLine) write(sw *swriter.SExpWriter) error {
 	return sw.CloseList(false)
 }
 
-func (a *ModArc) write(sw *swriter.SExpWriter) error {
+func (a *ModArc) write(sw *swriter.SExpWriter, ident string) error {
 	sw.StartList(true)
-	sw.StringScalar("fp_arc")
+	sw.StringScalar(ident)
 	if err := a.Start.write("start", sw); err != nil {
 		return err
 	}
@@ -216,9 +216,9 @@ func (a *ModArc) write(sw *swriter.SExpWriter) error {
 	return sw.CloseList(false)
 }
 
-func (c *ModCircle) write(sw *swriter.SExpWriter) error {
+func (c *ModCircle) write(sw *swriter.SExpWriter, ident string) error {
 	sw.StartList(true)
-	sw.StringScalar("fp_circle")
+	sw.StringScalar(ident)
 	if err := c.Center.write("center", sw); err != nil {
 		return err
 	}
@@ -243,9 +243,9 @@ func (c *ModCircle) write(sw *swriter.SExpWriter) error {
 	return sw.CloseList(false)
 }
 
-func (t *ModText) write(sw *swriter.SExpWriter) error {
+func (t *ModText) write(sw *swriter.SExpWriter, ident string) error {
 	sw.StartList(true)
-	sw.StringScalar("fp_text")
+	sw.StringScalar(ident)
 	sw.StringScalar(t.Kind.String())
 	sw.StringScalar(t.Text)
 	if err := t.At.write("at", sw); err != nil {
@@ -304,31 +304,46 @@ func (t *ModText) write(sw *swriter.SExpWriter) error {
 	return nil
 }
 
-func (p *ModPolygon) write(sw *swriter.SExpWriter) error {
+func (p *ModPolygon) write(sw *swriter.SExpWriter, ident string) error {
 	sw.StartList(true)
-	sw.StringScalar("fp_poly")
+	sw.StringScalar(ident)
 
 	sw.StartList(false)
 	sw.StringScalar("pts")
-	sw.AdjustIndent(-2)
+	stride := 4
+	if ident == "gr_poly" {
+		sw.AdjustIndent(-1)
+		sw.Newlines(1)
+		stride = 5
+	} else {
+		sw.AdjustIndent(-2)
+	}
+
 	for i, pts := range p.Points {
 		if err := pts.write("xy", sw); err != nil {
 			return err
 		}
-		if (i%4 == 3) && i < len(p.Points)-1 {
+		if (i%stride == (stride - 1)) && i < len(p.Points)-1 {
 			sw.Newlines(1)
 		}
 	}
-	sw.AdjustIndent(2)
+
+	if ident == "gr_poly" {
+		sw.AdjustIndent(1)
+	} else {
+		sw.AdjustIndent(2)
+	}
 	if err := sw.CloseList(false); err != nil {
 		return err
 	}
 
-	sw.StartList(false)
-	sw.StringScalar("layer")
-	sw.StringScalar(p.Layer)
-	if err := sw.CloseList(false); err != nil {
-		return err
+	if p.Layer != "" {
+		sw.StartList(false)
+		sw.StringScalar("layer")
+		sw.StringScalar(p.Layer)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
 
 	sw.StartList(false)
@@ -401,7 +416,8 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 		p.SolderPasteMarginRatio != 0 ||
 		p.Clearance != 0 ||
 		p.ThermalWidth != 0 ||
-		p.ThermalGap != 0
+		p.ThermalGap != 0 ||
+		p.Shape == ShapeCustom
 
 	if p.Shape == ShapeRoundRect || p.Shape == ShapeChamferedRect {
 		sw.StartList(false)
@@ -494,7 +510,42 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
-	// TODO: Custom mode.
+
+	if p.Shape == ShapeCustom {
+		if p.Options != nil {
+			sw.StartList(false)
+			sw.StringScalar("options")
+			sw.StartList(false)
+			sw.StringScalar("clearance")
+			sw.StringScalar(p.Options.Clearance)
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
+			sw.StartList(false)
+			sw.StringScalar("anchor")
+			sw.StringScalar(p.Options.Anchor)
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
+			sw.Newlines(1)
+		}
+
+		if len(p.Primitives) > 0 {
+			sw.StartList(false)
+			sw.StringScalar("primitives")
+			for _, g := range p.Primitives {
+				if err := g.Renderable.write(sw, g.Ident); err != nil {
+					return err
+				}
+			}
+			if err := sw.CloseList(true); err != nil {
+				return err
+			}
+		}
+	}
 
 	return sw.CloseList(false)
 }

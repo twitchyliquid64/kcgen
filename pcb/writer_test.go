@@ -419,6 +419,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 			name:  "cseduino",
 			fname: "cseduino-v4.kicad_pcb",
 		},
+		{
+			name:  "sci2c",
+			fname: "sci2c-a7001.kicad_pcb",
+		},
 	}
 
 	for _, tc := range tcs {
@@ -444,7 +448,7 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 				// t.Log(diffs.DiffPrettyText(dm))
 				// t.Log(diffs.DiffToDelta(dm))
 				t.Log(diffs.PatchToText(diffs.PatchMake(dm)))
-				ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
+				// ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
 			}
 		})
 	}

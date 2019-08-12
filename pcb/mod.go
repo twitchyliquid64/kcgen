@@ -51,7 +51,7 @@ type ModGraphic struct {
 }
 
 type modDrawable interface {
-	write(sw *swriter.SExpWriter) error
+	write(sw *swriter.SExpWriter, ident string) error
 }
 
 // ModPolygon represents a polygon drawn in a module.
@@ -214,6 +214,15 @@ type Pad struct {
 
 	Surface PadSurface `json:"surface"`
 	Shape   PadShape   `json:"shape"`
+
+	Options    *PadOptions
+	Primitives []ModGraphic
+}
+
+// PadOptions describes settings on a custom pad.
+type PadOptions struct {
+	Clearance string `json:"clearance"`
+	Anchor    string `json:"anchor"`
 }
 
 func ParseModule(r io.RuneReader) (*Module, error) {
@@ -597,11 +606,75 @@ func parseModPad(n sexp.Helper) (*Pad, error) {
 				p.Shape = ShapeChamferedRect
 			}
 
-			// TODO: chamfer, options, primitives
+		case "options":
+			o, err := parsePadOptions(c)
+			if err != nil {
+				return nil, err
+			}
+			p.Options = o
+
+		case "primitives":
+			for y := 1; y < c.MustNode().NumChildren(); y++ {
+				c2 := c.Child(y)
+				switch c2.Child(0).MustString() {
+				case "gr_poly":
+					a, err := parseModPolygon(c2)
+					if err != nil {
+						return nil, err
+					}
+					p.Primitives = append(p.Primitives, ModGraphic{
+						Ident:      c2.Child(0).MustString(),
+						Renderable: a,
+					})
+				case "gr_line":
+					l, err := parseModLine(c2)
+					if err != nil {
+						return nil, err
+					}
+					p.Primitives = append(p.Primitives, ModGraphic{
+						Ident:      c2.Child(0).MustString(),
+						Renderable: l,
+					})
+				case "gr_arc":
+					a, err := parseModArc(c2)
+					if err != nil {
+						return nil, err
+					}
+					p.Primitives = append(p.Primitives, ModGraphic{
+						Ident:      c2.Child(0).MustString(),
+						Renderable: a,
+					})
+				case "gr_circle":
+					c, err := parseModCircle(c2)
+					if err != nil {
+						return nil, err
+					}
+					p.Primitives = append(p.Primitives, ModGraphic{
+						Ident:      c2.Child(0).MustString(),
+						Renderable: c,
+					})
+				}
+			}
+
+			// TODO: chamfer
 		}
 	}
 
 	return &p, nil
+}
+
+func parsePadOptions(n sexp.Helper) (*PadOptions, error) {
+	o := PadOptions{}
+	for x := 1; x < n.MustNode().NumChildren(); x++ {
+		c := n.Child(x)
+		switch c.Child(0).MustString() {
+		case "clearance":
+			o.Clearance = c.Child(1).MustString()
+		case "anchor":
+			o.Anchor = c.Child(1).MustString()
+		}
+	}
+	return &o, nil
 }
 
 func parseModModel(n sexp.Helper) (*ModModel, error) {
