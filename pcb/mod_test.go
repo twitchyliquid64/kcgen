@@ -103,12 +103,12 @@ func TestParseMod(t *testing.T) {
 				Description: "Resistor SMD 0805, hand soldering",
 				Tags:        []string{"resistor", "0805"},
 				Attrs:       []string{"smd"},
-				Model: &ModModel{
+				Models: []ModModel{{
 					Path:   "Resistors_SMD.3dshapes/R_0805_HandSoldering.wrl",
 					At:     XYZ{ZPresent: true},
 					Scale:  XYZ{X: 1, Y: 1, Z: 1, ZPresent: true},
 					Rotate: XYZ{ZPresent: true},
-				},
+				}},
 			},
 		},
 		{

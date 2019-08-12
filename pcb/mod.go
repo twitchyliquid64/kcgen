@@ -36,7 +36,7 @@ type Module struct {
 
 	Graphics []ModGraphic `json:"graphics"`
 	Pads     []Pad        `json:"pads"`
-	Model    *ModModel    `json:"model,omitempty"`
+	Models   []ModModel   `json:"models,omitempty"`
 }
 
 // ModPlacement describes the positioning of a module on a PCB.
@@ -352,7 +352,7 @@ func parseModule(n sexp.Helper, ordering int) (*Module, error) {
 			if err != nil {
 				return nil, err
 			}
-			m.Model = model
+			m.Models = append(m.Models, *model)
 		}
 	}
 	return &m, nil

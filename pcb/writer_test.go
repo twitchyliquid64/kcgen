@@ -194,12 +194,12 @@ func TestPCBWrite(t *testing.T) {
 						Layer:  "F.Cu",
 						Tedit:  "5ADA75A0",
 						Tstamp: "5AE3D8AB",
-						Model: &ModModel{
+						Models: []ModModel{{
 							Path:   "Resistors_SMD.3dshapes/R_0805_HandSoldering.wrl",
 							At:     XYZ{ZPresent: true},
 							Scale:  XYZ{X: 1, Y: 1, Z: 1, ZPresent: true},
 							Rotate: XYZ{ZPresent: true},
-						},
+						}},
 					},
 				},
 			},
@@ -423,6 +423,10 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 			name:  "sci2c",
 			fname: "sci2c-a7001.kicad_pcb",
 		},
+		{
+			name:  "hp34401a_oled",
+			fname: "hp34401a_oled.kicad_pcb",
+		},
 	}
 
 	for _, tc := range tcs {
@@ -448,7 +452,7 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 				// t.Log(diffs.DiffPrettyText(dm))
 				// t.Log(diffs.DiffToDelta(dm))
 				t.Log(diffs.PatchToText(diffs.PatchMake(dm)))
-				// ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
+				ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
 			}
 		})
 	}

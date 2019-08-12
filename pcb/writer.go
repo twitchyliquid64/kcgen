@@ -223,6 +223,9 @@ func (l *Layer) write(sw *swriter.SExpWriter) error {
 	sw.IntScalar(l.Num)
 	sw.StringScalar(l.Name)
 	sw.StringScalar(l.Type)
+	if l.Hidden {
+		sw.StringScalar("hide")
+	}
 	return sw.CloseList(false)
 }
 
@@ -898,6 +901,17 @@ func (t *TitleInfo) write(sw *swriter.SExpWriter) error {
 		sw.StringScalar(t.Company)
 		if err := sw.CloseList(false); err != nil {
 			return err
+		}
+	}
+	for i, c := range t.Comments {
+		if c != "" {
+			sw.StartList(true)
+			sw.StringScalar("comment")
+			sw.IntScalar(i + 1)
+			sw.StringScalar(c)
+			if err := sw.CloseList(false); err != nil {
+				return err
+			}
 		}
 	}
 

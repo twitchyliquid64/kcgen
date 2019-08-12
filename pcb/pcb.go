@@ -12,9 +12,10 @@ import (
 
 // Layer describes the attributes of a layer.
 type Layer struct {
-	Num  int    `json:"num"`
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Num    int    `json:"num"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Hidden bool   `json:'hidden'`
 
 	order int
 }
@@ -86,6 +87,8 @@ type TitleInfo struct {
 	Date     string `json:"date"`
 	Revision string `json:"revision"`
 	Company  string `json:"company"`
+
+	Comments [4]string `json:"comments"`
 
 	order int
 }
@@ -228,6 +231,12 @@ func DecodeFile(fpath string) (*PCB, error) {
 						Type:  c.Child(2).MustString(),
 						order: ordering,
 					}
+
+					if c.MustNode().NumChildren() > 3 && c.Child(3).IsScalar() &&
+						c.Child(3).MustString() == "hide" {
+						l.Hidden = true
+					}
+
 					pcb.Layers = append(pcb.Layers, l)
 					pcb.LayersByName[c.Child(1).MustString()] = l
 					ordering++
@@ -350,6 +359,11 @@ func parseTitleBlock(n sexp.Helper, ordering int) (*TitleInfo, error) {
 			t.Revision = c.Child(1).MustString()
 		case "company":
 			t.Company = c.Child(1).MustString()
+		case "comment":
+			idx := c.Child(1).MustInt() - 1
+			if idx < len(t.Comments) {
+				t.Comments[idx] = c.Child(2).MustString()
+			}
 		}
 	}
 	return &t, nil
