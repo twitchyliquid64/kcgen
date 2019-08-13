@@ -1,6 +1,7 @@
 package pcb
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -146,6 +147,14 @@ func (s PadSurface) String() string {
 	return "????"
 }
 
+// MarshalJSON marshals the enum as a quoted json string.
+func (s PadSurface) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(s.String())
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
 type PadShape uint8
 
 func (s PadShape) String() string {
@@ -164,6 +173,14 @@ func (s PadShape) String() string {
 		return "custom"
 	}
 	return "????"
+}
+
+// MarshalJSON marshals the enum as a quoted json string.
+func (s PadShape) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(s.String())
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
 }
 
 // Pad constants
