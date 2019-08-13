@@ -612,6 +612,26 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
+
+	if l.UserVia[0] > 0 || l.UserVia[1] > 0 {
+		sw.StartList(true)
+		sw.StringScalar("user_via")
+		sw.StringScalar(f(l.UserVia[0]))
+		sw.StringScalar(f(l.UserVia[1]))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
+	if l.BlindBuriedViasAllowed {
+		sw.StartList(true)
+		sw.StringScalar("blind_buried_vias_allowed")
+		sw.StringScalar("yes")
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
 	if l.UViaSize > 0 {
 		sw.StartList(true)
 		sw.StringScalar("uvia_size")
@@ -746,6 +766,15 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
+	if l.GridOrigin[0] != 0 || l.GridOrigin[1] != 0 {
+		sw.StartList(true)
+		sw.StringScalar("grid_origin")
+		sw.IntScalar(l.GridOrigin[0])
+		sw.IntScalar(l.GridOrigin[1])
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
 	if l.VisibleElements != "" {
 		sw.StartList(true)
 		sw.StringScalar("visible_elements")
@@ -847,6 +876,23 @@ func (c *NetClass) write(sw *swriter.SExpWriter) error {
 		sw.StartList(true)
 		sw.StringScalar("uvia_drill")
 		sw.StringScalar(f(c.UViaDrill))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+
+	if c.DiffPairWidth > 0 {
+		sw.StartList(true)
+		sw.StringScalar("diff_pair_width")
+		sw.StringScalar(f(c.DiffPairWidth))
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
+	}
+	if c.DiffPairGap > 0 {
+		sw.StartList(true)
+		sw.StringScalar("diff_pair_gap")
+		sw.StringScalar(f(c.DiffPairGap))
 		if err := sw.CloseList(false); err != nil {
 			return err
 		}

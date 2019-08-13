@@ -69,10 +69,10 @@ func (m *Module) write(sw *swriter.SExpWriter, doPlacement bool) error {
 		}
 	}
 
-	if m.ZoneConnect != 0 {
+	if m.ZoneConnect != ZoneConnectInherited {
 		sw.StartList(true)
 		sw.StringScalar("zone_connect")
-		sw.IntScalar(m.ZoneConnect)
+		sw.IntScalar(int(m.ZoneConnect))
 		if err := sw.CloseList(false); err != nil {
 			return err
 		}
@@ -199,11 +199,13 @@ func (a *ModArc) write(sw *swriter.SExpWriter, ident string) error {
 		return err
 	}
 
-	sw.StartList(false)
-	sw.StringScalar("layer")
-	sw.StringScalar(a.Layer)
-	if err := sw.CloseList(false); err != nil {
-		return err
+	if a.Layer != "" {
+		sw.StartList(false)
+		sw.StringScalar("layer")
+		sw.StringScalar(a.Layer)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
 
 	sw.StartList(false)
@@ -226,11 +228,13 @@ func (c *ModCircle) write(sw *swriter.SExpWriter, ident string) error {
 		return err
 	}
 
-	sw.StartList(false)
-	sw.StringScalar("layer")
-	sw.StringScalar(c.Layer)
-	if err := sw.CloseList(false); err != nil {
-		return err
+	if c.Layer != "" {
+		sw.StartList(false)
+		sw.StringScalar("layer")
+		sw.StringScalar(c.Layer)
+		if err := sw.CloseList(false); err != nil {
+			return err
+		}
 	}
 
 	sw.StartList(false)
@@ -416,8 +420,7 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 		p.SolderPasteMarginRatio != 0 ||
 		p.Clearance != 0 ||
 		p.ThermalWidth != 0 ||
-		p.ThermalGap != 0 ||
-		p.Shape == ShapeCustom
+		p.ThermalGap != 0
 
 	if p.Shape == ShapeRoundRect || p.Shape == ShapeChamferedRect {
 		sw.StartList(false)
@@ -486,10 +489,10 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 			return err
 		}
 	}
-	if p.ZoneConnect != 0 {
+	if p.ZoneConnect != ZoneConnectInherited {
 		sw.StartList(false)
 		sw.StringScalar("zone_connect")
-		sw.IntScalar(p.ZoneConnect)
+		sw.IntScalar(int(p.ZoneConnect))
 		if err := sw.CloseList(false); err != nil {
 			return err
 		}
@@ -512,6 +515,7 @@ func (p *Pad) write(sw *swriter.SExpWriter) error {
 	}
 
 	if p.Shape == ShapeCustom {
+		sw.Newlines(1)
 		if p.Options != nil {
 			sw.StartList(false)
 			sw.StringScalar("options")

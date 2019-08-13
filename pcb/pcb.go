@@ -39,6 +39,9 @@ type NetClass struct {
 	UViaDiameter float64 `json:"uvia_dia"`
 	UViaDrill    float64 `json:"uvia_drill"`
 
+	DiffPairWidth float64 `json:"diff_pair_width"`
+	DiffPairGap   float64 `json:"diff_pair_gap"`
+
 	// Nets contains the names of nets which are part of this class.
 	Nets []string `json:"connect_pads"`
 
@@ -118,6 +121,10 @@ type EditorSetup struct {
 	UViaMinDrill float64
 	AllowUVias   bool
 
+	UserVia                [2]float64
+	BlindBuriedViasAllowed bool
+	GridOrigin             [2]int
+
 	ModEdgeWidth       float64
 	ModTextSize        []float64
 	ModTextWidth       float64
@@ -142,6 +149,16 @@ type PlotParam struct {
 
 	order int
 }
+
+// ZoneConnectMode describes how the zone should connect.
+type ZoneConnectMode int8
+
+// Valid ZoneConnectMode values.
+const (
+	ZoneConnectInherited ZoneConnectMode = iota - 1
+	ZoneConnectNone
+	ZoneConnectThermal
+)
 
 // DecodeFile reads a .kicad_pcb file at fpath, returning a parsed representation.
 func DecodeFile(fpath string) (*PCB, error) {
@@ -341,6 +358,10 @@ func parseNetClass(n sexp.Helper, ordering int) (*NetClass, error) {
 			nc.UViaDrill = c.Child(1).MustFloat64()
 		case "add_net":
 			nc.Nets = append(nc.Nets, c.Child(1).MustString())
+		case "diff_pair_width":
+			nc.DiffPairWidth = c.Child(1).MustFloat64()
+		case "diff_pair_gap":
+			nc.DiffPairGap = c.Child(1).MustFloat64()
 		}
 	}
 	return &nc, nil
@@ -446,6 +467,13 @@ func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
 			}
 		case "visible_elements":
 			e.VisibleElements = c.Child(1).MustString()
+
+		case "user_via":
+			e.UserVia = [2]float64{c.Child(1).MustFloat64(), c.Child(2).MustFloat64()}
+		case "blind_buried_vias_allowed":
+			e.BlindBuriedViasAllowed = c.Child(1).MustString() == "yes"
+		case "grid_origin":
+			e.GridOrigin = [2]int{c.Child(1).MustInt(), c.Child(2).MustInt()}
 
 		case "pcbplotparams":
 			e.PlotParams = map[string]PlotParam{}

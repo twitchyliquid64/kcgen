@@ -19,11 +19,11 @@ type Module struct {
 
 	Layer string `json:"layer"`
 
-	ZoneConnect       int     `json:"zone_connect,omitempty"`
-	SolderMaskMargin  float64 `json:"solder_mask_margin,omitempty"`
-	SolderPasteMargin float64 `json:"solder_paste_margin,omitempty"`
-	SolderPasteRatio  float64 `json:"solder_paste_ratio,omitempty"`
-	Clearance         float64 `json:"clearance,omitempty"`
+	ZoneConnect       ZoneConnectMode `json:"zone_connect,omitempty"`
+	SolderMaskMargin  float64         `json:"solder_mask_margin,omitempty"`
+	SolderPasteMargin float64         `json:"solder_paste_margin,omitempty"`
+	SolderPasteRatio  float64         `json:"solder_paste_ratio,omitempty"`
+	Clearance         float64         `json:"clearance,omitempty"`
 
 	Tedit  string `json:"tedit"`
 	Tstamp string `json:"tstamp"`
@@ -201,16 +201,16 @@ type Pad struct {
 	DrillSize   XY       `json:"drill_size"`
 	DrillShape  PadShape `json:"drill_shape"`
 
-	DieLength              float64 `json:"die_length,omitempty"`
-	ZoneConnect            int     `json:"zone_connect,omitempty"`
-	ThermalWidth           float64 `json:"thermal_width,omitempty"`
-	ThermalGap             float64 `json:"thermal_gap,omitempty"`
-	RoundRectRRatio        float64 `json:"roundrect_rratio,omitempty"`
-	ChamferRatio           float64 `json:"chamfer_ratio,omitempty"`
-	SolderMaskMargin       float64 `json:"solder_mask_margin,omitempty"`
-	SolderPasteMargin      float64 `json:"solder_paste_margin,omitempty"`
-	SolderPasteMarginRatio float64 `json:"solder_paste_margin_ratio,omitempty"`
-	Clearance              float64 `json:"clearance,omitempty"`
+	DieLength              float64         `json:"die_length,omitempty"`
+	ZoneConnect            ZoneConnectMode `json:"zone_connect,omitempty"`
+	ThermalWidth           float64         `json:"thermal_width,omitempty"`
+	ThermalGap             float64         `json:"thermal_gap,omitempty"`
+	RoundRectRRatio        float64         `json:"roundrect_rratio,omitempty"`
+	ChamferRatio           float64         `json:"chamfer_ratio,omitempty"`
+	SolderMaskMargin       float64         `json:"solder_mask_margin,omitempty"`
+	SolderPasteMargin      float64         `json:"solder_paste_margin,omitempty"`
+	SolderPasteMarginRatio float64         `json:"solder_paste_margin_ratio,omitempty"`
+	Clearance              float64         `json:"clearance,omitempty"`
 
 	Surface PadSurface `json:"surface"`
 	Shape   PadShape   `json:"shape"`
@@ -235,8 +235,9 @@ func ParseModule(r io.RuneReader) (*Module, error) {
 
 func parseModule(n sexp.Helper, ordering int) (*Module, error) {
 	m := Module{
-		Name:  n.Child(1).MustString(),
-		order: ordering,
+		Name:        n.Child(1).MustString(),
+		ZoneConnect: ZoneConnectInherited,
+		order:       ordering,
 	}
 	for x := 2; x < n.MustNode().NumChildren(); x++ {
 		c := n.Child(x)
@@ -286,7 +287,7 @@ func parseModule(n sexp.Helper, ordering int) (*Module, error) {
 		case "solder_paste_ratio":
 			m.SolderPasteRatio = c.Child(1).MustFloat64()
 		case "zone_connect":
-			m.ZoneConnect = c.Child(1).MustInt()
+			m.ZoneConnect = ZoneConnectMode(c.Child(1).MustInt())
 
 		case "fp_text":
 			t, err := parseModText(c)
@@ -502,7 +503,8 @@ func parseModCircle(n sexp.Helper) (*ModCircle, error) {
 
 func parseModPad(n sexp.Helper) (*Pad, error) {
 	p := Pad{
-		Ident: n.Child(1).MustString(),
+		Ident:       n.Child(1).MustString(),
+		ZoneConnect: ZoneConnectInherited,
 	}
 
 	switch n.Child(2).MustString() {
@@ -593,7 +595,7 @@ func parseModPad(n sexp.Helper) (*Pad, error) {
 		case "solder_paste_margin_ratio":
 			p.SolderPasteMarginRatio = c.Child(1).MustFloat64()
 		case "zone_connect":
-			p.ZoneConnect = c.Child(1).MustInt()
+			p.ZoneConnect = ZoneConnectMode(c.Child(1).MustInt())
 		case "thermal_width":
 			p.ThermalWidth = c.Child(1).MustFloat64()
 		case "thermal_gap":

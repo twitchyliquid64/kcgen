@@ -168,10 +168,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						ZoneConnect: ZoneConnectInherited,
+						Layer:       "F.Cu",
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Placement: ModPlacement{
 							At: XYZ{X: 159.850666, Y: 90},
 						},
@@ -190,10 +191,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Models: []ModModel{{
 							Path:   "Resistors_SMD.3dshapes/R_0805_HandSoldering.wrl",
 							At:     XYZ{ZPresent: true},
@@ -211,10 +213,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Graphics: []ModGraphic{
 							{
 								Ident: "fp_text",
@@ -241,10 +244,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Graphics: []ModGraphic{
 							{
 								Ident: "fp_line",
@@ -267,10 +271,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Graphics: []ModGraphic{
 							{
 								Ident: "fp_circle",
@@ -293,10 +298,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Graphics: []ModGraphic{
 							{
 								Ident: "fp_arc",
@@ -320,10 +326,11 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Graphics: []ModGraphic{
 							{
 								Ident: "fp_poly",
@@ -351,20 +358,22 @@ func TestPCBWrite(t *testing.T) {
 				FormatVersion: 4,
 				Modules: []Module{
 					{
-						Name:   "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
-						Layer:  "F.Cu",
-						Tedit:  "5ADA75A0",
-						Tstamp: "5AE3D8AB",
+						Name:        "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm",
+						Layer:       "F.Cu",
+						ZoneConnect: ZoneConnectInherited,
+						Tedit:       "5ADA75A0",
+						Tstamp:      "5AE3D8AB",
 						Pads: []Pad{
 							{
-								Ident:     "1",
-								NetNum:    1,
-								NetName:   "GND",
-								Layers:    []string{"*.Cu", "*.Mask"},
-								Surface:   SurfaceTH,
-								Shape:     ShapeRect,
-								DrillSize: XY{X: 1, Y: 1},
-								Size:      XY{X: 1.7, Y: 1.7},
+								Ident:       "1",
+								NetNum:      1,
+								ZoneConnect: ZoneConnectInherited,
+								NetName:     "GND",
+								Layers:      []string{"*.Cu", "*.Mask"},
+								Surface:     SurfaceTH,
+								Shape:       ShapeRect,
+								DrillSize:   XY{X: 1, Y: 1},
+								Size:        XY{X: 1.7, Y: 1.7},
 							},
 						},
 					},
@@ -452,7 +461,7 @@ func TestDecodeThenSerializeMatches(t *testing.T) {
 				// t.Log(diffs.DiffPrettyText(dm))
 				// t.Log(diffs.DiffToDelta(dm))
 				t.Log(diffs.PatchToText(diffs.PatchMake(dm)))
-				ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
+				// ioutil.WriteFile("test.kicad_pcb", serialized.Bytes(), 0755)
 			}
 		})
 	}
