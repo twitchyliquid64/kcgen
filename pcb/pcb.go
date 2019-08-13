@@ -1,4 +1,4 @@
-// Package pcb is a low-level parser & serializer for KiKad formats.
+// Package pcb is a low-level parser & serializer for KiCad formats.
 // Most users will want to use a higher-level API.
 package pcb
 
