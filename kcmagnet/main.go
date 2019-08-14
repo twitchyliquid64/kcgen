@@ -16,13 +16,13 @@ var (
 	skipWindings = flag.Float64("skip-windings", 1, "How many windings to skip on the inside")
 )
 
-func pointOnCircle(center kcgen.Point2D, radius float64, angle float64) *kcgen.Point2D {
-	x := center.X + (radius * math.Cos(angle))
-	y := center.Y + (radius * math.Sin(angle))
-	return &kcgen.Point2D{X: x, Y: y}
+func pointOnCircle(center [2]float64, radius float64, angle float64) [2]float64 {
+	x := center[0] + (radius * math.Cos(angle))
+	y := center[1] + (radius * math.Sin(angle))
+	return [2]float64{x, y}
 }
 
-func pointOnCircleDegrees(center kcgen.Point2D, radius float64, angle float64) *kcgen.Point2D {
+func pointOnCircleDegrees(center [2]float64, radius float64, angle float64) [2]float64 {
 	return pointOnCircle(center, radius, angle*math.Pi/180)
 }
 
@@ -35,9 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fp := kcgen.Footprint{
-		ModName: flag.Arg(0),
-	}
+	m := kcgen.NewModuleBuilder(flag.Arg(0), "1D magnet grid.", kcgen.LayerFrontCopper)
 
 	thickness, err := strconv.ParseFloat(flag.Arg(1), 64)
 	if err != nil {
@@ -56,18 +54,17 @@ func main() {
 	}
 
 	startRadius := float64(*skipWindings) * (thickness + clearance)
-	lastPoint := kcgen.Point2D{X: startRadius}
+	lastPoint := [2]float64{startRadius, 0}
 	radiusIncrement := (thickness + clearance) / 360 / float64(*resolution)
 
 	for degree := 0; degree < 360*(*resolution)*windings; degree++ {
-		next := pointOnCircleDegrees(kcgen.Point2D{}, startRadius+radiusIncrement*float64(degree), float64(degree)/float64(*resolution))
-		fp.Add(&kcgen.Line{
-			Layer: kcgen.LayerFrontCopper,
-			Start: lastPoint,
-			End:   *next,
-			Width: thickness,
-		})
-		lastPoint = *next
+		next := pointOnCircleDegrees([2]float64{}, startRadius+radiusIncrement*float64(degree), float64(degree)/float64(*resolution))
+		l := kcgen.NewLine(kcgen.LayerFrontCopper)
+		l.Start(lastPoint[0], lastPoint[1])
+		l.End(next[0], next[1])
+		l.Width(thickness)
+		m.AddLine(l)
+		lastPoint = next
 	}
 
 	// Render output.
@@ -82,7 +79,7 @@ func main() {
 		w = f
 	}
 
-	if err := fp.Render(w); err != nil {
+	if err := m.Write(w); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		if *output != "" && *output != "-" { //close the file if its not standard input
 			w.Close()

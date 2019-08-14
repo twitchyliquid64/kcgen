@@ -23,10 +23,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	fp := kcgen.Footprint{
-		ModName:    flag.Arg(0),
-		ReferenceY: *referenceOffset,
-	}
+	m := kcgen.NewModuleBuilder(flag.Arg(0), "The outline of the PCB.", kcgen.LayerFrontCopper)
+	m.RefTextOffset(0, *referenceOffset)
 
 	width, err := strconv.ParseFloat(flag.Arg(1), 64)
 	if err != nil {
@@ -40,26 +38,19 @@ func main() {
 		os.Exit(2)
 	}
 
-	fp.Add(&kcgen.Line{
-		Layer: kcgen.LayerFrontSilkscreen,
-		Start: kcgen.Point2D{X: -width / 2, Y: -height / 2},
-		End:   kcgen.Point2D{X: width / 2, Y: -height / 2},
-	})
-	fp.Add(&kcgen.Line{
-		Layer: kcgen.LayerFrontSilkscreen,
-		Start: kcgen.Point2D{X: width / 2, Y: -height / 2},
-		End:   kcgen.Point2D{X: width / 2, Y: height / 2},
-	})
-	fp.Add(&kcgen.Line{
-		Layer: kcgen.LayerFrontSilkscreen,
-		Start: kcgen.Point2D{X: width / 2, Y: height / 2},
-		End:   kcgen.Point2D{X: -width / 2, Y: height / 2},
-	})
-	fp.Add(&kcgen.Line{
-		Layer: kcgen.LayerFrontSilkscreen,
-		Start: kcgen.Point2D{X: -width / 2, Y: height / 2},
-		End:   kcgen.Point2D{X: -width / 2, Y: -height / 2},
-	})
+	top := kcgen.NewLine(kcgen.LayerFrontSilkscreen)
+	top.Positions(-width/2, height/2, width/2, height/2)
+	m.AddLine(top)
+	bottom := kcgen.NewLine(kcgen.LayerFrontSilkscreen)
+	bottom.Positions(-width/2, -height/2, width/2, -height/2)
+	m.AddLine(bottom)
+
+	left := kcgen.NewLine(kcgen.LayerFrontSilkscreen)
+	left.Positions(-width/2, height/2, -width/2, -height/2)
+	m.AddLine(left)
+	right := kcgen.NewLine(kcgen.LayerFrontSilkscreen)
+	right.Positions(width/2, height/2, width/2, -height/2)
+	m.AddLine(right)
 
 	w := os.Stdout
 	if *output != "" && *output != "-" {
@@ -72,7 +63,7 @@ func main() {
 		w = f
 	}
 
-	if err := fp.Render(w); err != nil {
+	if err := m.Write(w); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		if *output != "" && *output != "-" { //close the file if its not standard input
 			w.Close()

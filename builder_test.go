@@ -15,7 +15,7 @@ func TestModule(t *testing.T) {
 	m.mod.Tedit = ""
 
 	var out bytes.Buffer
-	expect := "(module test:label (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_text user kek (at 0 4) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n)"
+	expect := "(module test:label (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n  (fp_text user kek (at 0 4) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n)"
 	if err := m.Write(&out); err != nil {
 		t.Fatalf("Write() failed: %v", err)
 	}
@@ -36,7 +36,7 @@ func TestModuleCircle(t *testing.T) {
 	m.mod.Tedit = ""
 
 	var out bytes.Buffer
-	expect := "(module test:circle (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_circle (center 2 4) (end 4 4) (layer F.Fab) (width 0.15))\n)"
+	expect := "(module test:circle (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n  (fp_circle (center 2 4) (end 4 4) (layer F.Fab) (width 0.15))\n)"
 	if err := m.Write(&out); err != nil {
 		t.Fatalf("Write() failed: %v", err)
 	}
@@ -59,7 +59,7 @@ func TestModuleLine(t *testing.T) {
 	m.mod.Tedit = ""
 
 	var out bytes.Buffer
-	expect := "(module test:line (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_line (start 2 4) (end 4 5) (layer F.SilkS) (width 0.2))\n)"
+	expect := "(module test:line (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n  (fp_line (start 2 4) (end 4 5) (layer F.SilkS) (width 0.2))\n)"
 	if err := m.Write(&out); err != nil {
 		t.Fatalf("Write() failed: %v", err)
 	}
@@ -79,7 +79,7 @@ func TestModulePoly(t *testing.T) {
 	m.mod.Tedit = ""
 
 	var out bytes.Buffer
-	expect := "(module test:poly (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_poly (pts (xy 1 1) (xy 3 3) (xy 1 1)) (layer F.Fab) (width 0.2))\n)"
+	expect := "(module test:poly (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n  (fp_poly (pts (xy 1 1) (xy 3 3) (xy 1 1)) (layer F.Fab) (width 0.2))\n)"
 	if err := m.Write(&out); err != nil {
 		t.Fatalf("Write() failed: %v", err)
 	}
@@ -102,7 +102,7 @@ func TestModuleArc(t *testing.T) {
 	m.mod.Tedit = ""
 
 	var out bytes.Buffer
-	expect := "(module test:arc (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_arc (start 0 0) (end 2 1) (angle 600) (layer F.Fab) (width 0.3))\n)"
+	expect := "(module test:arc (layer F.Cu)\n \n  (descr \"A test module\")\n  (attr virtual)\n  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n  (fp_arc (start 0 0) (end 2 1) (angle 600) (layer F.Fab) (width 0.3))\n)"
 	if err := m.Write(&out); err != nil {
 		t.Fatalf("Write() failed: %v", err)
 	}

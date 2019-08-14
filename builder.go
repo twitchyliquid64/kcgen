@@ -11,15 +11,22 @@ import (
 // ModBuilder provides an easy interface to construct a new KiCad module.
 type ModBuilder struct {
 	mod pcb.Module
+	ref *pcb.ModText
 }
 
+// Write serializes the module to the given writer.
 func (m *ModBuilder) Write(w io.Writer) error {
 	return m.mod.WriteModule(w)
 }
 
+// RefTextOffset sets the position of the reference text.
+func (m *ModBuilder) RefTextOffset(x, y float64) {
+	m.ref.At = pcb.XYZ{X: x, Y: y}
+}
+
 // NewModuleBuilder returns a builder for constructing a module.
 func NewModuleBuilder(name, description string, layer Layer) *ModBuilder {
-	return &ModBuilder{
+	b := &ModBuilder{
 		mod: pcb.Module{
 			Name:        name,
 			Layer:       layer.Strictname(),
@@ -28,6 +35,20 @@ func NewModuleBuilder(name, description string, layer Layer) *ModBuilder {
 			ZoneConnect: pcb.ZoneConnectInherited,
 		},
 	}
+	b.ref = &pcb.ModText{
+		Kind:  pcb.RefText,
+		Text:  "REF**",
+		Layer: LayerFrontSilkscreen.Strictname(),
+		Effects: pcb.TextEffects{
+			Thickness: 0.15,
+			FontSize:  pcb.XY{X: 1, Y: 1},
+		},
+	}
+	b.mod.Graphics = append(b.mod.Graphics, pcb.ModGraphic{
+		Ident:      "fp_text",
+		Renderable: b.ref,
+	})
+	return b
 }
 
 // ZoneConnectMode sets the zone connect mode.
