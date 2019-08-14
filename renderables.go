@@ -7,16 +7,58 @@ import (
 
 // Line represents a 2d graphical line in a Footprint.
 type Line struct {
-	Layer      Layer
-	Start, End pcb.XY
-	Width      float64
+	l pcb.ModLine
+}
+
+// Width sets the thickness of the line.
+func (l *Line) Width(thicc float64) {
+	l.l.Width = thicc
+}
+
+// Start sets the starting point.
+func (l *Line) Start(x, y float64) {
+	l.l.Start = pcb.XY{X: x, Y: y}
+}
+
+// End sets the finishing point.
+func (l *Line) End(x, y float64) {
+	l.l.End = pcb.XY{X: x, Y: y}
+}
+
+// Positions sets the starting and finishing point.
+func (l *Line) Positions(x1, y1, x2, y2 float64) {
+	l.l.Start = pcb.XY{X: x1, Y: y1}
+	l.l.End = pcb.XY{X: x2, Y: y2}
+}
+
+// NewLine creates a new line element.
+func NewLine(layer Layer) *Line {
+	return &Line{
+		l: pcb.ModLine{
+			Width: 0.15,
+			Layer: layer.Strictname(),
+		},
+	}
 }
 
 // Polygon represents a 2d polygon in a Footprint.
 type Polygon struct {
-	Layer  Layer
-	Points []pcb.XY
-	Width  float64
+	p pcb.ModPolygon
+}
+
+// NewPolygon creates a new polygon element.
+func NewPolygon(points [][2]float64, width float64, layer Layer) *Polygon {
+	p := &Polygon{
+		p: pcb.ModPolygon{
+			Layer: layer.Strictname(),
+			Width: width,
+		},
+	}
+	p.p.Points = make([]pcb.XY, len(points))
+	for i := range points {
+		p.p.Points[i] = pcb.XY{X: points[i][0], Y: points[i][1]}
+	}
+	return p
 }
 
 // Text represents a string of text drawn at a position.
@@ -29,7 +71,7 @@ func (t *Text) Italic(on bool) {
 	t.t.Effects.Italic = on
 }
 
-// Italic sets whether the text is bolded or not.
+// Bold sets whether the text is bolded or not.
 func (t *Text) Bold(on bool) {
 	t.t.Effects.Bold = on
 }

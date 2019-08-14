@@ -52,3 +52,35 @@ func (m *ModBuilder) AddText(t *Text) {
 		Renderable: &t.t,
 	})
 }
+
+// AddText adds a text graphic to the module.
+func (m *ModBuilder) AddCircle(c *Circle) {
+	m.mod.Graphics = append(m.mod.Graphics, pcb.ModGraphic{
+		Ident:      "fp_circle",
+		Renderable: &c.c,
+	})
+}
+
+// AddLine adds a line graphic to the module.
+func (m *ModBuilder) AddLine(l *Line) {
+	m.mod.Graphics = append(m.mod.Graphics, pcb.ModGraphic{
+		Ident:      "fp_line",
+		Renderable: &l.l,
+	})
+}
+
+// AddPolygon adds a polygon graphic to the module.
+func (m *ModBuilder) AddPolygon(p *Polygon) {
+	m.mod.Graphics = append(m.mod.Graphics, pcb.ModGraphic{
+		Ident:      "fp_poly",
+		Renderable: &p.p,
+	})
+}
+
+// AddArc adds an arc graphic to the module.
+func (m *ModBuilder) AddArc(a *Arc) {
+	m.mod.Graphics = append(m.mod.Graphics, pcb.ModGraphic{
+		Ident:      "fp_arc",
+		Renderable: &a.a,
+	})
+}
