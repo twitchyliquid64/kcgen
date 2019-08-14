@@ -49,43 +49,56 @@ func withinBounds(lat, lng float64) bool {
 }
 
 func boundLine(line *kcgen.Line) {
-	if line.Start.X == line.End.X {
+	startX, startY := line.GetStart()
+	endX, endY := line.GetEnd()
+	if startX == endX {
 		panic("infinite slope not yet supported")
 	}
-	slope := (line.End.Y - line.Start.Y) / (line.End.X - line.Start.X)
-	b := line.End.Y - (slope * line.End.X) //y = mx + b which is equivalent to b = y - mx
-	if line.Start.X < (-*width / 2) {
-		line.Start.Y = (slope * (-*width / 2)) + b
-		line.Start.X = -*width / 2
+	slope := (endY - startY) / (endX - startX)
+	b := endY - (slope * endX) //y = mx + b which is equivalent to b = y - mx
+
+	// Handle X upper and lower bounds.
+	if startX < (-*width / 2) {
+		startY = (slope * (-*width / 2)) + b
+		startX = -*width / 2
+		line.Start(startX, startY)
 	}
-	if line.End.X < (-*width / 2) {
-		line.End.Y = (slope * (-*width / 2)) + b
-		line.End.X = -*width / 2
+	if endX < (-*width / 2) {
+		endY = (slope * (-*width / 2)) + b
+		endX = -*width / 2
+		line.End(endX, endY)
 	}
-	if line.Start.X > (*width / 2) {
-		line.Start.Y = (slope * (*width / 2)) + b
-		line.Start.X = *width / 2
+	if startX > (*width / 2) {
+		startY = (slope * (*width / 2)) + b
+		startX = *width / 2
+		line.Start(startX, startY)
 	}
-	if line.End.X > (*width / 2) {
-		line.End.Y = (slope * (*width / 2)) + b
-		line.End.X = *width / 2
+	if endX > (*width / 2) {
+		endY = (slope * (*width / 2)) + b
+		endX = *width / 2
+		line.End(endX, endY)
 	}
 
-	if line.Start.Y < (-*height / 2) {
-		line.Start.Y = -*height / 2
-		line.Start.X = ((-*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	// Handle Y upper and lower bounds.
+	if startY < (-*height / 2) {
+		startY = -*height / 2
+		startX = ((-*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+		line.Start(startX, startY)
 	}
-	if line.End.Y < (-*height / 2) {
-		line.End.Y = -*height / 2
-		line.End.X = ((-*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if endY < (-*height / 2) {
+		endY = -*height / 2
+		endX = ((-*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+		line.End(endX, endY)
 	}
-	if line.Start.Y > (*height / 2) {
-		line.Start.Y = *height / 2
-		line.Start.X = ((*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if startY > (*height / 2) {
+		startY = *height / 2
+		startX = ((*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+		line.Start(startX, startY)
 	}
-	if line.End.Y > (*height / 2) {
-		line.End.Y = *height / 2
-		line.End.X = ((*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+	if endY > (*height / 2) {
+		endY = *height / 2
+		endX = ((*height / 2) - b) / slope //y = mx + b equiv. (y-b)/m = x
+		line.End(endX, endY)
 	}
 }
 
@@ -110,9 +123,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fp := kcgen.Footprint{
-		ModName: *ref,
-	}
+	m := kcgen.NewModuleBuilder(*ref, "A map.", kcgen.LayerFrontCopper)
 
 	for _, f := range geo.Features {
 		if f.Properties["layer"] != "STREETS" { // && f.Properties["layer"] != "PSEUDO" {
@@ -134,38 +145,35 @@ func main() {
 				}
 				y1, x1 := mapCoordinates(lastPoint[1], lastPoint[0])
 				y2, x2 := mapCoordinates(p[1], p[0])
-				l := &kcgen.Line{
-					Layer: kcgen.LayerFrontSilkscreen,
-					Start: kcgen.Point2D{X: x1, Y: y1},
-					End:   kcgen.Point2D{X: x2, Y: y2},
-					Width: width,
-				}
+				l := kcgen.NewLine(kcgen.LayerFrontSilkscreen)
+				l.Positions(x1, y1, x2, y2)
+				l.Width(width)
 				boundLine(l)
-				fp.Add(l)
+				m.AddLine(l)
 			}
 		}
 	}
 
-	fp.Add(&kcgen.Text{
-		Layer:    kcgen.LayerFrontFab,
-		Position: kcgen.Point2D{X: 0, Y: 2},
-		Text:     fmt.Sprintf("Min Latitude: %v", *lat1),
-	})
-	fp.Add(&kcgen.Text{
-		Layer:    kcgen.LayerFrontFab,
-		Position: kcgen.Point2D{X: 0, Y: 4},
-		Text:     fmt.Sprintf("Max Latitude: %v", *lat2),
-	})
-	fp.Add(&kcgen.Text{
-		Layer:    kcgen.LayerFrontFab,
-		Position: kcgen.Point2D{X: 0, Y: 6},
-		Text:     fmt.Sprintf("Min Longitude: %v", *lng1),
-	})
-	fp.Add(&kcgen.Text{
-		Layer:    kcgen.LayerFrontFab,
-		Position: kcgen.Point2D{X: 0, Y: 8},
-		Text:     fmt.Sprintf("Mac Longitude: %v", *lng2),
-	})
+	// fp.Add(&kcgen.Text{
+	// 	Layer:    kcgen.LayerFrontFab,
+	// 	Position: kcgen.Point2D{X: 0, Y: 2},
+	// 	Text:     fmt.Sprintf("Min Latitude: %v", *lat1),
+	// })
+	// fp.Add(&kcgen.Text{
+	// 	Layer:    kcgen.LayerFrontFab,
+	// 	Position: kcgen.Point2D{X: 0, Y: 4},
+	// 	Text:     fmt.Sprintf("Max Latitude: %v", *lat2),
+	// })
+	// fp.Add(&kcgen.Text{
+	// 	Layer:    kcgen.LayerFrontFab,
+	// 	Position: kcgen.Point2D{X: 0, Y: 6},
+	// 	Text:     fmt.Sprintf("Min Longitude: %v", *lng1),
+	// })
+	// fp.Add(&kcgen.Text{
+	// 	Layer:    kcgen.LayerFrontFab,
+	// 	Position: kcgen.Point2D{X: 0, Y: 8},
+	// 	Text:     fmt.Sprintf("Mac Longitude: %v", *lng2),
+	// })
 
 	// Render output.
 	w := os.Stdout
@@ -179,7 +187,7 @@ func main() {
 		w = f
 	}
 
-	if err := fp.Render(w); err != nil {
+	if err := m.Write(w); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		if *output != "" && *output != "-" { //close the file if its not standard input
 			w.Close()

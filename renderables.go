@@ -20,9 +20,19 @@ func (l *Line) Start(x, y float64) {
 	l.l.Start = pcb.XY{X: x, Y: y}
 }
 
+// GetStart returns the starting point.
+func (l *Line) GetStart() (x, y float64) {
+	return l.l.Start.X, l.l.Start.Y
+}
+
 // End sets the finishing point.
 func (l *Line) End(x, y float64) {
 	l.l.End = pcb.XY{X: x, Y: y}
+}
+
+// GetEnd returns the finishing point.
+func (l *Line) GetEnd() (x, y float64) {
+	return l.l.End.X, l.l.End.Y
 }
 
 // Positions sets the starting and finishing point.
