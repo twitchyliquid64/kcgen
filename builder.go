@@ -105,3 +105,8 @@ func (m *ModBuilder) AddArc(a *Arc) {
 		Renderable: &a.a,
 	})
 }
+
+// AddPad adds a pad to the module.
+func (m *ModBuilder) AddPad(p *Pad) {
+	m.mod.Pads = append(m.mod.Pads, p.p)
+}
