@@ -16,8 +16,8 @@ var (
 	resolution      = flag.Int("resolution", 1, "How many interpolations to make per degree")
 	output          = flag.String("o", "-", "Where output is written")
 	mounts          = flag.Bool("make-mounts", false, "Generate mounting holes")
-	// rimming         = flag.Bool("make-rim", false, "Generate copper rim")
-	rimWidth = flag.Float64("rim-width", 0.5, "Width of copper rim")
+	rimming         = flag.Bool("make-rim", false, "Generate copper rim")
+	rimWidth        = flag.Float64("rim-width", 0.5, "Width of copper rim")
 )
 
 func pointOnCircle(center [2]float64, radius float64, angle float64) [2]float64 {
@@ -90,36 +90,27 @@ func main() {
 	right.Positions(halfWidth, *radius-halfHeight, halfWidth, halfHeight-*radius)
 	m.AddLine(right)
 
-	// if *rimming {
-	// 	fp.Add(&kcgen.Pad{
-	// 		Number: 1,
-	// 		Size:   kcgen.Point2D{X: *rimWidth, Y: height - *radius*2},
-	// 		Center: kcgen.Point2D{X: halfWidth - rimOffset, Y: 0},
-	// 		Type:   "smd rect",
-	// 		Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
-	// 	})
-	// 	fp.Add(&kcgen.Pad{
-	// 		Number: 1,
-	// 		Size:   kcgen.Point2D{X: *rimWidth, Y: height - *radius*2},
-	// 		Center: kcgen.Point2D{X: rimOffset - halfWidth, Y: 0},
-	// 		Type:   "smd rect",
-	// 		Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
-	// 	})
-	// 	fp.Add(&kcgen.Pad{
-	// 		Number: 1,
-	// 		Size:   kcgen.Point2D{X: width - *radius*2, Y: *rimWidth},
-	// 		Center: kcgen.Point2D{X: 0, Y: halfHeight - rimOffset},
-	// 		Type:   "smd rect",
-	// 		Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
-	// 	})
-	// 	fp.Add(&kcgen.Pad{
-	// 		Number: 1,
-	// 		Size:   kcgen.Point2D{X: width - *radius*2, Y: *rimWidth},
-	// 		Center: kcgen.Point2D{X: 0, Y: rimOffset - halfHeight},
-	// 		Type:   "smd rect",
-	// 		Layers: []kcgen.Layer{kcgen.LayerAllCopper, kcgen.LayerAllMask},
-	// 	})
-	// }
+	if *rimming {
+		r1 := kcgen.NewPad(kcgen.SMDRect, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
+		r1.Size(*rimWidth, height-*radius*2)
+		r1.Center(halfWidth-rimOffset, 0)
+		m.AddPad(r1)
+
+		r2 := kcgen.NewPad(kcgen.SMDRect, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
+		r2.Size(*rimWidth, height-*radius*2)
+		r2.Center(rimOffset-halfWidth, 0)
+		m.AddPad(r2)
+
+		r3 := kcgen.NewPad(kcgen.SMDRect, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
+		r3.Size(width-*radius*2, *rimWidth)
+		r3.Center(0, halfHeight-rimOffset)
+		m.AddPad(r3)
+
+		r4 := kcgen.NewPad(kcgen.SMDRect, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
+		r4.Size(width-*radius*2, *rimWidth)
+		r4.Center(0, rimOffset-halfHeight)
+		m.AddPad(r4)
+	}
 
 	// Radius arcs.
 	if *radius > 0 {
@@ -129,26 +120,29 @@ func main() {
 		drawArc(m, *radius, 180, 270, *radius-halfWidth, *radius-halfHeight)
 	}
 
+	if *radius < 2.8 {
+		*radius = 2.8
+	}
 	if *mounts {
-		tl := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerFrontCopper, kcgen.LayerFrontMask)
+		tl := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
 		tl.Size(5.6, 5.6)
 		tl.Center(*radius-halfWidth, *radius-halfHeight)
 		tl.DrillSize(3.2, 3.2)
 		m.AddPad(tl)
 
-		bl := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerFrontCopper, kcgen.LayerFrontMask)
+		bl := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
 		bl.Size(5.6, 5.6)
 		bl.Center(*radius-halfWidth, halfHeight-*radius)
 		bl.DrillSize(3.2, 3.2)
 		m.AddPad(bl)
 
-		tr := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerFrontCopper, kcgen.LayerFrontMask)
+		tr := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
 		tr.Size(5.6, 5.6)
 		tr.Center(halfWidth-*radius, *radius-halfHeight)
 		tr.DrillSize(3.2, 3.2)
 		m.AddPad(tr)
 
-		br := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerFrontCopper, kcgen.LayerFrontMask)
+		br := kcgen.NewPad(kcgen.TH, "1", kcgen.LayerAllCopper, kcgen.LayerAllMask)
 		br.Size(5.6, 5.6)
 		br.Center(halfWidth-*radius, halfHeight-*radius)
 		br.DrillSize(3.2, 3.2)
