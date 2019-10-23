@@ -13,4 +13,5 @@ require (
 	github.com/sergi/go-diff v1.0.0
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
+	go.starlark.net v0.0.0-20191016215632-c9eda478e54e
 )

@@ -45,7 +45,7 @@ func TestPCB(t *testing.T) {
 		t.Errorf("len(p.LayersByName) = %v, want %v", got, want)
 		t.Logf("p.LayersByName = %+v", p.LayersByName)
 	}
-	if got, want := p.LayersByName["F.Mask"].Type, "user"; got != want {
+	if got, want := p.LayersByName["F.Mask"].Typ, "user"; got != want {
 		t.Errorf("p.LayersByName[\"F.Mask\"].Type = %v, want %v", got, want)
 		t.Logf("p.LayersByName[\"F.Mask\"] = %+v", p.LayersByName["F.Mask"])
 	}
@@ -54,7 +54,7 @@ func TestPCB(t *testing.T) {
 		t.Errorf("len(p.LayersByName) = %v, want %v", got, want)
 		t.Logf("p.LayersByName = %+v", p.LayersByName)
 	}
-	if got, want := p.LayersByName["F.Mask"].Type, "user"; got != want {
+	if got, want := p.LayersByName["F.Mask"].Typ, "user"; got != want {
 		t.Errorf("p.LayersByName[\"F.Mask\"].Type = %v, want %v", got, want)
 		t.Logf("p.LayersByName[\"F.Mask\"] = %+v", p.LayersByName["F.Mask"])
 	}

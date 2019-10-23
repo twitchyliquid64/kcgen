@@ -35,6 +35,30 @@ type Via struct {
 	order int
 }
 
+type ZoneHatch struct {
+	Mode  string  `json:"mode"`
+	Pitch float64 `json:"pitch"`
+}
+
+type ZoneConnectPads struct {
+	Clearance float64 `json:"clearance"`
+	Mode      string  `json:"mode"`
+}
+
+type ZoneFill struct {
+	IsFilled           bool    `json:"is_filled"`
+	Mode               string  `json:"mode"`
+	Segments           int     `json:"segments"`
+	ThermalGap         float64 `json:"thermal_gap"`
+	ThermalBridgeWidth float64 `json:"thermal_bridge_width"`
+}
+
+type ZoneKeepout struct {
+	TracksAllowed     bool `json:"tracks_allowed"`
+	ViasAllowed       bool `json:"vias_allowed"`
+	CopperPourAllowed bool `json:"copperpour_allowed"`
+}
+
 // Zone represents a zone.
 type Zone struct {
 	IsKeepout bool     `json:"is_keepout"`
@@ -45,29 +69,13 @@ type Zone struct {
 	Tstamp   string `json:"tstamp"`
 	Priority int    `json:"priority"`
 
-	Hatch struct {
-		Mode  string  `json:"mode"`
-		Pitch float64 `json:"pitch"`
-	} `json:"hatch"`
+	Hatch ZoneHatch `json:"hatch"`
 
-	ConnectPads struct {
-		Clearance float64 `json:"clearance"`
-		Mode      string  `json:"mode"`
-	} `json:"connect_pads"`
+	ConnectPads ZoneConnectPads `json:"connect_pads"`
 
-	Fill struct {
-		IsFilled           bool    `json:"is_filled"`
-		Mode               string  `json:"mode"`
-		Segments           int     `json:"segments"`
-		ThermalGap         float64 `json:"thermal_gap"`
-		ThermalBridgeWidth float64 `json:"thermal_bridge_width"`
-	} `json:"fill"`
+	Fill ZoneFill `json:"fill"`
 
-	Keepout struct {
-		TracksAllowed     bool `json:"tracks_allowed"`
-		ViasAllowed       bool `json:"vias_allowed"`
-		CopperPourAllowed bool `json:"copperpour_allowed"`
-	} `json:"keepout"`
+	Keepout ZoneKeepout `json:"keepout"`
 
 	MinThickness        float64 `json:"min_thickness"`
 	FilledAreaThickness bool    `json:"filled_area_thickness"`

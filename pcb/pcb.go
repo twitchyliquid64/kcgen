@@ -15,8 +15,8 @@ import (
 type Layer struct {
 	Num    int    `json:"num"`
 	Name   string `json:"name"`
-	Type   string `json:"type"`
-	Hidden bool   `json:'hidden'`
+	Typ    string `json:"type"`
+	Hidden bool   `json:"hidden"`
 
 	order int
 }
@@ -49,13 +49,15 @@ type NetClass struct {
 	order int
 }
 
+type PCBCreatedBy struct {
+	Tool    string `json:"tool"`
+	Version string `json:"version"`
+}
+
 // PCB represents the parsed contents of a kicad_pcb file.
 type PCB struct {
-	FormatVersion int `json:"format_version"`
-	CreatedBy     struct {
-		Tool    string `json:"tool"`
-		Version string `json:"version"`
-	} `json:"created_by"`
+	FormatVersion int          `json:"format_version"`
+	CreatedBy     PCBCreatedBy `json:"created_by"`
 
 	TitleInfo   *TitleInfo  `json:"title_info"`
 	EditorSetup EditorSetup `json:"editor_setup"`
@@ -246,7 +248,7 @@ func DecodeFile(fpath string) (*PCB, error) {
 					l := &Layer{
 						Num:   num,
 						Name:  c.Child(1).MustString(),
-						Type:  c.Child(2).MustString(),
+						Typ:   c.Child(2).MustString(),
 						order: ordering,
 					}
 

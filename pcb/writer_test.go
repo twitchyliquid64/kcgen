@@ -27,8 +27,8 @@ func TestPCBWrite(t *testing.T) {
 			pcb: PCB{
 				FormatVersion: 4,
 				Layers: []*Layer{
-					{Name: "F.Cu", Type: "signal"},
-					{Num: 31, Name: "B.Cu", Type: "signal"},
+					{Name: "F.Cu", Typ: "signal"},
+					{Num: 31, Name: "B.Cu", Typ: "signal"},
 				},
 			},
 			expected: "(kicad_pcb (version 4) (host kcgen 0.0.1)\n\n  (general)\n\n  (page A4)\n  (layers\n    (0 F.Cu signal)\n    (31 B.Cu signal)\n  )\n\n  (setup\n    (zone_45_only no)\n    (uvias_allowed no)\n  )\n\n \n)\n",

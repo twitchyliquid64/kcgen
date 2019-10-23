@@ -222,7 +222,7 @@ func (l *Layer) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.IntScalar(l.Num)
 	sw.StringScalar(l.Name)
-	sw.StringScalar(l.Type)
+	sw.StringScalar(l.Typ)
 	if l.Hidden {
 		sw.StringScalar("hide")
 	}
