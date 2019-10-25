@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/twitchyliquid64/kcgen/kcsl/lib"
+	"github.com/twitchyliquid64/kcgen/pcb"
 	"go.starlark.net/starlark"
 )
 
@@ -108,10 +110,10 @@ func (s *Script) printFromSkylark(_ *starlark.Thread, msg string) {
 }
 
 func (s *Script) resolveImport(path string) ([]byte, error) {
-	// d, exists := lib.Libs[path]
-	// if exists {
-	// 	return d, nil
-	// }
+	d, exists := lib.Libs[path]
+	if exists {
+		return d, nil
+	}
 	if s.loader == nil {
 		return nil, errors.New("no such import: " + path)
 	}
@@ -141,4 +143,14 @@ func (s *Script) CallFn(fname string) (string, error) {
 		return "", fmt.Errorf("%s() returned type %T, want string", fname, ret)
 	}
 	return string(result), nil
+}
+
+// Mod returns a generated module, if applicable.
+func (s *Script) Mod() *pcb.Module {
+	if m, ok := s.globals["mod"]; ok {
+		if mod, ok := m.(*pcb.Module); ok {
+			return mod
+		}
+	}
+	return nil
 }

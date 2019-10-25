@@ -119,8 +119,10 @@ var MakeXYZ = starlark.NewBuiltin("XYZ", func(t *starlark.Thread, f *starlark.Bu
 
 	out.X, _ = starlark.AsFloat(f0)
 	out.Y, _ = starlark.AsFloat(f1)
-	out.Z, _ = starlark.AsFloat(f2)
-	out.ZPresent = bool(f3)
+	var hasZ bool
+	out.Z, hasZ = starlark.AsFloat(f2)
+
+	out.ZPresent = hasZ || bool(f3)
 	out.Unlocked = bool(f4)
 	return &out, nil
 })
@@ -1041,7 +1043,7 @@ func (p *Net) SetField(name string, val starlark.Value) error {
 
 var MakeModPolygon = starlark.NewBuiltin("ModPolygon", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
+		f0 *XY
 		f1 *starlark.List
 		f2 starlark.String
 		f3 starlark.Float
@@ -1060,12 +1062,14 @@ var MakeModPolygon = starlark.NewBuiltin("ModPolygon", func(t *starlark.Thread, 
 	}
 	out := ModPolygon{}
 
-	out.At = f0
+	if f0 != nil {
+		out.At = *f0
+	}
 	if f1 != nil {
 		for i := 0; i < f1.Len(); i++ {
 			s, ok := f1.Index(i).(*XY)
 			if !ok {
-				return starlark.None, errors.New("points is not a XY")
+				return starlark.None, fmt.Errorf("point[%d] is not an XY", i)
 			}
 			out.Points = append(out.Points, *s)
 		}
@@ -1173,7 +1177,7 @@ func (p *ModPolygon) SetField(name string, val starlark.Value) error {
 
 var MakeTextEffects = starlark.NewBuiltin("TextEffects", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
+		f0 *XY
 		f1 starlark.Float
 		f2 TextJustify
 		f3 starlark.Bool
@@ -1194,7 +1198,9 @@ var MakeTextEffects = starlark.NewBuiltin("TextEffects", func(t *starlark.Thread
 	}
 	out := TextEffects{}
 
-	out.FontSize = f0
+	if f0 != nil {
+		out.FontSize = *f0
+	}
 	out.Thickness = float64(f1)
 	out.Justify = f2
 	out.Bold = bool(f3)
@@ -1298,12 +1304,12 @@ func (p *TextEffects) SetField(name string, val starlark.Value) error {
 
 var MakeModText = starlark.NewBuiltin("ModText", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 ModTextKind
+		f0 *ModTextKind
 		f1 starlark.Bool
 		f2 starlark.String
-		f3 XYZ
+		f3 *XYZ
 		f4 starlark.String
-		f5 TextEffects
+		f5 *TextEffects
 	)
 	unpackErr := starlark.UnpackArgs(
 		"ModText",
@@ -1321,12 +1327,16 @@ var MakeModText = starlark.NewBuiltin("ModText", func(t *starlark.Thread, f *sta
 	}
 	out := ModText{}
 
-	out.Kind = f0
+	out.Kind = *f0
 	out.Hidden = bool(f1)
 	out.Text = string(f2)
-	out.At = f3
+	out.At = *f3
 	out.Layer = string(f4)
-	out.Effects = f5
+	if f5 != nil {
+		out.Effects = *f5
+	} else {
+		out.Effects = TextEffects{FontSize: XY{X: 1, Y: 1}, Thickness: 0.15}
+	}
 	return &out, nil
 })
 
@@ -1548,8 +1558,8 @@ func (p *ModLine) SetField(name string, val starlark.Value) error {
 
 var MakeModCircle = starlark.NewBuiltin("ModCircle", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
-		f1 XY
+		f0 *XY
+		f1 *XY
 		f2 starlark.String
 		f3 starlark.Float
 	)
@@ -1567,8 +1577,12 @@ var MakeModCircle = starlark.NewBuiltin("ModCircle", func(t *starlark.Thread, f 
 	}
 	out := ModCircle{}
 
-	out.Center = f0
-	out.End = f1
+	if f0 != nil {
+		out.Center = *f0
+	}
+	if f1 != nil {
+		out.End = *f1
+	}
 	out.Layer = string(f2)
 	out.Width = float64(f3)
 	return &out, nil
@@ -1660,8 +1674,8 @@ func (p *ModCircle) SetField(name string, val starlark.Value) error {
 
 var MakeModArc = starlark.NewBuiltin("ModArc", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
-		f1 XY
+		f0 *XY
+		f1 *XY
 		f2 starlark.String
 		f3 starlark.Float
 		f4 starlark.Float
@@ -1681,8 +1695,12 @@ var MakeModArc = starlark.NewBuiltin("ModArc", func(t *starlark.Thread, f *starl
 	}
 	out := ModArc{}
 
-	out.Start = f0
-	out.End = f1
+	if f0 != nil {
+		out.Start = *f0
+	}
+	if f1 != nil {
+		out.End = *f1
+	}
 	out.Layer = string(f2)
 	out.Angle = float64(f3)
 	out.Width = float64(f4)
@@ -1786,10 +1804,10 @@ func (p *ModArc) SetField(name string, val starlark.Value) error {
 var MakeModModel = starlark.NewBuiltin("ModModel", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
 		f0 starlark.String
-		f1 XYZ
-		f2 XYZ
-		f3 XYZ
-		f4 XYZ
+		f1 *XYZ
+		f2 *XYZ
+		f3 *XYZ
+		f4 *XYZ
 	)
 	unpackErr := starlark.UnpackArgs(
 		"ModModel",
@@ -1807,10 +1825,18 @@ var MakeModModel = starlark.NewBuiltin("ModModel", func(t *starlark.Thread, f *s
 	out := ModModel{}
 
 	out.Path = string(f0)
-	out.At = f1
-	out.Offset = f2
-	out.Scale = f3
-	out.Rotate = f4
+	if f1 != nil {
+		out.At = *f1
+	}
+	if f2 != nil {
+		out.Offset = *f2
+	}
+	if f3 != nil {
+		out.Scale = *f3
+	}
+	if f4 != nil {
+		out.Rotate = *f4
+	}
 	return &out, nil
 })
 
@@ -2085,15 +2111,15 @@ var MakePad = starlark.NewBuiltin("Pad", func(t *starlark.Thread, f *starlark.Bu
 		f0  starlark.String
 		f1  starlark.Int
 		f2  starlark.String
-		f3  XYZ
-		f4  XY
+		f3  starlark.Value
+		f4  *XY
 		f5  *starlark.List
-		f6  XY
-		f7  XY
-		f8  XY
-		f9  PadShape
+		f6  *XY
+		f7  *XY
+		f8  *XY
+		f9  *PadShape
 		f10 starlark.Float
-		f11 ZoneConnectMode
+		f11 *ZoneConnectMode
 		f12 starlark.Float
 		f13 starlark.Float
 		f14 starlark.Float
@@ -2102,8 +2128,8 @@ var MakePad = starlark.NewBuiltin("Pad", func(t *starlark.Thread, f *starlark.Bu
 		f17 starlark.Float
 		f18 starlark.Float
 		f19 starlark.Float
-		f20 PadSurface
-		f21 PadShape
+		f20 *PadSurface
+		f21 *PadShape
 		f22 *PadOptions
 		f23 *starlark.List
 	)
@@ -2147,8 +2173,18 @@ var MakePad = starlark.NewBuiltin("Pad", func(t *starlark.Thread, f *starlark.Bu
 		out.NetNum = int(v)
 	}
 	out.NetName = string(f2)
-	out.At = f3
-	out.Size = f4
+	if f3 != nil {
+		if xy, ok := f3.(*XY); ok {
+			out.At = XYZ{X: xy.X, Y: xy.Y}
+		} else if xyz, ok := f3.(*XYZ); ok {
+			out.At = *xyz
+		} else {
+			return starlark.None, fmt.Errorf("cannot convert %T to XYZ", f3)
+		}
+	}
+	if f4 != nil {
+		out.Size = *f4
+	}
 	if f5 != nil {
 		for i := 0; i < f5.Len(); i++ {
 			s, ok := f5.Index(i).(starlark.String)
@@ -2158,12 +2194,24 @@ var MakePad = starlark.NewBuiltin("Pad", func(t *starlark.Thread, f *starlark.Bu
 			out.Layers = append(out.Layers, string(s))
 		}
 	}
-	out.RectDelta = f6
-	out.DrillOffset = f7
-	out.DrillSize = f8
-	out.DrillShape = f9
+	if f6 != nil {
+		out.RectDelta = *f6
+	}
+	if f7 != nil {
+		out.DrillOffset = *f7
+	}
+	if f8 != nil {
+		out.DrillSize = *f8
+	}
+	if f9 != nil {
+		out.DrillShape = *f9
+	}
 	out.DieLength = float64(f10)
-	out.ZoneConnect = f11
+	if f11 != nil {
+		out.ZoneConnect = *f11
+	} else {
+		out.ZoneConnect = ZoneConnectInherited
+	}
 	out.ThermalWidth = float64(f12)
 	out.ThermalGap = float64(f13)
 	out.RoundRectRRatio = float64(f14)
@@ -2172,8 +2220,16 @@ var MakePad = starlark.NewBuiltin("Pad", func(t *starlark.Thread, f *starlark.Bu
 	out.SolderPasteMargin = float64(f17)
 	out.SolderPasteMarginRatio = float64(f18)
 	out.Clearance = float64(f19)
-	out.Surface = f20
-	out.Shape = f21
+	if f20 != nil {
+		out.Surface = *f20
+	} else {
+		out.Surface = SurfaceTH
+	}
+	if f21 != nil {
+		out.Shape = *f21
+	} else {
+		out.Shape = ShapeOval
+	}
 	out.Options = f22
 	if f23 != nil {
 		for i := 0; i < f23.Len(); i++ {
@@ -2498,7 +2554,7 @@ func (p *Pad) SetField(name string, val starlark.Value) error {
 
 var MakeModPlacement = starlark.NewBuiltin("ModPlacement", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XYZ
+		f0 *XYZ
 	)
 	unpackErr := starlark.UnpackArgs(
 		"ModPlacement",
@@ -2511,7 +2567,9 @@ var MakeModPlacement = starlark.NewBuiltin("ModPlacement", func(t *starlark.Thre
 	}
 	out := ModPlacement{}
 
-	out.At = f0
+	if f0 != nil {
+		out.At = *f0
+	}
 	return &out, nil
 })
 
@@ -2576,7 +2634,7 @@ var MakeModule = starlark.NewBuiltin("Module", func(t *starlark.Thread, f *starl
 		f2  starlark.Bool
 		f3  starlark.Bool
 		f4  starlark.String
-		f5  ZoneConnectMode
+		f5  *ZoneConnectMode
 		f6  starlark.Float
 		f7  starlark.Float
 		f8  starlark.Float
@@ -2625,7 +2683,11 @@ var MakeModule = starlark.NewBuiltin("Module", func(t *starlark.Thread, f *starl
 	out.Placed = bool(f2)
 	out.Locked = bool(f3)
 	out.Layer = string(f4)
-	out.ZoneConnect = f5
+	if f5 != nil {
+		out.ZoneConnect = *f5
+	} else {
+		out.ZoneConnect = ZoneConnectInherited
+	}
 	out.SolderMaskMargin = float64(f6)
 	out.SolderPasteMargin = float64(f7)
 	out.SolderPasteRatio = float64(f8)

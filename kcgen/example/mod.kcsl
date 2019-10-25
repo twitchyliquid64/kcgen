@@ -1,9 +1,33 @@
-print("lol")
+load("mod.lib", m="graphics", p="pads") # install helpers to variable 'm'.
 
 mod = Mod(
     name = "test",
+    layer = layers.front.copper,
+    description = "This is a test module to demonstrate module generation.",
+    tags = ["demo", "yolo"],
+    attrs = ["demo", "smd", "th"],
     graphics = [
-        ModGraphic("gr_line", ModLine(start = XY(), end = XY(100, 20))),
-    ]
+        m.line(end = XY(100, 20)),
+        m.line(start = XY(100, 20), end = XY(100, 80)),
+        m.text(pos = XYZ(5, 5, text.vertical), content = "yolo"),
+        m.poly([XY(), XY(20), XY(20, 20), XY(y=20)]),
+        m.circle(end = XY(2,0)),
+    ],
+    pads = [
+        p.smd("1",
+            pos = XY(1,3),
+        ),
+        p.th("2",
+            pos = XY(4, 3),
+        ),
+        p.th("3",
+            pos = XY(7, 3),
+            shape = shape.rect,
+        ),
+        p.smd("4",
+            pos = XY(10, 3),
+            size = XY(3, 3),
+            shape = shape.round_rect,
+        ),
+    ],
 )
-print(mod)

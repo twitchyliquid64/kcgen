@@ -45,6 +45,11 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
+
+	if m := script.Mod(); m != nil {
+		m.WriteModule(os.Stdout)
+	}
+	fmt.Println()
 }
 
 func run(s *kcsl.Script) error {
