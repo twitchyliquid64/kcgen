@@ -3,12 +3,14 @@
 package pcb
 
 import (
+	"crypto/sha256"
 	"errors"
 	"io/ioutil"
 	"strings"
 
 	"github.com/nsf/sexp"
 	"github.com/twitchyliquid64/kcgen/swriter"
+	"go.starlark.net/starlark"
 )
 
 // Layer describes the attributes of a layer.
@@ -155,6 +157,38 @@ type PlotParam struct {
 
 // ZoneConnectMode describes how the zone should connect.
 type ZoneConnectMode int8
+
+func (j ZoneConnectMode) String() string {
+	switch j {
+	case ZoneConnectInherited:
+		return "inherited"
+	case ZoneConnectNone:
+		return "none"
+	case ZoneConnectThermal:
+		return "thermal"
+	}
+	return "???????"
+}
+
+// Type implements starlark.Value.
+func (p *ZoneConnectMode) Type() string {
+	return "ZoneConnectMode"
+}
+
+// Freeze implements starlark.Value.
+func (p *ZoneConnectMode) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *ZoneConnectMode) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *ZoneConnectMode) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(p.String()))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
 
 // Valid ZoneConnectMode values.
 const (

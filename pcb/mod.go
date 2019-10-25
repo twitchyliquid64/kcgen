@@ -2,12 +2,14 @@ package pcb
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"strings"
 
 	"github.com/nsf/sexp"
 	"github.com/twitchyliquid64/kcgen/swriter"
+	"go.starlark.net/starlark"
 )
 
 // Module describes a KiCad module.
@@ -89,6 +91,26 @@ func (k ModTextKind) String() string {
 	return "?????"
 }
 
+// Type implements starlark.Value.
+func (p *ModTextKind) Type() string {
+	return "ModTextKind"
+}
+
+// Freeze implements starlark.Value.
+func (p *ModTextKind) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *ModTextKind) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *ModTextKind) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(p.String()))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
+
 // Valid ModTextKind values.
 const (
 	RefText ModTextKind = iota
@@ -155,6 +177,26 @@ func (s PadSurface) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+// Type implements starlark.Value.
+func (p *PadSurface) Type() string {
+	return "PadSurface"
+}
+
+// Freeze implements starlark.Value.
+func (p *PadSurface) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *PadSurface) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *PadSurface) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(p.String()))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
+
 type PadShape uint8
 
 func (s PadShape) String() string {
@@ -181,6 +223,26 @@ func (s PadShape) MarshalJSON() ([]byte, error) {
 	buffer.WriteString(s.String())
 	buffer.WriteString(`"`)
 	return buffer.Bytes(), nil
+}
+
+// Type implements starlark.Value.
+func (p *PadShape) Type() string {
+	return "PadShape"
+}
+
+// Freeze implements starlark.Value.
+func (p *PadShape) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *PadShape) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *PadShape) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(p.String()))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
 }
 
 // Pad constants

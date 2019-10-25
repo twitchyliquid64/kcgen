@@ -1,0 +1,9 @@
+print("lol")
+
+mod = Mod(
+    name = "test",
+    graphics = [
+        ModGraphic("gr_line", ModLine(start = XY(), end = XY(100, 20))),
+    ]
+)
+print(mod)

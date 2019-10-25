@@ -1,9 +1,11 @@
 package pcb
 
 import (
+	"crypto/sha256"
 	"fmt"
 
 	"github.com/nsf/sexp"
+	"go.starlark.net/starlark"
 )
 
 // TODO(twitchyliquid64): Refactor graphical features to implement
@@ -40,6 +42,26 @@ func (j TextJustify) String() string {
 		return "bottom"
 	}
 	return "???????"
+}
+
+// Type implements starlark.Value.
+func (p *TextJustify) Type() string {
+	return "TextJustify"
+}
+
+// Freeze implements starlark.Value.
+func (p *TextJustify) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *TextJustify) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *TextJustify) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(p.String()))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
 }
 
 const (
