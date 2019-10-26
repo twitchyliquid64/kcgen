@@ -13,6 +13,7 @@ import (
 
 var (
 	verbose = flag.Bool("verbose", false, "Enables verbose logging.")
+	out     = flag.String("o", "-", "Where to write output.")
 )
 
 func loadScript(p string) ([]byte, error) {
@@ -35,7 +36,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	script, err := kcsl.NewScript(sData, flag.Arg(0), *verbose, &kcsl.WDLoader{}, flag.Args())
+	script, err := kcsl.NewScript(sData, flag.Arg(0), *verbose, &kcsl.WDLoader{}, flag.Args()[1:])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Initialization failed: %v\n", err)
 		os.Exit(1)
@@ -45,14 +46,26 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
-
-	if m := script.Mod(); m != nil {
-		m.WriteModule(os.Stdout)
-	}
-	fmt.Println()
 }
 
 func run(s *kcsl.Script) error {
 	defer s.Close()
+	outF := os.Stdout
+	if *out != "-" {
+		var err error
+		outF, err = os.OpenFile(*out, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			return err
+		}
+		defer outF.Close()
+	}
+
+	if m := s.Mod(); m != nil {
+		m.WriteModule(outF)
+	}
+
+	if *out == "-" {
+		fmt.Println()
+	}
 	return nil
 }
