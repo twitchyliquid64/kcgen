@@ -1,8 +1,7 @@
 package lib
 
 var modLib = []byte(`
-# mk_line is a convenience function for generating a line on the
-# front silkscreen.
+# mk_line is a convenience function for generating a line.
 def mk_line(start=XY(), end=XY(), layer=layers.front.silkscreen, width=defaults.width):
     return ModGraphic("fp_line", ModLine(
         layer = layer,
@@ -11,8 +10,7 @@ def mk_line(start=XY(), end=XY(), layer=layers.front.silkscreen, width=defaults.
         end = end,
     ))
 
-# mk_text is a convenience function for generating text on
-# the front silkscreen.
+# mk_text is a convenience function for generating text.
 def mk_text(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=defaults.thickness, content=""):
     return ModGraphic("fp_text", ModText(
         kind = text.user,

@@ -1,0 +1,13 @@
+load("mod.lib", m="graphics", p="pads")
+load("shapes.lib", "shapes")
+load("draw.lib", "draw")
+
+mod = Mod(
+    name = "test",
+    layer = layers.front.copper,
+    description = "This is a test module to demonstrate module generation.",
+    tags = ["demo", "yolo"],
+    attrs = ["virtual"],
+    graphics = [m.ref()] +
+      draw.mod.outline(shapes.box(10, 10, rounded_radius=1)),
+)
