@@ -162,6 +162,7 @@ var (
 			"fab":        starlark.String(kcgen.LayerFrontFab.Strictname()),
 			"silkscreen": starlark.String(kcgen.LayerFrontSilkscreen.Strictname()),
 			"paste":      starlark.String(kcgen.LayerFrontPaste.Strictname()),
+			"courtyard":  starlark.String(kcgen.LayerFrontCourtyard.Strictname()),
 			"smd": starlark.NewList([]starlark.Value{
 				starlark.String(kcgen.LayerFrontCopper.Strictname()),
 				starlark.String(kcgen.LayerFrontPaste.Strictname()),
@@ -173,6 +174,7 @@ var (
 			"fab":        starlark.String(kcgen.LayerBackFab.Strictname()),
 			"silkscreen": starlark.String(kcgen.LayerBackSilkscreen.Strictname()),
 			"paste":      starlark.String(kcgen.LayerBackPaste.Strictname()),
+			"courtyard":  starlark.String(kcgen.LayerBackCourtyard.Strictname()),
 			"smd": starlark.NewList([]starlark.Value{
 				starlark.String(kcgen.LayerBackCopper.Strictname()),
 				starlark.String(kcgen.LayerBackPaste.Strictname()),

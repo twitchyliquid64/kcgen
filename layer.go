@@ -18,6 +18,8 @@ const (
 	LayerBackPaste
 	LayerFrontMask
 	LayerBackMask
+	LayerFrontCourtyard
+	LayerBackCourtyard
 )
 
 // Strictname returns the string representing the layer used in the Kicad 4 (and probably later) formats.
@@ -49,6 +51,10 @@ func (l Layer) Strictname() string {
 		return "F.Mask"
 	case LayerBackMask:
 		return "B.Mask"
+	case LayerFrontCourtyard:
+		return "F.CrtYd"
+	case LayerBackCourtyard:
+		return "B.CrtYd"
 	}
 	panic("invalid layer")
 }
@@ -82,6 +88,10 @@ func (l Layer) String() string {
 		return "Front Mask"
 	case LayerBackMask:
 		return "Back Mask"
+	case LayerFrontCourtyard:
+		return "Front Courtyard"
+	case LayerBackCourtyard:
+		return "Back Courtyard"
 	}
 	return "?"
 }

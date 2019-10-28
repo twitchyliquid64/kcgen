@@ -6,7 +6,6 @@ mod = Mod(
     name = "test",
     layer = layers.front.copper,
     description = "This is a test module to demonstrate module generation.",
-    tags = ["demo", "yolo"],
     attrs = ["virtual"],
     graphics = [m.ref()] +
       draw.mod.outline(shapes.box(10, 10, rounded_radius=1)),

@@ -1,7 +1,7 @@
 package lib
 
 var modLib = []byte(`
-# mk_line is a convenience function for generating a line.
+# mk_line returns a graphical line with the specified parameters.
 def mk_line(start=XY(), end=XY(), layer=layers.front.silkscreen, width=defaults.width):
     return ModGraphic("fp_line", ModLine(
         layer = layer,
@@ -10,7 +10,7 @@ def mk_line(start=XY(), end=XY(), layer=layers.front.silkscreen, width=defaults.
         end = end,
     ))
 
-# mk_text is a convenience function for generating text.
+# mk_text returns a graphical text element with the specified parameters.
 def mk_text(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=defaults.thickness, content=""):
     return ModGraphic("fp_text", ModText(
         kind = text.user,
@@ -20,6 +20,8 @@ def mk_text(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=de
         effects = TextEffects(font_size = size, thickness = thickness),
     ))
 
+# mk_ref returns a graphical text element that will be populated with the
+# reference of the symbol where it is used.
 def mk_ref(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=defaults.thickness, content="REF**"):
     return ModGraphic("fp_text", ModText(
         kind = text.reference,
@@ -29,6 +31,7 @@ def mk_ref(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=def
         effects = TextEffects(font_size = size, thickness = thickness),
     ))
 
+# mk_poly returns a graphical polygon with the specified parameters.
 def mk_poly(points, pos = XYZ(), layer=layers.front.silkscreen, width = defaults.width):
     return ModGraphic("fp_poly", ModPolygon(
         points = points,
@@ -36,6 +39,7 @@ def mk_poly(points, pos = XYZ(), layer=layers.front.silkscreen, width = defaults
         width = width,
     ))
 
+# mk_circle returns a graphical circle with the specified parameters.
 def mk_circle(center=XY(), end=XY(), layer=layers.front.silkscreen, width=defaults.width):
     return ModGraphic("fp_circle", ModCircle(
         center = center,
@@ -45,6 +49,7 @@ def mk_circle(center=XY(), end=XY(), layer=layers.front.silkscreen, width=defaul
     ))
 
 
+# mk_smd_pad returns an smd pad with the specified parameters.
 def mk_smd_pad(ident="", center=XY(), size=XY(1.4, 1.8), layers=layers.front.smd, shape=shape.rect, round_ratio=0.25):
   return Pad(ident,
         at = center,
@@ -54,6 +59,7 @@ def mk_smd_pad(ident="", center=XY(), size=XY(1.4, 1.8), layers=layers.front.smd
         shape = shape,
         round_rect_r_ratio = round_ratio)
 
+# mk_th_pad returns a through-hole pad with the specified parameters.
 def mk_th_pad(ident="", center=XY(), size=XY(1.7, 1.7), drill=XY(1,1), layers=layers.th, shape=shape.oval):
   return Pad(ident,
         at = center,
@@ -62,6 +68,17 @@ def mk_th_pad(ident="", center=XY(), size=XY(1.7, 1.7), drill=XY(1,1), layers=la
         layers = layers,
         surface = pad.through_hole,
         shape = shape)
+
+# mk_mod_via returns a fake pad which is semantically equivalent to a
+# normal-sized via, but possible in a module using pads.
+def mk_mod_via(ident="1", center=XY(), layers=layers.th):
+  return Pad(ident,
+    at = center,
+    size = XY(0.8, 0.8),
+    drill_size = XY(0.5, 0.5),
+    layers = layers,
+    surface = pad.through_hole,
+    shape = shape.circle)
 
 graphics = struct(
     line = mk_line,
@@ -72,8 +89,9 @@ graphics = struct(
 )
 
 pads = struct(
-  smd = mk_smd_pad,
-  th = mk_th_pad,
+  smd     = mk_smd_pad,
+  th      = mk_th_pad,
+  mod_via = mk_mod_via,
 )
 
 `)
