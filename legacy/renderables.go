@@ -1,4 +1,4 @@
-// Package kcgen implements a minimal library for generating kicad footprints.
+// Package kcgen implements the legacy library for generating kicad footprints.
 package kcgen
 
 import (

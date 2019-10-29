@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/twitchyliquid64/kcgen"
+	kcgen "github.com/twitchyliquid64/kcgen/legacy"
 )
 
 var (

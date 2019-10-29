@@ -1,4 +1,4 @@
-// Package netlist understands KiCads netlist format.
+// Package netlist decodes the KiCad netlist format.
 package netlist
 
 import (

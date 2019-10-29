@@ -9,7 +9,7 @@ import (
 
 	geo "github.com/kellydunn/golang-geo"
 	geojson "github.com/paulmach/go.geojson"
-	"github.com/twitchyliquid64/kcgen"
+	kcgen "github.com/twitchyliquid64/kcgen/legacy"
 )
 
 var (
