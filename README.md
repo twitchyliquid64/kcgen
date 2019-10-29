@@ -32,6 +32,8 @@ mod = Mod(
 
 Execute the script like this: `./kcgen -o rounded_box.kicad_mod rounded_box.kcsl`
 
+![Rounded box image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/rounded_box.png)
+
 ## Scripting reference
 
 TODO

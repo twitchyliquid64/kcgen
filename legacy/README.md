@@ -22,7 +22,7 @@ go build -o /tmp/kc-map github.com/twitchyliquid64/kcgen/legacy/kcmap
 
 Make a 40mm by 20mm box with rounded corners and edge mounts:
 
-![Box image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcoutline%2040x20.png)
+![Box image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/legacy/kcoutline%2040x20.png)
 
 ```shell
 ./kc-outline --make-mounts 40x20 40 20
@@ -48,7 +48,7 @@ USAGE: kc-outline <module-name> <width> <height>
 
 Make a PCB magnet with 10 windings, with a track thickness of 0.25mm and a clearance of 0.16mm.
 
-![Magnet image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcmagnet.png)
+![Magnet image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/legacy/kcmagnet.png)
 
 ```shell
 ./kc-magnet 10x-magnet-module 0.4 0.2 10
@@ -106,7 +106,7 @@ Make sure the net which should be associated with the line is named like `magnet
 
 `./kcmgrid --min_clearance 0.16 --trace_thicc 0.16 --via_drill 0.26 --via_size 0.42 projet_netlist.net`
 
-![Grid Image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/kcmgrid.png)
+![Grid Image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/legacy/kcmgrid.png)
 
 Usage:
 

@@ -1,4 +1,4 @@
-// Package kcgen manipulates and generateskicad footprint and pcb files.
+// Package kcgen manipulates and generates kicad footprints and pcb files.
 package kcgen
 
 // Layer represents the layer on which a graphical element resides.
