@@ -1,0 +1,23 @@
+load("mod.lib", m="graphics", p="pads") # install helpers to variables m & p.
+
+gap = 0.2
+
+mod = Mod(
+    name = "strange_pad",
+    layer = layers.front.copper,
+    description = "This is a test module to demonstrate custom polygons.",
+    tags = ["demo"],
+    attrs = ["smd"],
+    graphics = [
+        m.poly([XY(-5, 0),
+                XY(+5),
+                XY(0, 5 - gap/2 - 0.001)], layer=layers.front.copper, width = 0.001),
+        m.poly([XY(-5 , 10),
+                XY(+5, 10),
+                XY(0, 5 + gap/2 + 0.001)], layer=layers.front.copper, width = 0.001),
+    ] + [m.ref(XYZ(3, 5))],
+    pads = [
+        p.smd("1", center = XY(0,0.25), size = XY(9, 0.25)),
+        p.smd("2", center = XY(0,9.75), size = XY(9, 0.25)),
+    ],
+)

@@ -34,6 +34,12 @@ Execute the script like this: `./kcgen -o rounded_box.kicad_mod rounded_box.kcsl
 
 ![Rounded box image](https://raw.githubusercontent.com/twitchyliquid64/kcgen/master/rounded_box.png)
 
+## Examples
+
+For a list of examples, check out [kcgen/example/](https://github.com/twitchyliquid64/kcgen/tree/master/kcgen/example)
+
 ## Scripting reference
+
+KCSL scripts are written in a python dialect called [starlark](https://docs.bazel.build/versions/master/skylark/language.html).
 
 TODO
