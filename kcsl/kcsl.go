@@ -44,6 +44,8 @@ var (
 		"crash": starlark.NewBuiltin("crash", func(thread *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 			return nil, errors.New("soft crash: " + args[0].String())
 		}),
+		// textpoly
+		"TextPoly": makeTextPoly,
 	}
 	mathBuiltins = starlark.StringDict{
 		"pi": starlark.Float(math.Pi),

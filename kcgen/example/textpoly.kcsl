@@ -1,0 +1,10 @@
+load("mod.lib", m="graphics", p="pads") # install helpers to variables m & p.
+
+mod = Mod(
+    name = "text_poly",
+    layer = layers.front.copper,
+    description = "This is a test module to demonstrate text generation.",
+    tags = ["demo", "text"],
+    attrs = ["virtual"],
+    graphics = [m.poly(p, width=0.001) for p in TextPoly("kcsl/textpoly/RobotoMono-Bold.ttf", "I2C", size=0.1)],
+)
