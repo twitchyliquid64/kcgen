@@ -80,12 +80,23 @@ def mk_mod_via(ident="1", center=XY(), layers=layers.th):
     surface = pad.through_hole,
     shape = shape.circle)
 
+def filter_graphics(graphics=[], filter="fp_text", text_type=""):
+  out = []
+  for graphic in graphics:
+    if filter != graphic.ident:
+      if filter == "fp_text" and graphic.ident == "fp_text": # need to look at the text_type
+        if text_type == graphic.renderable.kind:
+          continue
+      out.append(graphic)
+  return out
+
 graphics = struct(
     line = mk_line,
     text = mk_text,
     ref  = mk_ref,
     poly = mk_poly,
     circle = mk_circle,
+    filter = filter_graphics,
 )
 
 pads = struct(

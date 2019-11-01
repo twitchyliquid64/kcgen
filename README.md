@@ -5,8 +5,8 @@ A standalone scripting engine for KiCad footprints and PCBs.
  - [x] Implement MVP
  - [x] Generation of Kicad Modules (footprints)
  - [ ] Ability to specify custom parameters, so script behaviour can be customized
- - [ ] Loading of existing modules so they can be edited / combined
- - [ ] Implement generation of text using custom fonts
+ - [x] Loading of existing modules so they can be edited / combined
+ - [x] Implement generation of text using custom fonts
  - [ ] Generate / edit KiCad PCBs
 
 ## Building
@@ -105,6 +105,8 @@ You can find more scripts in [kcgen/example](https://github.com/twitchyliquid64/
 | `XYZ` | Specifies coordinates in 3D. | `XY(1,2,3)` - coordinates are `x=1`, `y=2`, and `z=3`.<br> `XYZ(x=3)` - coordinates are `x=3`, `y=0`, and `z=0`. |
 | `Mod` | Generates a KiCad Module with the specified parameters. | See examples in previous section. |
 | `TextPoly` | Generates a list of module polygons that represent text rendered with the provided font. | See [textpoly.kcsl](https://github.com/twitchyliquid64/kcgen/blob/master/kcgen/example/textpoly.kcsl) example. |
+| `text.load_mod` | Loads a module from a file in the filesystem. | See [composite.kcsl](https://github.com/twitchyliquid64/kcgen/blob/master/kcgen/example/composite.kcsl) example. |
+
 For a full list of Starlark constructs and builtin functions, please refer to the Starlark [language spec](https://github.com/bazelbuild/starlark/blob/master/spec.md).
 
 ### Constants
@@ -142,6 +144,7 @@ load("mod.lib", m="graphics")
 | `graphics.line()` | Places a line.<br>You can also specify `layer` and `width` attributes. | `graphics.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
 | `graphics.circle()` | TODO | |
 | `graphics.poly()` | TODO | |
+| `graphics.filter()` | Filters out graphical with a certain type from a list of graphical elements. | TODO |
 
 
 ##### Pads

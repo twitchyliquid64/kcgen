@@ -1,0 +1,30 @@
+load("mod.lib", m="graphics")
+load("shapes.lib", "shapes")
+load("draw.lib", "draw")
+
+# This path only works for linux - modify it if you are on a different platform.
+button = file.load_mod("/usr/share/kicad/modules/Button_Switch_SMD.pretty/SW_SPST_PTS645.kicad_mod")
+
+# Generate a list of polygons that represent the given text.
+def make_text_polys(at=XY(), content=""):
+    return [
+        m.poly(p, width=0.001)
+        for p in TextPoly(
+            font="kcsl/textpoly/RobotoMono-Bold.ttf",
+            content=content,
+            scale=1.0 / 6,
+            at=at,
+        )
+    ]
+
+mod = Mod(
+    name = "button_in_box",
+    layer = layers.front.copper,
+    description = "This demonstrates creating one module from another on disk.",
+    tags = ["demo", "text"],
+    attrs = ["smd"],
+    graphics = make_text_polys(XY(-6, -5.6), "I2C")
+      + m.filter(button.graphics, filter="fp_text")
+      + draw.mod.outline(shapes.box(13, 10, rounded_radius=0.1, center=XY(y=-1.2))),
+    pads = button.pads,
+)

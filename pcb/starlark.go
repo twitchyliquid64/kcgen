@@ -2062,7 +2062,7 @@ func (p *ModGraphic) Truth() starlark.Bool {
 
 // Hash implements starlark.Value.
 func (p *ModGraphic) Hash() (uint32, error) {
-	h := sha256.Sum256([]byte(fmt.Sprintf("%+v", p)))
+	h := sha256.Sum256([]byte(fmt.Sprintf("%+v %v", p, p.Renderable)))
 	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
 }
 
@@ -2830,21 +2830,27 @@ func (p *Module) Attr(name string) (starlark.Value, error) {
 	case "graphics":
 		l := starlark.NewList(nil)
 		for _, e := range p.Graphics {
-			l.Append(&e)
+			dupeDrawable := e.Renderable
+			l.Append(&ModGraphic{
+				Ident:      e.Ident,
+				Renderable: dupeDrawable,
+			})
 		}
 		return l, nil
 
 	case "pads":
 		l := starlark.NewList(nil)
 		for _, e := range p.Pads {
-			l.Append(&e)
+			dupe := e
+			l.Append(&dupe)
 		}
 		return l, nil
 
 	case "models":
 		l := starlark.NewList(nil)
 		for _, e := range p.Models {
-			l.Append(&e)
+			dupe := e
+			l.Append(&dupe)
 		}
 		return l, nil
 	}
