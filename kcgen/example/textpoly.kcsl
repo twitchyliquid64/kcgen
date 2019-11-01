@@ -1,10 +1,17 @@
 load("mod.lib", m="graphics", p="pads") # install helpers to variables m & p.
 
+i2c_text = TextPoly(
+    font="kcsl/textpoly/RobotoMono-Bold.ttf",
+    content="I2C",
+    scale=1.0 / 10,
+    at=XY(5),
+)
+
 mod = Mod(
     name = "text_poly",
     layer = layers.front.copper,
     description = "This is a test module to demonstrate text generation.",
     tags = ["demo", "text"],
     attrs = ["virtual"],
-    graphics = [m.poly(p, width=0.001) for p in TextPoly("kcsl/textpoly/RobotoMono-Bold.ttf", "I2C", size=0.1)],
+    graphics = [m.poly(p, width=0.001) for p in i2c_text],
 )

@@ -103,8 +103,8 @@ You can find more scripts in [kcgen/example](https://github.com/twitchyliquid64/
 | `range`  | Generates a list of numbers based on the arguments provided. Identical to python. | `range(3)` generates `[0, 1, 2]`. |
 | `XY` | Specifies coordinates in 2D. | `XY(1,2)` - coordinates are `x=1` and `y=2`.<br> `XY(x=3, y=4)` - coordinates are `x=3` and `y=4`. |
 | `XYZ` | Specifies coordinates in 3D. | `XY(1,2,3)` - coordinates are `x=1`, `y=2`, and `z=3`.<br> `XYZ(x=3)` - coordinates are `x=3`, `y=0`, and `z=0`. |
-| `Mod` | Generates a KiCad Module with the specified parameters. | See above. |
-
+| `Mod` | Generates a KiCad Module with the specified parameters. | See examples in previous section. |
+| `TextPoly` | Generates a list of module polygons that represent text rendered with the provided font. | See [textpoly.kcsl](https://github.com/twitchyliquid64/kcgen/blob/master/kcgen/example/textpoly.kcsl) example. |
 For a full list of Starlark constructs and builtin functions, please refer to the Starlark [language spec](https://github.com/bazelbuild/starlark/blob/master/spec.md).
 
 ### Constants
