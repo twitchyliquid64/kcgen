@@ -1,8 +1,16 @@
 package editor
 
 import (
+	"github.com/alecthomas/chroma"
+	"github.com/alecthomas/chroma/lexers"
 	"github.com/gotk3/gotk3/gtk"
 )
+
+var lexer chroma.Lexer
+
+func init() {
+	lexer = lexers.Get("python")
+}
 
 // Editor manages a starlark code editor.
 type Editor struct {
@@ -12,8 +20,6 @@ type Editor struct {
 	css   *gtk.CssProvider
 	style *gtk.StyleContext
 	tags  *tagSet
-
-	highlighter Highlighter
 }
 
 func New(b *gtk.Builder) (*Editor, error) {
@@ -62,17 +68,28 @@ func New(b *gtk.Builder) (*Editor, error) {
 func (e *Editor) onInsert(text string, tb *gtk.TextBuffer, loc *gtk.TextIter, l int) {
 	// fmt.Printf("Insert: line %d, char %d\n", loc.GetLine(), loc.GetCharsInLine())
 	line := loc.GetLine()
-	lineStart, lineEnd := tb.GetIterAtLine(line), tb.GetIterAtLine(line+1)
-	e.highlighter.lines[line].Update(lineStart, lineEnd, text)
+	start, end := tb.GetIterAtLine(line), tb.GetIterAtLine(line+1)
 
-	tb.RemoveAllTags(lineStart, lineEnd)
-	if l := e.highlighter.lines[line]; l.declaration == "def" {
-		tb.ApplyTag(e.tags.str, lineStart, tb.GetIterAtLineOffset(line, l.leadingIndentation+len(l.declaration)))
+	tb.RemoveAllTags(start, end)
+	tok, _ := lexer.Tokenise(nil, start.GetSlice(end)+text)
+
+	var lineOffset int
+	for t := tok(); t != chroma.EOF; t = tok() {
+		switch t.Type {
+		case chroma.Keyword:
+			tb.ApplyTag(e.tags.keyword, tb.GetIterAtLineOffset(line, lineOffset), tb.GetIterAtLineOffset(line, lineOffset+len(t.Value)))
+		case chroma.Punctuation:
+			if t.Value == "(" || t.Value == ")" {
+				tb.ApplyTag(e.tags.str, tb.GetIterAtLineOffset(line, lineOffset), tb.GetIterAtLineOffset(line, lineOffset+len(t.Value)))
+			}
+		}
+		lineOffset += len(t.Value)
 	}
 }
 
 type tagSet struct {
-	str *gtk.TextTag
+	str     *gtk.TextTag
+	keyword *gtk.TextTag
 }
 
 func makeStyling(buffer *gtk.TextBuffer) (*gtk.CssProvider, *tagSet, error) {
@@ -84,11 +101,12 @@ func makeStyling(buffer *gtk.TextBuffer) (*gtk.CssProvider, *tagSet, error) {
     textview { color: green; }
     `)
 
-	strTag := buffer.CreateTag("string", map[string]interface{}{
-		"foreground": "blue",
-	})
-
 	return s, &tagSet{
-		str: strTag,
+		str: buffer.CreateTag("string", map[string]interface{}{
+			"foreground": "blue",
+		}),
+		keyword: buffer.CreateTag("keyword", map[string]interface{}{
+			"foreground": "orange",
+		}),
 	}, nil
 }
