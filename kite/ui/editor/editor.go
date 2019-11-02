@@ -30,7 +30,7 @@ type Editor struct {
 }
 
 // New creates a new KiTE KCSL editing widget.
-func New(b *gtk.Builder, content string) (*Editor, error) {
+func New(b *gtk.Builder) (*Editor, error) {
 	e, err := b.GetObject("kite_editor")
 	if err != nil {
 		return nil, err
@@ -47,10 +47,7 @@ func New(b *gtk.Builder, content string) (*Editor, error) {
 		return nil, err
 	}
 
-	if content == "" {
-		content = "# Welcome to KiTE! :D"
-	}
-	buffer.SetText(content)
+	buffer.SetText("# Welcome to KiTE! :D")
 
 	style, err := editor.GetStyleContext()
 	if err != nil {
@@ -100,6 +97,18 @@ func (e *Editor) Restyle() {
 		tok, _ := lexer.Tokenise(nil, content)
 		e.processLine(tok, content, e.buffer, start, end, i)
 	}
+}
+
+// SetContent changes the contents of the editor.
+func (e *Editor) SetContent(content string) {
+	e.buffer.SetText(content)
+	e.Restyle()
+}
+
+// GetContent returns the contents of the editor.
+func (e *Editor) GetContent() string {
+	t, _ := e.buffer.GetText(e.buffer.GetStartIter(), e.buffer.GetEndIter(), false)
+	return t
 }
 
 func (e *Editor) processLine(tok func() chroma.Token, content string, tb *gtk.TextBuffer, start, end *gtk.TextIter, line int) {

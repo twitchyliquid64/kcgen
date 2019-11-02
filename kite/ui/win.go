@@ -1,12 +1,12 @@
 package ui
 
 import (
-	"flag"
 	"fmt"
-	"io/ioutil"
 
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/twitchyliquid64/kcgen/kite/ui/editor"
+	"github.com/twitchyliquid64/kcgen/kite/ui/preview"
 )
 
 // Win encapsulates the UI state of the KiTE window.
@@ -37,24 +37,17 @@ func (w *Win) build() error {
 		return fmt.Errorf("GetStyleContext() failed: %v", err)
 	}
 
-	content := ""
-	// TODO: Tidy this spaghetti.
-	if flag.Arg(0) != "" {
-		d, _ := ioutil.ReadFile(flag.Arg(0))
-		content = string(d)
-	}
-
-	editor, err := editor.New(b, content)
+	editor, err := editor.New(b)
 	if err != nil {
 		return err
 	}
 	w.Controller.editor = editor
 
-	preview, err := b.GetObject("kite_preview")
+	preview, err := preview.NewPreview(b)
 	if err != nil {
 		return err
 	}
-	w.preview = preview.(*gtk.DrawingArea)
+	w.Controller.preview = preview
 
 	w.win.SetDefaultSize(1000, 700)
 	w.win.Connect("destroy", gtk.MainQuit)
@@ -65,7 +58,28 @@ func (w *Win) build() error {
 }
 
 func (w *Win) setupKeyBindings() error {
+	// TODO: Refactor this into some configurable mapping.
+	w.win.Connect("key-press-event", func(win *gtk.Window, ev *gdk.Event) {
+		keyEvent := &gdk.EventKey{ev}
+		if keyEvent.KeyVal() == gdk.KEY_r && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
+			w.Controller.Render()
+		}
+		if keyEvent.KeyVal() == gdk.KEY_s && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
+			w.Controller.Save()
+		}
+	})
 	return nil
+}
+
+func (w *Win) flushState() {
+	title := "KiTE"
+	if w.Model.scriptPath != "" {
+		title += " - " + w.Model.scriptPath
+	}
+	if w.Model.dirty {
+		title = "*" + title
+	}
+	w.win.SetTitle(title)
 }
 
 // New creates and initializes a new KiTE window.
