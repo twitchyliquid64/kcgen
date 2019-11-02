@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"flag"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/twitchyliquid64/kcgen/kite/ui/editor"
@@ -35,7 +37,14 @@ func (w *Win) build() error {
 		return fmt.Errorf("GetStyleContext() failed: %v", err)
 	}
 
-	editor, err := editor.New(b)
+	content := ""
+	// TODO: Tidy this spaghetti.
+	if flag.Arg(0) != "" {
+		d, _ := ioutil.ReadFile(flag.Arg(0))
+		content = string(d)
+	}
+
+	editor, err := editor.New(b, content)
 	if err != nil {
 		return err
 	}

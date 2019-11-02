@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -10,6 +11,7 @@ import (
 
 func main() {
 	gtk.Init(nil)
+	flag.Parse()
 
 	_, err := ui.New()
 	if err != nil {
