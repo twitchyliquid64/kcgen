@@ -21,6 +21,7 @@ type modRenderOptions struct {
 	Width, Height int
 	X, Y          float64
 	Zoom          float64
+	PadClearance  float64
 }
 
 func (o modRenderOptions) ProjectXY(pt pcb.XY) (x, y float64) {
@@ -34,8 +35,14 @@ func (o modRenderOptions) ProjectXYZ(pt pcb.XYZ) (x, y, z float64) {
 	return pt.X, pt.Y, 0
 }
 
+func (o modRenderOptions) ReduceByClearance(pt pcb.XY) pcb.XY {
+	return pcb.XY{X: pt.X - o.PadClearance, Y: pt.Y - o.PadClearance}
+}
+
 func (o modRenderOptions) GetLayerColor(layer string) (r, g, b float64) {
 	switch layer {
+	case "drill":
+		return 37.0 / 255, 37.0 / 255, 37.0 / 255
 	case kcgen.LayerFrontCourtyard.Strictname():
 		return 72.0 / 255, 72.0 / 255, 72.0 / 255
 	case kcgen.LayerFrontCopper.Strictname():
@@ -77,25 +84,6 @@ func renderModule(mod *pcb.Module, opts modRenderOptions, da *gtk.DrawingArea, c
 		}
 	}
 	return nil
-}
-
-func renderPad(pad pcb.Pad, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
-	switch pad.Shape {
-	case pcb.ShapeRect:
-		renderRectPad(pad, opts, da, cr)
-	default:
-		fmt.Printf("Cannot render pad with shape %v: (%+v)\n", pad.Shape, pad)
-	}
-	return nil
-}
-
-func renderRectPad(pad pcb.Pad, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) {
-	sizeX, sizeY := opts.ProjectXY(pad.Size)
-	centerX, centerY, _ := opts.ProjectXYZ(pad.At)
-	r, g, b := opts.GetColorFromLayers(pad.Layers)
-	cr.SetSourceRGB(r, g, b)
-	cr.Rectangle(centerX-sizeX/2, centerY-sizeY/2, sizeX, sizeY)
-	cr.Fill()
 }
 
 func renderLine(line *pcb.ModLine, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
