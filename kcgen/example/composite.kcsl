@@ -23,7 +23,7 @@ mod = Mod(
     description = "This demonstrates creating one module from another on disk.",
     tags = ["demo", "text"],
     attrs = ["smd"],
-    graphics = make_text_polys(XY(-6, -5.6), "I2C")
+    graphics = make_text_polys(XY(-6.1, -5.8), "I2C")
       + m.filter(button.graphics, filter="fp_text")
       + draw.mod.outline(shapes.box(13, 10, rounded_radius=0.1, center=XY(y=-1.2))),
     pads = button.pads,
