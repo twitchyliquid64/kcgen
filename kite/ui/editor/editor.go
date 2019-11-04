@@ -1,7 +1,6 @@
 package editor
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -120,7 +119,8 @@ func (e *Editor) processLine(tok func() chroma.Token, content string, tb *gtk.Te
 		lastStartOffset int
 	)
 	for t := tok(); t != chroma.EOF; t = tok() {
-		fmt.Println(t)
+		// fmt.Println(t)
+
 		switch t.Type {
 		case chroma.Operator:
 			if t.Value != "." {
