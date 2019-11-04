@@ -13,16 +13,23 @@ width  = dist_between_rows + pad_size.x
 height = pins * pitch / 2
 first_pad_y = -(height/2 - pitch/2)
 
+marker_radius = 0.25
+marker        = XY(marker_radius - width/2, marker_radius - height/2)
+
 mod = Mod(
     name = "SOIC-8_" + str(width) + "x" + str(height) + "_" + str(pitch),
     layer = layers.front.copper,
     description = "An 8 pin SOIC footprint.",
     tags = ["soic", "smd"],
     attrs = ["smd"],
-    graphics = [m.ref(XYZ(0, 0))] +
-      draw.mod.outline(shapes.box(width + extra_clearance.x,
-                                  height + extra_clearance.y),
-                       layer=layers.front.courtyard),
+    graphics = [
+      m.ref(XYZ(0, 0)),
+      m.arc(center=marker, end=XY(marker.x-marker_radius, marker.y)),
+    ] +
+    draw.mod.outline(shapes.box(width + extra_clearance.x,
+                                height + extra_clearance.y),
+                     layer=layers.front.courtyard),
+
     pads = [ # left row
         p.smd(str(x+1),
             center = XY(-1 * dist_between_rows / 2, first_pad_y + x*pitch),

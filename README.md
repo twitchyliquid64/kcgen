@@ -144,6 +144,7 @@ load("mod.lib", m="graphics")
 | `graphics.line()` | Places a line.<br>You can also specify `layer` and `width` attributes. | `graphics.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
 | `graphics.circle()` | TODO | |
 | `graphics.poly()` | TODO | |
+| `graphics.arc()` | TODO | |
 | `graphics.filter()` | Filters out graphical with a certain type from a list of graphical elements. | TODO |
 
 

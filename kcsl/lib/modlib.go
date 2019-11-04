@@ -10,6 +10,16 @@ def mk_line(start=XY(), end=XY(), layer=layers.front.silkscreen, width=defaults.
         end = end,
     ))
 
+# mk_arc returns a graphical arc with the specified parameters.
+def mk_arc(center=XY(), end=XY(), angle=90.0, width=defaults.width, layer=layers.front.silkscreen):
+    return ModGraphic("fp_arc", ModArc(
+        width = width,
+        layer = layer,
+        start = center,
+        end = end,
+        angle = angle,
+    ))
+
 # mk_text returns a graphical text element with the specified parameters.
 def mk_text(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=defaults.thickness, content=""):
     return ModGraphic("fp_text", ModText(
@@ -96,6 +106,7 @@ graphics = struct(
     ref  = mk_ref,
     poly = mk_poly,
     circle = mk_circle,
+    arc  = mk_arc,
     filter = filter_graphics,
 )
 

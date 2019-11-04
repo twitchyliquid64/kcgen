@@ -73,6 +73,10 @@ func renderModule(mod *pcb.Module, opts modRenderOptions, da *gtk.DrawingArea, c
 			if err := renderCircle(graphic.Renderable.(*pcb.ModCircle), opts, da, cr); err != nil {
 				return fmt.Errorf("rendering circle: %v", err)
 			}
+		case "fp_arc":
+			if err := renderArc(graphic.Renderable.(*pcb.ModArc), opts, da, cr); err != nil {
+				return fmt.Errorf("rendering arc: %v", err)
+			}
 		default:
 			fmt.Printf("Cannot render: %v (%+v)\n", graphic.Ident, graphic.Renderable)
 		}
@@ -114,6 +118,24 @@ func renderCircle(c *pcb.ModCircle, opts modRenderOptions, da *gtk.DrawingArea, 
 	r, g, b := opts.GetLayerColor(c.Layer)
 	cr.SetSourceRGB(r, g, b)
 	cr.Arc(centerX, centerY, radius, 0, math.Pi*2)
+	cr.Stroke()
+	return nil
+}
+
+func renderArc(a *pcb.ModArc, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+	cr.SetLineJoin(cairo.LINE_JOIN_ROUND)
+	cr.SetLineCap(cairo.LINE_CAP_ROUND)
+	cr.SetLineWidth(a.Width)
+
+	startX, startY := opts.ProjectXY(a.Start)
+	endX, endY := opts.ProjectXY(a.End)
+	radius := math.Sqrt(math.Pow(startX-endX, 2) + math.Pow(startY-endY, 2))
+	startAngle := math.Atan2(endY-startY, endX-startX)
+	endAngle := startAngle + (a.Angle * math.Pi / 180)
+
+	r, g, b := opts.GetLayerColor(a.Layer)
+	cr.SetSourceRGB(r, g, b)
+	cr.Arc(startX, startY, radius, startAngle, endAngle)
 	cr.Stroke()
 	return nil
 }
