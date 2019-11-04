@@ -2,6 +2,7 @@ package preview
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/gotk3/gotk3/cairo"
 	"github.com/gotk3/gotk3/gtk"
@@ -61,6 +62,10 @@ func renderModule(mod *pcb.Module, opts modRenderOptions, da *gtk.DrawingArea, c
 			if err := renderPoly(graphic.Renderable.(*pcb.ModPolygon), opts, da, cr); err != nil {
 				return fmt.Errorf("rendering polygon: %v", err)
 			}
+		case "fp_circle":
+			if err := renderCircle(graphic.Renderable.(*pcb.ModCircle), opts, da, cr); err != nil {
+				return fmt.Errorf("rendering circle: %v", err)
+			}
 		default:
 			fmt.Printf("Cannot render: %v (%+v)\n", graphic.Ident, graphic.Renderable)
 		}
@@ -107,6 +112,20 @@ func renderLine(line *pcb.ModLine, opts modRenderOptions, da *gtk.DrawingArea, c
 	}
 	cr.LineTo(endX, endY)
 
+	cr.Stroke()
+	return nil
+}
+
+func renderCircle(c *pcb.ModCircle, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+	cr.SetLineJoin(cairo.LINE_JOIN_ROUND)
+	cr.SetLineCap(cairo.LINE_CAP_ROUND)
+	cr.SetLineWidth(c.Width)
+
+	centerX, centerY := opts.ProjectXY(c.Center)
+	radius := math.Sqrt(math.Pow(c.Center.X-c.End.X, 2) + math.Pow(c.Center.Y-c.End.Y, 2))
+	r, g, b := opts.GetLayerColor(c.Layer)
+	cr.SetSourceRGB(r, g, b)
+	cr.Arc(centerX, centerY, radius, 0, math.Pi*2)
 	cr.Stroke()
 	return nil
 }
