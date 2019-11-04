@@ -1,11 +1,13 @@
 package editor
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/lexers"
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -21,6 +23,7 @@ type Editor struct {
 	editor *gtk.TextView
 	buffer *gtk.TextBuffer
 
+	bg    *gdk.RGBA
 	css   *gtk.CssProvider
 	style *gtk.StyleContext
 	tags  *tagSet
@@ -41,18 +44,23 @@ func New(b *gtk.Builder) (*Editor, error) {
 		return nil, err
 	}
 
-	css, tags, err := makeStyling(buffer)
-	if err != nil {
-		return nil, err
-	}
-
-	buffer.SetText("# Welcome to KiTE! :D")
-
 	style, err := editor.GetStyleContext()
 	if err != nil {
 		return nil, err
 	}
+
+	bg, err := style.GetProperty("background-color", gtk.STATE_FLAG_BACKDROP)
+	if err != nil {
+		return nil, fmt.Errorf("GetProperty('background-color') failed: %v", err)
+	}
+
+	css, tags, err := makeStyling(buffer, bg.(*gdk.RGBA))
+	if err != nil {
+		return nil, err
+	}
 	style.AddProvider(css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+	buffer.SetText("# Welcome to KiTE! :D")
 
 	out := &Editor{
 		editor: editor,
@@ -60,6 +68,7 @@ func New(b *gtk.Builder) (*Editor, error) {
 		css:    css,
 		style:  style,
 		tags:   tags,
+		bg:     bg.(*gdk.RGBA),
 	}
 
 	if out.insertSig, err = out.buffer.Connect("insert-text", func(tb *gtk.TextBuffer, loc *gtk.TextIter, ins string, len int, e *Editor) {
@@ -223,7 +232,7 @@ type tagSet struct {
 	field   *gtk.TextTag
 }
 
-func makeStyling(buffer *gtk.TextBuffer) (*gtk.CssProvider, *tagSet, error) {
+func makeStyling(buffer *gtk.TextBuffer, bg *gdk.RGBA) (*gtk.CssProvider, *tagSet, error) {
 	s, err := gtk.CssProviderNew()
 	if err != nil {
 		return nil, nil, err
@@ -237,15 +246,30 @@ func makeStyling(buffer *gtk.TextBuffer) (*gtk.CssProvider, *tagSet, error) {
 		}
     `)
 
+	var strTag, fun *gtk.TextTag
+	if f := bg.Floats(); f[0] > 0.75 && f[1] > 0.75 && f[2] > 0.75 { // light background
+		strTag = buffer.CreateTag("string", map[string]interface{}{
+			"foreground": "#aa00aa",
+		})
+		fun = buffer.CreateTag("func", map[string]interface{}{
+			"foreground": "#211fd4",
+		})
+	} else { // dark background / theme
+		strTag = buffer.CreateTag("string", map[string]interface{}{
+			"foreground": "#98c379",
+		})
+		fun = buffer.CreateTag("func", map[string]interface{}{
+			"foreground": "#61afef",
+		})
+	}
+
 	// function blue: #61afef
 	// type green: #56b6c2
 	// cool magenta: #c678dd
 	// comment grey: #5c6370
 
 	return s, &tagSet{
-		str: buffer.CreateTag("string", map[string]interface{}{
-			"foreground": "#98c379",
-		}),
+		str: strTag,
 		keyword: buffer.CreateTag("keyword", map[string]interface{}{
 			"foreground": "orange",
 		}),
@@ -259,9 +283,7 @@ func makeStyling(buffer *gtk.TextBuffer) (*gtk.CssProvider, *tagSet, error) {
 		field: buffer.CreateTag("field", map[string]interface{}{
 			"foreground": "red",
 		}),
-		fun: buffer.CreateTag("func", map[string]interface{}{
-			"foreground": "#61afef",
-		}),
+		fun: fun,
 		pseudo: buffer.CreateTag("pseudo", map[string]interface{}{
 			"foreground": "#c678dd",
 		}),
