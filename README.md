@@ -114,11 +114,11 @@ For a full list of Starlark constructs and builtin functions, please refer to th
 | Constant   |         |       |
 | ---------- | ------- | ----- |
 | `layers`   | Gives easy access to all the layer names, and the set of layer names typically used for smd & th pads. | layers.front.copper<br>layers.front.fab<br>layers.front.silkscreen<br>layers.front.courtyard<br>layers.front.paste<br>layers.back...<br><br>layers.smd<br>layers.th |
-| `shape`    | Different kinds of pad shapes. | TODO |
-| `defaults` | Typical values used as a default by KiCad | TODO |
-| `pad`      | Different kinds of pad. | TODO |
-| `text`     | Different kinds of module text element. | TODO |
-| `zone_connect` | TODO | TODO |
+| `shape`    | Different kinds of pad shapes. | shape.rect<br>shape.circle<br>shape.oval<br>shape.round_rect |
+| `defaults` | Typical values used as a default by KiCad | defaults.width<br>defaults.thickness<br>defaults.clearance |
+| `pad`      | Different kinds of pad. | pad.through_hole<br>pad.np_through_hole<br>pad.smd |
+| `text`     | Different kinds of module text element. | text.reference<br>text.user<br>text.value<br>text.vertical |
+| `zone_connect` | The modes controlling how a pad should connect to an adjacent zone of the same net. | zone_connect.inherited<br>zone_connect.none<br>zone_connect.thermal |
 
 ### Helper libraries
 
@@ -142,10 +142,10 @@ load("mod.lib", m="graphics")
 | `graphics.ref()`  | Places a text label that describes the reference (designator) of the module.  | `graphics.ref()` - Place reference at `XY(0,0)`.<br>`graphics.ref(XYZ(2,2))` - Place reference at `XY(2,2)`.<br>`graphics.ref(XYZ(2,2, text.vertical))` - Place vertical reference at `XY(2,2)`. |
 | `graphics.text()` | Places a text element. | `graphics.text(pos=XYZ(1,2), content='a')` - Add a text element at `XY(1,2)` that says `A`. |
 | `graphics.line()` | Places a line.<br>You can also specify `layer` and `width` attributes. | `graphics.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
-| `graphics.circle()` | TODO | |
-| `graphics.poly()` | TODO | |
-| `graphics.arc()` | TODO | |
-| `graphics.filter()` | Filters out graphical with a certain type from a list of graphical elements. | TODO |
+| `graphics.circle()` | Draws the outline of a circle. | TODO |
+| `graphics.poly()` | Draws a filled-in polygon using the specified points. | TODO |
+| `graphics.arc()` | Draws an arc. | `m.arc(center=XY(), end=XY(5), angle=45.0)` |
+| `graphics.filter()` | Filters out graphical with a certain type from a list of graphical elements. | `m.filter(graphics_list, filter="fp_text")` - Gets rid of all text graphics from `graphics_list`, returning a new list. |
 
 
 ##### Pads
@@ -166,4 +166,14 @@ TODO
 
 #### `math.lib`
 
-TODO
+
+```python
+load("math.lib", "math")
+# You can now call math functions like math.blah.
+```
+
+| Function      | Description   | Example |
+| ------------- | ------------- | ------- |
+| `math.point_on_circle()` | Computes the point `radius` distance from `center`, at the angle denoted by `angle` in radians. | TODO |
+| `math.point_on_circle_degrees()` | Computes the point `radius` distance from `center`, at the angle denoted by `angle` in degrees. | TODO |
+| `math.point_arc()` | Computes the set of points which interpolate an arc from `start_angle` to `end_angle` (radians) around `center`, with a radius denoted by `radius`. | TODO |

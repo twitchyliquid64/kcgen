@@ -35,7 +35,7 @@ func (c *Controller) LoadFromFile(path string) error {
 func (c *Controller) Render() {
 	c.editor.Restyle()
 	content := c.editor.GetContent()
-	script, err := kcsl.NewScript([]byte(content), flag.Arg(0), false, &kcsl.WDLoader{}, flag.Args()[1:])
+	script, err := kcsl.NewScript([]byte(content), flag.Arg(0), false, &kcsl.WDLoader{}, flag.Args())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Script initialization failed: %v\n", err)
 		return
