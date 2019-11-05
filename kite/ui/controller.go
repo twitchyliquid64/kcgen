@@ -26,8 +26,8 @@ func (c *Controller) LoadFromFile(path string) error {
 		return err
 	}
 	c.win.Model.scriptPath = path
-	c.win.Model.dirty = false
 	c.editor.SetContent(string(d))
+	c.win.Model.dirty = false
 	c.win.flushState()
 	return nil
 }
@@ -57,4 +57,12 @@ func (c *Controller) Save() {
 			c.win.flushState()
 		}
 	}
+}
+
+func (c *Controller) onTextChange() {
+	if c.win.Model.dirty {
+		return
+	}
+	c.win.Model.dirty = true
+	c.win.flushState()
 }

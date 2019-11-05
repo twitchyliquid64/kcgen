@@ -28,11 +28,11 @@ type Editor struct {
 	style *gtk.StyleContext
 	tags  *tagSet
 
-	insertSig glib.SignalHandle
+	changeCB func()
 }
 
 // New creates a new KiTE KCSL editing widget.
-func New(b *gtk.Builder) (*Editor, error) {
+func New(b *gtk.Builder, changeCB func()) (*Editor, error) {
 	e, err := b.GetObject("kite_editor")
 	if err != nil {
 		return nil, err
@@ -63,15 +63,16 @@ func New(b *gtk.Builder) (*Editor, error) {
 	buffer.SetText("# Welcome to KiTE! :D")
 
 	out := &Editor{
-		editor: editor,
-		buffer: buffer,
-		css:    css,
-		style:  style,
-		tags:   tags,
-		bg:     bg.(*gdk.RGBA),
+		editor:   editor,
+		buffer:   buffer,
+		css:      css,
+		style:    style,
+		tags:     tags,
+		bg:       bg.(*gdk.RGBA),
+		changeCB: changeCB,
 	}
 
-	if out.insertSig, err = out.buffer.Connect("insert-text", func(tb *gtk.TextBuffer, loc *gtk.TextIter, ins string, len int, e *Editor) {
+	if _, err := out.buffer.Connect("insert-text", func(tb *gtk.TextBuffer, loc *gtk.TextIter, ins string, len int, e *Editor) {
 		e.onInsert(ins, tb, loc, len)
 	}, out); err != nil {
 		return nil, err
@@ -169,7 +170,14 @@ func (e *Editor) processLine(tok func() chroma.Token, content string, tb *gtk.Te
 	}
 }
 
+func (e *Editor) onAnyChange() {
+	if e.changeCB != nil {
+		e.changeCB()
+	}
+}
+
 func (e *Editor) onBackspace() {
+	defer e.onAnyChange()
 	iter := e.buffer.GetIterAtMark(e.buffer.GetMark("insert"))
 	line := iter.GetLine()
 	start, end := e.buffer.GetIterAtLine(line), e.buffer.GetIterAtLine(line+1)
@@ -185,6 +193,7 @@ func (e *Editor) onBackspace() {
 }
 
 func (e *Editor) onInsert(text string, tb *gtk.TextBuffer, loc *gtk.TextIter, l int) {
+	defer e.onAnyChange()
 	//fmt.Printf("Insert: line %d, pos %d, char %q \n", loc.GetLine(), loc.GetCharsInLine(), text)
 	line := loc.GetLine()
 
@@ -219,76 +228,4 @@ func (e *Editor) onInsert(text string, tb *gtk.TextBuffer, loc *gtk.TextIter, l 
 		tok, _ := lexer.Tokenise(nil, content)
 		e.processLine(tok, content, tb, start, end, line)
 	})
-}
-
-type tagSet struct {
-	str     *gtk.TextTag
-	keyword *gtk.TextTag
-	parenth *gtk.TextTag
-	op      *gtk.TextTag
-	fun     *gtk.TextTag
-	pseudo  *gtk.TextTag
-	comment *gtk.TextTag
-	field   *gtk.TextTag
-}
-
-func makeStyling(buffer *gtk.TextBuffer, bg *gdk.RGBA) (*gtk.CssProvider, *tagSet, error) {
-	s, err := gtk.CssProviderNew()
-	if err != nil {
-		return nil, nil, err
-	}
-	s.LoadFromData(`
-		GtkTextView {
-		    font-family: monospace;
-		}
-		textview {
-		    font-family: monospace;
-		}
-    `)
-
-	var strTag, fun *gtk.TextTag
-	if f := bg.Floats(); f[0] > 0.75 && f[1] > 0.75 && f[2] > 0.75 { // light background
-		strTag = buffer.CreateTag("string", map[string]interface{}{
-			"foreground": "#aa00aa",
-		})
-		fun = buffer.CreateTag("func", map[string]interface{}{
-			"foreground": "#211fd4",
-		})
-	} else { // dark background / theme
-		strTag = buffer.CreateTag("string", map[string]interface{}{
-			"foreground": "#98c379",
-		})
-		fun = buffer.CreateTag("func", map[string]interface{}{
-			"foreground": "#61afef",
-		})
-	}
-
-	// function blue: #61afef
-	// type green: #56b6c2
-	// cool magenta: #c678dd
-	// comment grey: #5c6370
-
-	return s, &tagSet{
-		str: strTag,
-		keyword: buffer.CreateTag("keyword", map[string]interface{}{
-			"foreground": "orange",
-		}),
-		parenth: buffer.CreateTag("parenth", map[string]interface{}{
-			//"foreground": "cyan",
-			//"weight": pango.WEIGHT_BOLD,
-		}),
-		op: buffer.CreateTag("op", map[string]interface{}{
-			"foreground": "red",
-		}),
-		field: buffer.CreateTag("field", map[string]interface{}{
-			"foreground": "red",
-		}),
-		fun: fun,
-		pseudo: buffer.CreateTag("pseudo", map[string]interface{}{
-			"foreground": "#c678dd",
-		}),
-		comment: buffer.CreateTag("comment", map[string]interface{}{
-			"foreground": "#5c6370",
-		}),
-	}, nil
 }

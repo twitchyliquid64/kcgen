@@ -37,7 +37,7 @@ func (w *Win) build() error {
 		return fmt.Errorf("GetStyleContext() failed: %v", err)
 	}
 
-	editor, err := editor.New(b)
+	editor, err := editor.New(b, w.Controller.onTextChange)
 	if err != nil {
 		return err
 	}
