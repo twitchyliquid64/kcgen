@@ -1,0 +1,17 @@
+load("mod.lib", m="graphics")
+load("flatten.lib", "flatten")
+
+# This path only works for linux - modify it if you are on a different platform.
+button = file.load_mod("/usr/share/kicad/modules/Button_Switch_SMD.pretty/SW_SPST_PTS645.kicad_mod")
+
+
+mod = Mod(
+    name = "flat_button",
+    layer = layers.front.copper,
+    description = "This demonstrates turning a module into a silhouette.",
+    tags = ["demo", "silhouette"],
+    attrs = ["virtual"],
+    graphics = flatten.graphics(m.filter(button.graphics, filter="fp_text"))
+               + flatten.pads(button.pads),
+
+)

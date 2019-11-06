@@ -81,6 +81,7 @@ func (p *XY) SetField(name string, val starlark.Value) error {
 		if !ok {
 			return fmt.Errorf("cannot assign to x using type %T", val)
 		}
+		return nil
 
 	case "y":
 		var ok bool
@@ -88,6 +89,7 @@ func (p *XY) SetField(name string, val starlark.Value) error {
 		if !ok {
 			return fmt.Errorf("cannot assign to y using type %T", val)
 		}
+		return nil
 
 	}
 
@@ -187,6 +189,7 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to x using type %T", val)
 		}
 		p.X = float64(v)
+		return nil
 
 	case "y":
 		v, ok := val.(starlark.Float)
@@ -194,6 +197,7 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to y using type %T", val)
 		}
 		p.Y = float64(v)
+		return nil
 
 	case "z":
 		v, ok := val.(starlark.Float)
@@ -201,6 +205,7 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to z using type %T", val)
 		}
 		p.Z = float64(v)
+		return nil
 
 	case "z_present":
 		v, ok := val.(starlark.Bool)
@@ -208,6 +213,7 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to z_present using type %T", val)
 		}
 		p.ZPresent = bool(v)
+		return nil
 
 	case "unlocked":
 		v, ok := val.(starlark.Bool)
@@ -215,7 +221,7 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to unlocked using type %T", val)
 		}
 		p.Unlocked = bool(v)
-
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
@@ -1141,6 +1147,7 @@ func (p *ModPolygon) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to at using type %T", val)
 		}
 		p.At = *v
+		return nil
 
 	case "points":
 		v, ok := val.(*starlark.List)
@@ -1155,6 +1162,7 @@ func (p *ModPolygon) SetField(name string, val starlark.Value) error {
 			}
 			p.Points = append(p.Points, *s)
 		}
+		return nil
 
 	case "layer":
 		v, ok := val.(starlark.String)
@@ -1162,6 +1170,7 @@ func (p *ModPolygon) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to layer using type %T", val)
 		}
 		p.Layer = string(v)
+		return nil
 
 	case "width":
 		v, ok := val.(starlark.Float)
@@ -1169,7 +1178,7 @@ func (p *ModPolygon) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to width using type %T", val)
 		}
 		p.Width = float64(v)
-
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
@@ -1268,6 +1277,7 @@ func (p *TextEffects) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to font_size using type %T", val)
 		}
 		p.FontSize = *v
+		return nil
 
 	case "thickness":
 		v, ok := val.(starlark.Float)
@@ -1275,6 +1285,7 @@ func (p *TextEffects) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to thickness using type %T", val)
 		}
 		p.Thickness = float64(v)
+		return nil
 
 	case "justify":
 		v, ok := val.(*TextJustify)
@@ -1282,6 +1293,7 @@ func (p *TextEffects) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to justify using type %T", val)
 		}
 		p.Justify = *v
+		return nil
 
 	case "bold":
 		v, ok := val.(starlark.Bool)
@@ -1289,6 +1301,7 @@ func (p *TextEffects) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to bold using type %T", val)
 		}
 		p.Bold = bool(v)
+		return nil
 
 	case "italic":
 		v, ok := val.(starlark.Bool)
@@ -1296,7 +1309,7 @@ func (p *TextEffects) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to italic using type %T", val)
 		}
 		p.Italic = bool(v)
-
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
@@ -1403,6 +1416,7 @@ func (p *ModText) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to kind using type %T", val)
 		}
 		p.Kind = *v
+		return nil
 
 	case "hidden":
 		v, ok := val.(starlark.Bool)
@@ -1410,6 +1424,7 @@ func (p *ModText) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to hidden using type %T", val)
 		}
 		p.Hidden = bool(v)
+		return nil
 
 	case "text":
 		v, ok := val.(starlark.String)
@@ -1417,6 +1432,7 @@ func (p *ModText) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to text using type %T", val)
 		}
 		p.Text = string(v)
+		return nil
 
 	case "at":
 		v, ok := val.(*XYZ)
@@ -1424,6 +1440,7 @@ func (p *ModText) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to at using type %T", val)
 		}
 		p.At = *v
+		return nil
 
 	case "layer":
 		v, ok := val.(starlark.String)
@@ -1431,6 +1448,7 @@ func (p *ModText) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to layer using type %T", val)
 		}
 		p.Layer = string(v)
+		return nil
 
 	case "effects":
 		v, ok := val.(*TextEffects)
@@ -1438,7 +1456,7 @@ func (p *ModText) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to effects using type %T", val)
 		}
 		p.Effects = *v
-
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
@@ -1529,6 +1547,7 @@ func (p *ModLine) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to start using type %T", val)
 		}
 		p.Start = *v
+		return nil
 
 	case "end":
 		v, ok := val.(*XY)
@@ -1536,6 +1555,7 @@ func (p *ModLine) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to end using type %T", val)
 		}
 		p.End = *v
+		return nil
 
 	case "layer":
 		v, ok := val.(starlark.String)
@@ -1543,6 +1563,7 @@ func (p *ModLine) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to layer using type %T", val)
 		}
 		p.Layer = string(v)
+		return nil
 
 	case "width":
 		v, ok := val.(starlark.Float)
@@ -1550,7 +1571,7 @@ func (p *ModLine) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to width using type %T", val)
 		}
 		p.Width = float64(v)
-
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
@@ -1645,6 +1666,7 @@ func (p *ModCircle) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to center using type %T", val)
 		}
 		p.Center = *v
+		return nil
 
 	case "end":
 		v, ok := val.(*XY)
@@ -1652,6 +1674,7 @@ func (p *ModCircle) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to end using type %T", val)
 		}
 		p.End = *v
+		return nil
 
 	case "layer":
 		v, ok := val.(starlark.String)
@@ -1659,6 +1682,7 @@ func (p *ModCircle) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to layer using type %T", val)
 		}
 		p.Layer = string(v)
+		return nil
 
 	case "width":
 		v, ok := val.(starlark.Float)
@@ -1666,6 +1690,7 @@ func (p *ModCircle) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to width using type %T", val)
 		}
 		p.Width = float64(v)
+		return nil
 
 	}
 
@@ -1767,6 +1792,7 @@ func (p *ModArc) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to start using type %T", val)
 		}
 		p.Start = *v
+		return nil
 
 	case "end":
 		v, ok := val.(*XY)
@@ -1774,6 +1800,7 @@ func (p *ModArc) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to end using type %T", val)
 		}
 		p.End = *v
+		return nil
 
 	case "layer":
 		v, ok := val.(starlark.String)
@@ -1781,6 +1808,7 @@ func (p *ModArc) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to layer using type %T", val)
 		}
 		p.Layer = string(v)
+		return nil
 
 	case "angle":
 		v, ok := val.(starlark.Float)
@@ -1788,6 +1816,7 @@ func (p *ModArc) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to angle using type %T", val)
 		}
 		p.Angle = float64(v)
+		return nil
 
 	case "width":
 		v, ok := val.(starlark.Float)
@@ -1795,6 +1824,7 @@ func (p *ModArc) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to width using type %T", val)
 		}
 		p.Width = float64(v)
+		return nil
 
 	}
 
@@ -1900,6 +1930,7 @@ func (p *ModModel) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to path using type %T", val)
 		}
 		p.Path = string(v)
+		return nil
 
 	case "at":
 		v, ok := val.(*XYZ)
@@ -1907,6 +1938,7 @@ func (p *ModModel) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to at using type %T", val)
 		}
 		p.At = *v
+		return nil
 
 	case "offset":
 		v, ok := val.(*XYZ)
@@ -1914,6 +1946,7 @@ func (p *ModModel) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to offset using type %T", val)
 		}
 		p.Offset = *v
+		return nil
 
 	case "scale":
 		v, ok := val.(*XYZ)
@@ -1921,6 +1954,7 @@ func (p *ModModel) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to scale using type %T", val)
 		}
 		p.Scale = *v
+		return nil
 
 	case "rotate":
 		v, ok := val.(*XYZ)
@@ -1928,6 +1962,7 @@ func (p *ModModel) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to rotate using type %T", val)
 		}
 		p.Rotate = *v
+		return nil
 
 	}
 
@@ -2093,6 +2128,7 @@ func (p *ModGraphic) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to ident using type %T", val)
 		}
 		p.Ident = string(v)
+		return nil
 
 	case "renderable":
 		v, ok := val.(modDrawable)
@@ -2100,7 +2136,7 @@ func (p *ModGraphic) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to renderable using type %T", val)
 		}
 		p.Renderable = v
-
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
@@ -2872,6 +2908,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to name using type %T", val)
 		}
 		p.Name = string(v)
+		return nil
 
 	case "placement":
 		v, ok := val.(*ModPlacement)
@@ -2879,6 +2916,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to placement using type %T", val)
 		}
 		p.Placement = *v
+		return nil
 
 	case "placed":
 		v, ok := val.(starlark.Bool)
@@ -2886,6 +2924,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to placed using type %T", val)
 		}
 		p.Placed = bool(v)
+		return nil
 
 	case "locked":
 		v, ok := val.(starlark.Bool)
@@ -2893,6 +2932,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to locked using type %T", val)
 		}
 		p.Locked = bool(v)
+		return nil
 
 	case "layer":
 		v, ok := val.(starlark.String)
@@ -2900,6 +2940,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to layer using type %T", val)
 		}
 		p.Layer = string(v)
+		return nil
 
 	case "zone_connect":
 		v, ok := val.(*ZoneConnectMode)
@@ -2907,6 +2948,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to zone_connect using type %T", val)
 		}
 		p.ZoneConnect = *v
+		return nil
 
 	case "solder_mask_margin":
 		v, ok := val.(starlark.Float)
@@ -2914,6 +2956,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to solder_mask_margin using type %T", val)
 		}
 		p.SolderMaskMargin = float64(v)
+		return nil
 
 	case "solder_paste_margin":
 		v, ok := val.(starlark.Float)
@@ -2921,6 +2964,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to solder_paste_margin using type %T", val)
 		}
 		p.SolderPasteMargin = float64(v)
+		return nil
 
 	case "solder_paste_ratio":
 		v, ok := val.(starlark.Float)
@@ -2928,6 +2972,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to solder_paste_ratio using type %T", val)
 		}
 		p.SolderPasteRatio = float64(v)
+		return nil
 
 	case "clearance":
 		v, ok := val.(starlark.Float)
@@ -2935,6 +2980,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to clearance using type %T", val)
 		}
 		p.Clearance = float64(v)
+		return nil
 
 	case "tedit":
 		v, ok := val.(starlark.String)
@@ -2942,6 +2988,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to tedit using type %T", val)
 		}
 		p.Tedit = string(v)
+		return nil
 
 	case "tstamp":
 		v, ok := val.(starlark.String)
@@ -2949,6 +2996,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to tstamp using type %T", val)
 		}
 		p.Tstamp = string(v)
+		return nil
 
 	case "path":
 		v, ok := val.(starlark.String)
@@ -2956,6 +3004,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to path using type %T", val)
 		}
 		p.Path = string(v)
+		return nil
 
 	case "description":
 		v, ok := val.(starlark.String)
@@ -2963,6 +3012,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			return fmt.Errorf("cannot assign to description using type %T", val)
 		}
 		p.Description = string(v)
+		return nil
 
 	case "tags":
 		v, ok := val.(*starlark.List)
@@ -2977,6 +3027,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			}
 			p.Tags = append(p.Tags, string(s))
 		}
+		return nil
 
 	case "attrs":
 		v, ok := val.(*starlark.List)
@@ -2991,6 +3042,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			}
 			p.Attrs = append(p.Attrs, string(s))
 		}
+		return nil
 
 	case "graphics":
 		v, ok := val.(*starlark.List)
@@ -3005,6 +3057,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			}
 			p.Graphics = append(p.Graphics, *s)
 		}
+		return nil
 
 	case "pads":
 		v, ok := val.(*starlark.List)
@@ -3019,6 +3072,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			}
 			p.Pads = append(p.Pads, *s)
 		}
+		return nil
 
 	case "models":
 		v, ok := val.(*starlark.List)
@@ -3033,6 +3087,7 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 			}
 			p.Models = append(p.Models, *s)
 		}
+		return nil
 	}
 
 	return errors.New("no such assignable field: " + name)
