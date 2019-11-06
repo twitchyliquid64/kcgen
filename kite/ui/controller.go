@@ -72,3 +72,10 @@ func (c *Controller) onTextChange() {
 	c.win.Model.dirty = true
 	c.win.flushState()
 }
+
+func (c *Controller) ShowConsole() {
+	c.win.tabs.SetCurrentPage(1)
+}
+func (c *Controller) ShowPreview() {
+	c.win.tabs.SetCurrentPage(0)
+}
