@@ -160,12 +160,25 @@ load("mod.lib", p="pads")
 | `pads.th()`   | Generates a through-hole pad. | `pads.th("2", center = XY(4, 3))` - Generates a pad called _2_ at `XY(4,3)`. <br><br>The drill defaults to `XY(1,1)` and pad size to `XY(1.7,1.7)`. |
 | `pads.smd()` | Generates a surface-mount pad. | `p.smd("1", center = XY(1,3))` - Creates a smd pad at `XY(1,3)`.<br><br>The size defaults to `XY(1.4, 1.8)` and the shape to a rectangle. |
 
+
 #### `draw.lib`
 
 TODO
 
-#### `math.lib`
 
+#### `flatten.lib`
+
+```python
+load("flatten.lib", "flatten")
+```
+
+| Function      | Description   | Example |
+| ------------- | ------------- | ------- |
+| `flatten.pads()` | Returns a list of equivalently placed graphics on the Fab layer, for the given list of pads. | `flatten.pads(button.pads)` |
+| `flatten.graphics()` | Returns a list of equivalently placed graphics on the Fab layer, for the given list of graphics. | `flatten.graphics(button.graphics)` |
+
+
+#### `math.lib`
 
 ```python
 load("math.lib", "math")
