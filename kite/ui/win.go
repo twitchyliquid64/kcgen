@@ -14,6 +14,7 @@ type Win struct {
 	win     *gtk.Window
 	style   *gtk.StyleContext
 	editor  *gtk.TextView
+	console *gtk.TextView
 	preview *gtk.DrawingArea
 
 	Model      WindowModel
@@ -42,6 +43,11 @@ func (w *Win) build() error {
 		return err
 	}
 	w.Controller.editor = editor
+	console, err := b.GetObject("kite_console")
+	if err != nil {
+		return err
+	}
+	w.console = console.(*gtk.TextView)
 
 	preview, err := preview.NewPreview(b)
 	if err != nil {

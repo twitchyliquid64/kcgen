@@ -68,7 +68,8 @@ func (s *Script) loadScript(script []byte, fname string, loader ScriptLoader) (*
 
 // Script represents a raspberry-box script.
 type Script struct {
-	loader ScriptLoader
+	loader  ScriptLoader
+	printer func(string)
 
 	args    []string
 	verbose bool
@@ -84,16 +85,18 @@ func (s *Script) Close() error {
 }
 
 // NewScript initializes a new raspberry-box script environment.
-func NewScript(data []byte, fname string, verbose bool, loader ScriptLoader, args []string) (*Script, error) {
-	return makeScript(data, fname, loader, args, verbose, nil)
+func NewScript(data []byte, fname string, verbose bool, loader ScriptLoader, args []string, printer func(string)) (*Script, error) {
+	return makeScript(data, fname, loader, args, verbose, nil, printer)
 }
 
 func makeScript(data []byte, fname string, loader ScriptLoader, args []string, verbose bool,
-	testHook func(thread *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error)) (*Script, error) {
+	testHook func(thread *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error),
+	printer func(string)) (*Script, error) {
 	out := &Script{
 		loader:  loader,
 		args:    args,
 		verbose: verbose,
+		printer: printer,
 	}
 
 	var err error
@@ -106,7 +109,11 @@ func makeScript(data []byte, fname string, loader ScriptLoader, args []string, v
 }
 
 func (s *Script) printFromSkylark(_ *starlark.Thread, msg string) {
-	fmt.Println(msg)
+	if s.printer != nil {
+		s.printer(msg)
+	} else {
+		fmt.Println(msg)
+	}
 }
 
 func (s *Script) resolveImport(path string) ([]byte, error) {

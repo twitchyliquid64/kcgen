@@ -36,7 +36,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	script, err := kcsl.NewScript(sData, flag.Arg(0), *verbose, &kcsl.WDLoader{}, flag.Args()[1:])
+	script, err := kcsl.NewScript(sData, flag.Arg(0), *verbose, &kcsl.WDLoader{}, flag.Args()[1:], nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Initialization failed: %v\n", err)
 		os.Exit(1)

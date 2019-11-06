@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/gotk3/gotk3/glib"
 	"github.com/twitchyliquid64/kcgen/kcsl"
 	"github.com/twitchyliquid64/kcgen/kite/ui/editor"
 	"github.com/twitchyliquid64/kcgen/kite/ui/preview"
@@ -35,7 +36,12 @@ func (c *Controller) LoadFromFile(path string) error {
 func (c *Controller) Render() {
 	c.editor.Restyle()
 	content := c.editor.GetContent()
-	script, err := kcsl.NewScript([]byte(content), flag.Arg(0), false, &kcsl.WDLoader{}, flag.Args())
+	script, err := kcsl.NewScript([]byte(content), flag.Arg(0), false, &kcsl.WDLoader{}, flag.Args(), func(msg string) {
+		glib.IdleAdd(func() {
+			b, _ := c.win.console.GetBuffer()
+			b.InsertAtCursor(msg + "\n")
+		})
+	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Script initialization failed: %v\n", err)
 		return
