@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -50,6 +51,14 @@ func (c *Controller) Render() {
 
 	if m := script.Mod(); m != nil {
 		c.preview.Render(m)
+		var buff bytes.Buffer
+		if err := m.WriteModule(&buff); err != nil {
+			fmt.Fprintf(os.Stderr, "WriteModule() failed: %v\n", err)
+			return
+		}
+
+		b, _ := c.win.output.GetBuffer()
+		b.SetText(buff.String())
 	}
 }
 

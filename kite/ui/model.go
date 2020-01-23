@@ -4,4 +4,6 @@ package ui
 type WindowModel struct {
 	scriptPath string
 	dirty      bool
+
+	lastRenderOutput string
 }

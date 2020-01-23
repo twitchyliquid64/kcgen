@@ -17,6 +17,7 @@ type Win struct {
 	editor       *gtk.TextView
 
 	console *gtk.TextView
+	output  *gtk.TextView
 	preview *gtk.DrawingArea
 	tabs    *gtk.Notebook
 
@@ -57,6 +58,11 @@ func (w *Win) build() error {
 		return err
 	}
 	w.console = console.(*gtk.TextView)
+	output, err := b.GetObject("sexp_output")
+	if err != nil {
+		return err
+	}
+	w.output = output.(*gtk.TextView)
 
 	preview, err := preview.NewPreview(b)
 	if err != nil {
