@@ -35,6 +35,13 @@ func (c *Controller) LoadFromFile(path string) error {
 }
 
 func (c *Controller) Render() {
+	logScriptErr := func(err error) {
+		glib.IdleAdd(func() {
+			b, _ := c.win.console.GetBuffer()
+			b.InsertAtCursor(fmt.Sprintf("Error: %v\n", err))
+		})
+	}
+
 	c.editor.Restyle()
 	content := c.editor.GetContent()
 	script, err := kcsl.NewScript([]byte(content), flag.Arg(0), false, &kcsl.WDLoader{}, flag.Args(), func(msg string) {
@@ -45,6 +52,7 @@ func (c *Controller) Render() {
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Script initialization failed: %v\n", err)
+		logScriptErr(err)
 		return
 	}
 	defer script.Close()
@@ -54,6 +62,7 @@ func (c *Controller) Render() {
 		var buff bytes.Buffer
 		if err := m.WriteModule(&buff); err != nil {
 			fmt.Fprintf(os.Stderr, "WriteModule() failed: %v\n", err)
+			logScriptErr(err)
 			return
 		}
 

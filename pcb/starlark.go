@@ -3092,3 +3092,635 @@ func (p *Module) SetField(name string, val starlark.Value) error {
 
 	return errors.New("no such assignable field: " + name)
 }
+
+var MakePCB = starlark.NewBuiltin("PCB", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		segments *starlark.List
+		drawings *starlark.List
+		modules  *starlark.List
+	)
+	unpackErr := starlark.UnpackArgs(
+		"PCB",
+		args,
+		kwargs,
+		"segments?",
+		&segments,
+		"drawings?",
+		&drawings,
+		"modules?",
+		&modules,
+	)
+	if unpackErr != nil {
+		return starlark.None, unpackErr
+	}
+	out := EmptyPCB()
+
+	if segments != nil {
+		for i := 0; i < segments.Len(); i++ {
+			s, ok := segments.Index(i).(NetSegment)
+			if !ok {
+				return starlark.None, errors.New("segments element is not a NetSegment")
+			}
+			out.Segments = append(out.Segments, NetSegment(s))
+		}
+	}
+	if drawings != nil {
+		for i := 0; i < drawings.Len(); i++ {
+			d, ok := drawings.Index(i).(Drawing)
+			if !ok {
+				return starlark.None, errors.New("drawings element is not a NetSegment")
+			}
+			out.Drawings = append(out.Drawings, d)
+		}
+	}
+	if modules != nil {
+		for i := 0; i < modules.Len(); i++ {
+			m, ok := modules.Index(i).(*Module)
+			if !ok {
+				return starlark.None, errors.New("modules element is not a NetSegment")
+			}
+			out.Modules = append(out.Modules, *m)
+		}
+	}
+
+	return out, nil
+})
+
+func (p *PCB) String() string {
+	return fmt.Sprintf("PCB{%v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v}", p.FormatVersion, p.CreatedBy, p.TitleInfo, p.EditorSetup, p.LayersByName, p.Layers, p.Segments, p.Drawings, p.Nets, p.NetClasses, p.Zones, p.Modules)
+}
+
+// Type implements starlark.Value.
+func (p *PCB) Type() string {
+	return "PCB"
+}
+
+// Freeze implements starlark.Value.
+func (p *PCB) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *PCB) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *PCB) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(fmt.Sprintf("%+v", p)))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
+
+// Attr implements starlark.Value.
+func (p *PCB) Attr(name string) (starlark.Value, error) {
+	switch name {
+
+	case "layers":
+		l := starlark.NewList(nil)
+		for _, e := range p.Layers {
+			l.Append(e)
+		}
+		return l, nil
+
+	case "segments":
+		l := starlark.NewList(nil)
+		for _, e := range p.Segments {
+			switch s := e.(type) {
+			case *Track:
+				l.Append(s)
+			case *Via:
+				l.Append(s)
+			default:
+				return nil, fmt.Errorf("cannot process segment of type %T", s)
+			}
+		}
+		return l, nil
+
+	case "drawings":
+		l := starlark.NewList(nil)
+		for _, e := range p.Drawings {
+			switch d := e.(type) {
+			case *Text:
+				l.Append(d)
+			case *Line:
+				l.Append(d)
+			case *Arc:
+				l.Append(d)
+			default:
+				return nil, fmt.Errorf("cannot process drawing of type %T", d)
+			}
+		}
+		return l, nil
+
+	// case "zones":
+	// 	l := starlark.NewList(nil)
+	// 	for _, e := range p.Zones {
+	// 		l.Append(e)
+	// 	}
+	// 	return l, nil
+
+	case "modules":
+		l := starlark.NewList(nil)
+		for _, e := range p.Modules {
+			l.Append(&e)
+		}
+		return l, nil
+	}
+
+	return nil, starlark.NoSuchAttrError(fmt.Sprintf("%s has no attribute %s", p.Type(), name))
+}
+
+// AttrNames implements starlark.Value.
+func (p *PCB) AttrNames() []string {
+	return []string{"layers", "segments", "drawings", "modules"}
+}
+
+// SetField implements starlark.HasSetField.
+func (p *PCB) SetField(name string, val starlark.Value) error {
+	switch name {
+
+	case "layers":
+		v, ok := val.(*starlark.List)
+		if !ok {
+			return fmt.Errorf("cannot assign to layers using type %T", val)
+		}
+
+		for i := 0; i < v.Len(); i++ {
+			s, ok := v.Index(i).(*Layer)
+			if !ok {
+				return errors.New("layers is not a *Layer")
+			}
+			p.Layers = append(p.Layers, s)
+		}
+
+	case "segments":
+		v, ok := val.(*starlark.List)
+		if !ok {
+			return fmt.Errorf("cannot assign to segments using type %T", val)
+		}
+
+		for i := 0; i < v.Len(); i++ {
+			s, ok := v.Index(i).(NetSegment)
+			if !ok {
+				return errors.New("segments is not a NetSegment")
+			}
+			p.Segments = append(p.Segments, NetSegment(s))
+		}
+
+	case "drawings":
+		v, ok := val.(*starlark.List)
+		if !ok {
+			return fmt.Errorf("cannot assign to drawings using type %T", val)
+		}
+
+		for i := 0; i < v.Len(); i++ {
+			s, ok := v.Index(i).(Drawing)
+			if !ok {
+				return errors.New("drawings is not a Drawing")
+			}
+			p.Drawings = append(p.Drawings, Drawing(s))
+		}
+
+	case "modules":
+		v, ok := val.(*starlark.List)
+		if !ok {
+			return fmt.Errorf("cannot assign to modules using type %T", val)
+		}
+
+		for i := 0; i < v.Len(); i++ {
+			s, ok := v.Index(i).(*Module)
+			if !ok {
+				return errors.New("modules is not a Module")
+			}
+			p.Modules = append(p.Modules, *s)
+		}
+	}
+
+	return errors.New("no such assignable field: " + name)
+}
+
+var MakeLine = starlark.NewBuiltin("Line", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		f0 XY
+		f1 XY
+		f2 starlark.Float
+		f3 starlark.String
+		f4 starlark.Float
+		f5 starlark.String
+	)
+	unpackErr := starlark.UnpackArgs(
+		"Line",
+		args,
+		kwargs,
+		"start?", &f0,
+		"end?", &f1,
+		"angle?", &f2,
+		"layer?", &f3,
+		"width?", &f4,
+		"tstamp?", &f5,
+	)
+	if unpackErr != nil {
+		return starlark.None, unpackErr
+	}
+	out := Line{}
+
+	out.Start = f0
+	out.End = f1
+	out.Angle = float64(f2)
+	out.Layer = string(f3)
+	out.Width = float64(f4)
+	out.Tstamp = string(f5)
+	return &out, nil
+})
+
+func (p *Line) String() string {
+	return fmt.Sprintf("Line{%v, %v, %v, %v, %v, %v}", p.Start, p.End, p.Angle, p.Layer, p.Width, p.Tstamp)
+}
+
+// Type implements starlark.Value.
+func (p *Line) Type() string {
+	return "Line"
+}
+
+// Freeze implements starlark.Value.
+func (p *Line) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *Line) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *Line) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(fmt.Sprintf("%+v", p)))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
+
+// Attr implements starlark.Value.
+func (p *Line) Attr(name string) (starlark.Value, error) {
+	switch name {
+	case "start":
+		return &p.Start, nil
+
+	case "end":
+		return &p.End, nil
+
+	case "angle":
+		return starlark.Float(p.Angle), nil
+
+	case "layer":
+		return starlark.String(p.Layer), nil
+
+	case "width":
+		return starlark.Float(p.Width), nil
+
+	case "tstamp":
+		return starlark.String(p.Tstamp), nil
+	}
+
+	return nil, starlark.NoSuchAttrError(fmt.Sprintf("%s has no attribute %s", p.Type(), name))
+}
+
+// AttrNames implements starlark.Value.
+func (p *Line) AttrNames() []string {
+	return []string{"start", "end", "angle", "layer", "width", "tstamp"}
+}
+
+// SetField implements starlark.HasSetField.
+func (p *Line) SetField(name string, val starlark.Value) error {
+	switch name {
+	case "start":
+		v, ok := val.(*XY)
+		if !ok {
+			return fmt.Errorf("cannot assign to start using type %T", val)
+		}
+		p.Start = *v
+
+	case "end":
+		v, ok := val.(*XY)
+		if !ok {
+			return fmt.Errorf("cannot assign to end using type %T", val)
+		}
+		p.End = *v
+
+	case "angle":
+		v, ok := val.(starlark.Float)
+		if !ok {
+			return fmt.Errorf("cannot assign to angle using type %T", val)
+		}
+		p.Angle = float64(v)
+
+	case "layer":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to layer using type %T", val)
+		}
+		p.Layer = string(v)
+
+	case "width":
+		v, ok := val.(starlark.Float)
+		if !ok {
+			return fmt.Errorf("cannot assign to width using type %T", val)
+		}
+		p.Width = float64(v)
+
+	case "tstamp":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to tstamp using type %T", val)
+		}
+		p.Tstamp = string(v)
+
+	}
+
+	return errors.New("no such assignable field: " + name)
+}
+
+var MakeArc = starlark.NewBuiltin("Arc", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		f0 XY
+		f1 XY
+		f2 starlark.Float
+		f3 starlark.String
+		f4 starlark.String
+		f5 starlark.Float
+	)
+	unpackErr := starlark.UnpackArgs(
+		"Arc",
+		args,
+		kwargs,
+		"start?", &f0,
+		"end?", &f1,
+		"angle?", &f2,
+		"tstamp?", &f3,
+		"layer?", &f4,
+		"width?", &f5,
+	)
+	if unpackErr != nil {
+		return starlark.None, unpackErr
+	}
+	out := Arc{}
+
+	out.Start = f0
+	out.End = f1
+	out.Angle = float64(f2)
+	out.Tstamp = string(f3)
+	out.Layer = string(f4)
+	out.Width = float64(f5)
+	return &out, nil
+})
+
+func (p *Arc) String() string {
+	return fmt.Sprintf("Arc{%v, %v, %v, %v, %v, %v}", p.Start, p.End, p.Angle, p.Tstamp, p.Layer, p.Width)
+}
+
+// Type implements starlark.Value.
+func (p *Arc) Type() string {
+	return "Arc"
+}
+
+// Freeze implements starlark.Value.
+func (p *Arc) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *Arc) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *Arc) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(fmt.Sprintf("%+v", p)))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
+
+// Attr implements starlark.Value.
+func (p *Arc) Attr(name string) (starlark.Value, error) {
+	switch name {
+	case "start":
+		return &p.Start, nil
+
+	case "end":
+		return &p.End, nil
+
+	case "angle":
+		return starlark.Float(p.Angle), nil
+
+	case "tstamp":
+		return starlark.String(p.Tstamp), nil
+
+	case "layer":
+		return starlark.String(p.Layer), nil
+
+	case "width":
+		return starlark.Float(p.Width), nil
+	}
+
+	return nil, starlark.NoSuchAttrError(fmt.Sprintf("%s has no attribute %s", p.Type(), name))
+}
+
+// AttrNames implements starlark.Value.
+func (p *Arc) AttrNames() []string {
+	return []string{"start", "end", "angle", "tstamp", "layer", "width"}
+}
+
+// SetField implements starlark.HasSetField.
+func (p *Arc) SetField(name string, val starlark.Value) error {
+	switch name {
+	case "start":
+		v, ok := val.(*XY)
+		if !ok {
+			return fmt.Errorf("cannot assign to start using type %T", val)
+		}
+		p.Start = *v
+
+	case "end":
+		v, ok := val.(*XY)
+		if !ok {
+			return fmt.Errorf("cannot assign to end using type %T", val)
+		}
+		p.End = *v
+
+	case "angle":
+		v, ok := val.(starlark.Float)
+		if !ok {
+			return fmt.Errorf("cannot assign to angle using type %T", val)
+		}
+		p.Angle = float64(v)
+
+	case "tstamp":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to tstamp using type %T", val)
+		}
+		p.Tstamp = string(v)
+
+	case "layer":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to layer using type %T", val)
+		}
+		p.Layer = string(v)
+
+	case "width":
+		v, ok := val.(starlark.Float)
+		if !ok {
+			return fmt.Errorf("cannot assign to width using type %T", val)
+		}
+		p.Width = float64(v)
+
+	}
+
+	return errors.New("no such assignable field: " + name)
+}
+
+var MakeText = starlark.NewBuiltin("Text", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		f0 starlark.String
+		f1 starlark.String
+		f2 starlark.String
+		f3 XYZ
+		f4 starlark.Bool
+		f5 TextEffects
+		f6 starlark.Bool
+	)
+	unpackErr := starlark.UnpackArgs(
+		"Text",
+		args,
+		kwargs,
+		"text?", &f0,
+		"layer?", &f1,
+		"tstamp?", &f2,
+		"at?", &f3,
+		"unlocked?", &f4,
+		"effects?", &f5,
+		"hidden?", &f6,
+	)
+	if unpackErr != nil {
+		return starlark.None, unpackErr
+	}
+	out := Text{}
+
+	out.Text = string(f0)
+	out.Layer = string(f1)
+	out.Tstamp = string(f2)
+	out.At = f3
+	out.Unlocked = bool(f4)
+	out.Effects = f5
+	out.Hidden = bool(f6)
+	return &out, nil
+})
+
+func (p *Text) String() string {
+	return fmt.Sprintf("Text{%v, %v, %v, %v, %v, %v, %v}", p.Text, p.Layer, p.Tstamp, p.At, p.Unlocked, p.Effects, p.Hidden)
+}
+
+// Type implements starlark.Value.
+func (p *Text) Type() string {
+	return "Text"
+}
+
+// Freeze implements starlark.Value.
+func (p *Text) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p *Text) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (p *Text) Hash() (uint32, error) {
+	h := sha256.Sum256([]byte(fmt.Sprintf("%+v", p)))
+	return uint32(uint32(h[0]) + uint32(h[1])<<8 + uint32(h[2])<<16 + uint32(h[3])<<24), nil
+}
+
+// Attr implements starlark.Value.
+func (p *Text) Attr(name string) (starlark.Value, error) {
+	switch name {
+	case "text":
+		return starlark.String(p.Text), nil
+
+	case "layer":
+		return starlark.String(p.Layer), nil
+
+	case "tstamp":
+		return starlark.String(p.Tstamp), nil
+
+	case "at":
+		return &p.At, nil
+
+	case "unlocked":
+		return starlark.Bool(p.Unlocked), nil
+
+	case "effects":
+		return &p.Effects, nil
+
+	case "hidden":
+		return starlark.Bool(p.Hidden), nil
+	}
+
+	return nil, starlark.NoSuchAttrError(fmt.Sprintf("%s has no attribute %s", p.Type(), name))
+}
+
+// AttrNames implements starlark.Value.
+func (p *Text) AttrNames() []string {
+	return []string{"text", "layer", "tstamp", "at", "unlocked", "effects", "hidden"}
+}
+
+// SetField implements starlark.HasSetField.
+func (p *Text) SetField(name string, val starlark.Value) error {
+	switch name {
+	case "text":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to text using type %T", val)
+		}
+		p.Text = string(v)
+
+	case "layer":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to layer using type %T", val)
+		}
+		p.Layer = string(v)
+
+	case "tstamp":
+		v, ok := val.(starlark.String)
+		if !ok {
+			return fmt.Errorf("cannot assign to tstamp using type %T", val)
+		}
+		p.Tstamp = string(v)
+
+	case "at":
+		v, ok := val.(*XYZ)
+		if !ok {
+			return fmt.Errorf("cannot assign to at using type %T", val)
+		}
+		p.At = *v
+
+	case "unlocked":
+		v, ok := val.(starlark.Bool)
+		if !ok {
+			return fmt.Errorf("cannot assign to unlocked using type %T", val)
+		}
+		p.Unlocked = bool(v)
+
+	case "effects":
+		v, ok := val.(*TextEffects)
+		if !ok {
+			return fmt.Errorf("cannot assign to effects using type %T", val)
+		}
+		p.Effects = *v
+
+	case "hidden":
+		v, ok := val.(starlark.Bool)
+		if !ok {
+			return fmt.Errorf("cannot assign to hidden using type %T", val)
+		}
+		p.Hidden = bool(v)
+
+	}
+
+	return errors.New("no such assignable field: " + name)
+}

@@ -30,6 +30,13 @@ var (
 		"ModGraphic":   pcb.MakeModGraphic,
 		"PadOptions":   pcb.MakePadOptions,
 		"Pad":          pcb.MakePad,
+		// PCB
+		"PCB":   pcb.MakePCB,
+		"Line":  pcb.MakeLine,
+		"Arc":   pcb.MakeArc,
+		"Text":  pcb.MakeText,
+		"Track": pcb.MakeTrack,
+		"Via":   pcb.MakeVia,
 		// builtins in own namespace
 		"math":         starlarkstruct.FromStringDict(starlarkstruct.Default, mathBuiltins),
 		"layers":       starlarkstruct.FromStringDict(starlarkstruct.Default, layers),

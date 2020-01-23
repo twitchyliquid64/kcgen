@@ -203,7 +203,11 @@ func DecodeFile(fpath string) (*PCB, error) {
 	if err != nil {
 		return nil, err
 	}
+	return Decode(f)
+}
 
+// Decode parses the provided kicad_pcb content.
+func Decode(f []byte) (*PCB, error) {
 	ast, err := sexp.Parse(strings.NewReader(string(f)), nil)
 	if err != nil {
 		return nil, err
