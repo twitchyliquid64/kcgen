@@ -309,7 +309,7 @@
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
                 <property name="hexpand">True</property>
-                <property name="label" translatable="yes">Press CTRL-R to render a preview, and CTRL-X / CTRL-Q to switch to console and preview tabs respectively.</property>
+                <property name="label" translatable="yes">Press CTRL-R to render a preview, and CTRL 1-3 to switch between different output tabs.</property>
               </object>
               <packing>
                 <property name="position">0</property>

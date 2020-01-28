@@ -139,9 +139,12 @@ func (c *Controller) onTextChange() {
 	c.win.flushState()
 }
 
+func (c *Controller) ShowPreview() {
+	c.win.tabs.SetCurrentPage(0)
+}
 func (c *Controller) ShowConsole() {
 	c.win.tabs.SetCurrentPage(1)
 }
-func (c *Controller) ShowPreview() {
-	c.win.tabs.SetCurrentPage(0)
+func (c *Controller) ShowOutput() {
+	c.win.tabs.SetCurrentPage(2)
 }

@@ -119,11 +119,14 @@ func (w *Win) setupKeyBindings() error {
 	// TODO: Refactor this into some configurable mapping.
 	w.win.Connect("key-press-event", func(win *gtk.Window, ev *gdk.Event) {
 		keyEvent := &gdk.EventKey{ev}
-		if keyEvent.KeyVal() == gdk.KEY_x && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
+		if keyEvent.KeyVal() == gdk.KEY_1 && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
+			w.Controller.ShowPreview()
+		}
+		if keyEvent.KeyVal() == gdk.KEY_2 && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
 			w.Controller.ShowConsole()
 		}
-		if keyEvent.KeyVal() == gdk.KEY_q && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
-			w.Controller.ShowPreview()
+		if keyEvent.KeyVal() == gdk.KEY_3 && keyEvent.State()&gdk.GDK_CONTROL_MASK != 0 {
+			w.Controller.ShowOutput()
 		}
 	})
 	return nil
