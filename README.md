@@ -113,7 +113,7 @@ For a full list of Starlark constructs and builtin functions, please refer to th
 
 | Constant   |         |       |
 | ---------- | ------- | ----- |
-| `layers`   | Gives easy access to all the layer names, and the set of layer names typically used for smd & th pads. | layers.front.copper<br>layers.front.fab<br>layers.front.silkscreen<br>layers.front.courtyard<br>layers.front.paste<br>layers.back...<br><br>layers.smd<br>layers.th |
+| `layers`   | Gives easy access to all the layer names, and the set of layer names typically used for smd & th pads. | layers.front.copper<br>layers.front.fab<br>layers.front.silkscreen<br>layers.front.courtyard<br>layers.front.paste<br>layers.back...<br><br>layers.smd<br>layers.th<br>layers.edge |
 | `shape`    | Different kinds of pad shapes. | shape.rect<br>shape.circle<br>shape.oval<br>shape.round_rect |
 | `defaults` | Typical values used as a default by KiCad | defaults.width<br>defaults.thickness<br>defaults.clearance |
 | `pad`      | Different kinds of pad. | pad.through_hole<br>pad.np_through_hole<br>pad.smd |
@@ -147,7 +147,6 @@ load("mod.lib", m="graphics")
 | `graphics.arc()` | Draws an arc. | `m.arc(center=XY(), end=XY(5), angle=45.0)` |
 | `graphics.filter()` | Filters out graphical with a certain type from a list of graphical elements. | `m.filter(graphics_list, filter="fp_text")` - Gets rid of all text graphics from `graphics_list`, returning a new list. |
 
-
 ##### Pads
 
 ```python
@@ -160,6 +159,18 @@ load("mod.lib", p="pads")
 | `pads.th()`   | Generates a through-hole pad. | `pads.th("2", center = XY(4, 3))` - Generates a pad called _2_ at `XY(4,3)`. <br><br>The drill defaults to `XY(1,1)` and pad size to `XY(1.7,1.7)`. |
 | `pads.smd()` | Generates a surface-mount pad. | `p.smd("1", center = XY(1,3))` - Creates a smd pad at `XY(1,3)`.<br><br>The size defaults to `XY(1.4, 1.8)` and the shape to a rectangle. |
 
+
+#### `pcb.lib`
+
+`pcb.lib` has shorthands for generating elements for PCBs.
+
+```python
+load("pcb.lib", "pcb")
+```
+
+| Function      | Description   | Example |
+| ------------- | ------------- | ------- |
+| `pcb.line()`  | Places a line.<br>You can also specify `layer` and `width` attributes. | `pcb.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
 
 #### `draw.lib`
 

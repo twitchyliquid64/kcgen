@@ -3300,8 +3300,8 @@ func (p *PCB) SetField(name string, val starlark.Value) error {
 
 var MakeLine = starlark.NewBuiltin("Line", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
-		f1 XY
+		f0 *XY
+		f1 *XY
 		f2 starlark.Float
 		f3 starlark.String
 		f4 starlark.Float
@@ -3323,8 +3323,12 @@ var MakeLine = starlark.NewBuiltin("Line", func(t *starlark.Thread, f *starlark.
 	}
 	out := Line{}
 
-	out.Start = f0
-	out.End = f1
+	if f0 != nil {
+		out.Start = *f0
+	}
+	if f1 != nil {
+		out.End = *f1
+	}
 	out.Angle = float64(f2)
 	out.Layer = string(f3)
 	out.Width = float64(f4)

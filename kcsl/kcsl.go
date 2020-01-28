@@ -87,6 +87,7 @@ var (
 			starlark.String(kcgen.LayerAllCopper.Strictname()),
 			starlark.String(kcgen.LayerAllMask.Strictname()),
 		}),
+		"edge": starlark.String(kcgen.LayerEdgeCuts.Strictname()),
 	}
 
 	zci = pcb.ZoneConnectInherited

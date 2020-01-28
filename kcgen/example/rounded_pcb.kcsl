@@ -1,0 +1,5 @@
+load("shapes.lib", "shapes")
+load("draw.lib", "draw")
+
+
+[print(x) for x in draw.pcb.outline(shapes.box(3,3, rounded_radius=1))]
