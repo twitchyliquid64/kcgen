@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
@@ -75,7 +76,9 @@ func (w *Win) build() error {
 		return err
 	}
 	open.(*gtk.ToolButton).Connect("clicked", func() {
-		// TODO: Implement Open dialog.
+		if err := w.Controller.Open(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to open file: %v\n", err)
+		}
 	})
 	save, err := b.GetObject("save_button")
 	if err != nil {

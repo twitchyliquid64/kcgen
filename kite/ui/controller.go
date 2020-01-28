@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gotk3/gotk3/glib"
+	"github.com/gotk3/gotk3/gtk"
 	"github.com/twitchyliquid64/kcgen/kcsl"
 	"github.com/twitchyliquid64/kcgen/kite/ui/editor"
 	"github.com/twitchyliquid64/kcgen/kite/ui/preview"
@@ -57,18 +58,18 @@ func (c *Controller) Render() {
 	}
 	defer script.Close()
 
+	var buff bytes.Buffer
 	if m := script.Mod(); m != nil {
 		c.preview.Render(m)
-		var buff bytes.Buffer
 		if err := m.WriteModule(&buff); err != nil {
 			fmt.Fprintf(os.Stderr, "WriteModule() failed: %v\n", err)
 			logScriptErr(err)
 			return
 		}
-
-		b, _ := c.win.output.GetBuffer()
-		b.SetText(buff.String())
 	}
+
+	b, _ := c.win.output.GetBuffer()
+	b.SetText(buff.String())
 }
 
 func (c *Controller) Save() {
@@ -80,6 +81,53 @@ func (c *Controller) Save() {
 			c.win.Model.dirty = false
 			c.win.flushState()
 		}
+	} else {
+		if err := c.SaveAs(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed save as: %v\n", err)
+		}
+	}
+}
+
+func (c *Controller) SaveAs() error {
+	dl, err := gtk.FileChooserDialogNewWith2Buttons("Save As", c.win.win, gtk.FILE_CHOOSER_ACTION_SAVE, "Cancel", gtk.RESPONSE_CANCEL, "Save", gtk.RESPONSE_OK)
+	if err != nil {
+		return err
+	}
+	defer dl.Destroy()
+
+	resp := dl.Run()
+	switch resp {
+	case gtk.RESPONSE_CANCEL:
+		return nil
+	case gtk.RESPONSE_OK:
+		if fn := dl.GetFilename(); fn != "" {
+			c.win.Model.scriptPath = fn
+			c.Save()
+		}
+		return nil
+	default:
+		return fmt.Errorf("unknown dialog response: %v", resp)
+	}
+}
+
+func (c *Controller) Open() error {
+	dl, err := gtk.FileChooserDialogNewWith2Buttons("Open script", c.win.win, gtk.FILE_CHOOSER_ACTION_SAVE, "Cancel", gtk.RESPONSE_CANCEL, "Open", gtk.RESPONSE_OK)
+	if err != nil {
+		return err
+	}
+	defer dl.Destroy()
+
+	resp := dl.Run()
+	switch resp {
+	case gtk.RESPONSE_CANCEL:
+		return nil
+	case gtk.RESPONSE_OK:
+		if fn := dl.GetFilename(); fn != "" {
+			return c.LoadFromFile(fn)
+		}
+		return nil
+	default:
+		return fmt.Errorf("unknown dialog response: %v", resp)
 	}
 }
 
