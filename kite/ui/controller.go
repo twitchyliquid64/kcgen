@@ -59,8 +59,15 @@ func (c *Controller) Render() {
 	defer script.Close()
 
 	var buff bytes.Buffer
-	if m := script.Mod(); m != nil {
-		c.preview.Render(m)
+	if p := script.Pcb(); p != nil {
+		c.preview.RenderPCB(p)
+		if err := p.Write(&buff); err != nil {
+			fmt.Fprintf(os.Stderr, "Write() failed: %v\n", err)
+			logScriptErr(err)
+			return
+		}
+	} else if m := script.Mod(); m != nil {
+		c.preview.RenderMod(m)
 		if err := m.WriteModule(&buff); err != nil {
 			fmt.Fprintf(os.Stderr, "WriteModule() failed: %v\n", err)
 			logScriptErr(err)

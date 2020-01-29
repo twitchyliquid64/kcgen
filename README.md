@@ -150,7 +150,7 @@ load("mod.lib", m="graphics")
 ##### Pads
 
 ```python
-load("mod.lib", p="pads")
+load("mod.lib", "pads")
 # You can now call pad functions like p.blah.
 ```
 
@@ -165,16 +165,27 @@ load("mod.lib", p="pads")
 `pcb.lib` has shorthands for generating elements for PCBs.
 
 ```python
-load("pcb.lib", "pcb")
+load("pcb.lib", p="pcb")
 ```
 
-| Function      | Description   | Example |
-| ------------- | ------------- | ------- |
-| `pcb.line()`  | Places a line.<br>You can also specify `layer` and `width` attributes. | `pcb.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
+| Function      | Description                                                            | Example |
+| ------------- | ---------------------------------------------------------------------- | ------- |
+| `p.line()`    | Places a line.<br>You can also specify `layer` and `width` attributes. | `pcb.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
+| `p.arc()`     | Draws an arc.<br>You can also specify `layer` and `width` attributes.  | `pcb.arc(center=XY(), end=XY(5), angle=45.0, layer = layer.edge)` |
+| `p.text()`    | Draws text on the PCB.                                                 |         |
 
 #### `draw.lib`
 
-TODO
+`draw.lib` has drawing shorthands.
+
+```python
+load("draw.lib", "draw")
+```
+
+| Function                | Description   | Example |
+| ----------------------- | ------------- | ------- |
+| `draw.mod.outline()`    | Returns the set of lines which fully connect the given points.<br>You can also specify `layer` and `width` attributes. |  |
+| `draw.pcb.outline()`    | Returns the set of lines which fully connect the given points.<br>You can also specify `layer` and `width` attributes. |  |
 
 
 #### `flatten.lib`

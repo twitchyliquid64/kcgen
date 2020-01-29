@@ -11,9 +11,17 @@ import (
 	"github.com/twitchyliquid64/kcgen/pcb"
 )
 
-// Render is called to provide a module to the previewer and start the preview.
-func (p *Preview) Render(mod *pcb.Module) {
+// RenderMod is called to provide a module to the previewer and start the preview.
+func (p *Preview) RenderMod(mod *pcb.Module) {
 	p.mod = mod
+	p.pcb = nil
+	p.canvas.QueueDraw()
+}
+
+// RenderPCB is called to provide a pcb to the previewer and start the preview.
+func (p *Preview) RenderPCB(pcb *pcb.PCB) {
+	p.pcb = pcb
+	p.mod = nil
 	p.canvas.QueueDraw()
 }
 

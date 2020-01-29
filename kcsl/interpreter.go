@@ -161,3 +161,13 @@ func (s *Script) Mod() *pcb.Module {
 	}
 	return nil
 }
+
+// Pcb returns a generated PCB, if applicable.
+func (s *Script) Pcb() *pcb.PCB {
+	if p, ok := s.globals["pcb"]; ok {
+		if pcb, ok := p.(*pcb.PCB); ok {
+			return pcb
+		}
+	}
+	return nil
+}

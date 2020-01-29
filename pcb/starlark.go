@@ -3442,8 +3442,8 @@ func (p *Line) SetField(name string, val starlark.Value) error {
 
 var MakeArc = starlark.NewBuiltin("Arc", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
-		f1 XY
+		f0 *XY
+		f1 *XY
 		f2 starlark.Float
 		f3 starlark.String
 		f4 starlark.String
@@ -3465,8 +3465,12 @@ var MakeArc = starlark.NewBuiltin("Arc", func(t *starlark.Thread, f *starlark.Bu
 	}
 	out := Arc{}
 
-	out.Start = f0
-	out.End = f1
+	if f0 != nil {
+		out.Start = *f0
+	}
+	if f1 != nil {
+		out.End = *f1
+	}
 	out.Angle = float64(f2)
 	out.Tstamp = string(f3)
 	out.Layer = string(f4)
@@ -3583,9 +3587,9 @@ var MakeText = starlark.NewBuiltin("Text", func(t *starlark.Thread, f *starlark.
 		f0 starlark.String
 		f1 starlark.String
 		f2 starlark.String
-		f3 XYZ
+		f3 *XYZ
 		f4 starlark.Bool
-		f5 TextEffects
+		f5 *TextEffects
 		f6 starlark.Bool
 	)
 	unpackErr := starlark.UnpackArgs(
@@ -3608,9 +3612,13 @@ var MakeText = starlark.NewBuiltin("Text", func(t *starlark.Thread, f *starlark.
 	out.Text = string(f0)
 	out.Layer = string(f1)
 	out.Tstamp = string(f2)
-	out.At = f3
+	if f3 != nil {
+		out.At = *f3
+	}
 	out.Unlocked = bool(f4)
-	out.Effects = f5
+	if f5 != nil {
+		out.Effects = *f5
+	}
 	out.Hidden = bool(f6)
 	return &out, nil
 })

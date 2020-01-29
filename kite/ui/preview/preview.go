@@ -14,6 +14,7 @@ import (
 type Preview struct {
 	canvas *gtk.DrawingArea
 	mod    *pcb.Module
+	pcb    *pcb.PCB
 
 	zoom             float64
 	offsetX, offsetY float64
