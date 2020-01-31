@@ -6,6 +6,7 @@ load("pcb.lib", p="pcb")
 #print(p.arc(layer = layers.edge))
 
 pcb = PCB(
-	drawings=[p.text(content = "yolo")],
-	segments=[p.arc(), p.line()],
+	# drawings=[p.text(content = "yolo")],
+	drawings = [p.line()],
 )
+print(pcb.segments)

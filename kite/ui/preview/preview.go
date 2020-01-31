@@ -40,7 +40,14 @@ func (p *Preview) onCanvasDrawEvent(da *gtk.DrawingArea, cr *cairo.Context) bool
 	cr.Translate(float64(p.width/2)+p.offsetX, float64(p.height/2)+p.offsetY)
 	cr.Scale(p.zoom, p.zoom)
 
-	if p.mod != nil {
+	if p.pcb != nil {
+		if err := renderPCB(p.pcb, modRenderOptions{
+			Width:  p.width,
+			Height: p.height,
+		}, da, cr); err != nil {
+			fmt.Fprintf(os.Stderr, "Render failed: %v\n", err)
+		}
+	} else if p.mod != nil {
 		if err := renderModule(p.mod, modRenderOptions{
 			Width:  p.width,
 			Height: p.height,

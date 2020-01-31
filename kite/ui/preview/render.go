@@ -57,6 +57,8 @@ func (o modRenderOptions) GetLayerColor(layer string) (r, g, b float64) {
 		return 132.0 / 255, 0, 0
 	case kcgen.LayerFrontSilkscreen.Strictname():
 		return 0, 132.0 / 255, 132.0 / 255
+	case kcgen.LayerEdgeCuts.Strictname():
+		return 132.0 / 255, 132.0 / 255, 0
 	}
 
 	return 1, 1, 1
@@ -66,11 +68,48 @@ func (o modRenderOptions) GetColorFromLayers(l []string) (r, g, b float64) {
 	return 132.0 / 255, 0, 0
 }
 
+func renderPCB(board *pcb.PCB, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+	for _, graphic := range board.Drawings {
+		switch g := graphic.(type) {
+		case *pcb.Line:
+			if err := renderLine(lineOpts{
+				width: g.Width,
+				start: g.Start,
+				end:   g.End,
+				layer: g.Layer,
+			}, opts, da, cr); err != nil {
+				return fmt.Errorf("rendering line: %v", err)
+			}
+
+		case *pcb.Arc:
+			if err := renderArc(arcOpts{
+				width: g.Width,
+				start: g.Start,
+				end:   g.End,
+				angle: g.Angle,
+				layer: g.Layer,
+			}, opts, da, cr); err != nil {
+				return fmt.Errorf("rendering arc: %v", err)
+			}
+		default:
+			fmt.Printf("Cannot render: %v (%+v)\n", g, g)
+		}
+	}
+
+	return nil
+}
+
 func renderModule(mod *pcb.Module, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
 	for _, graphic := range mod.Graphics {
 		switch graphic.Ident {
 		case "fp_line":
-			if err := renderLine(graphic.Renderable.(*pcb.ModLine), opts, da, cr); err != nil {
+			ml := graphic.Renderable.(*pcb.ModLine)
+			if err := renderLine(lineOpts{
+				width: ml.Width,
+				start: ml.Start,
+				end:   ml.End,
+				layer: ml.Layer,
+			}, opts, da, cr); err != nil {
 				return fmt.Errorf("rendering line: %v", err)
 			}
 		case "fp_poly":
@@ -78,11 +117,25 @@ func renderModule(mod *pcb.Module, opts modRenderOptions, da *gtk.DrawingArea, c
 				return fmt.Errorf("rendering polygon: %v", err)
 			}
 		case "fp_circle":
-			if err := renderCircle(graphic.Renderable.(*pcb.ModCircle), opts, da, cr); err != nil {
+			mc := graphic.Renderable.(*pcb.ModCircle)
+
+			if err := renderCircle(circleOpts{
+				width:  mc.Width,
+				center: mc.Center,
+				end:    mc.End,
+				layer:  mc.Layer,
+			}, opts, da, cr); err != nil {
 				return fmt.Errorf("rendering circle: %v", err)
 			}
 		case "fp_arc":
-			if err := renderArc(graphic.Renderable.(*pcb.ModArc), opts, da, cr); err != nil {
+			ma := graphic.Renderable.(*pcb.ModArc)
+			if err := renderArc(arcOpts{
+				width: ma.Width,
+				start: ma.Start,
+				end:   ma.End,
+				angle: ma.Angle,
+				layer: ma.Layer,
+			}, opts, da, cr); err != nil {
 				return fmt.Errorf("rendering arc: %v", err)
 			}
 		default:
@@ -98,13 +151,20 @@ func renderModule(mod *pcb.Module, opts modRenderOptions, da *gtk.DrawingArea, c
 	return nil
 }
 
-func renderLine(line *pcb.ModLine, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+type lineOpts struct {
+	width float64
+	start pcb.XY
+	end   pcb.XY
+	layer string
+}
+
+func renderLine(l lineOpts, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
 	cr.SetLineJoin(cairo.LINE_JOIN_ROUND)
 	cr.SetLineCap(cairo.LINE_CAP_ROUND)
-	cr.SetLineWidth(line.Width)
-	startX, startY := opts.ProjectXY(line.Start)
-	endX, endY := opts.ProjectXY(line.End)
-	r, g, b := opts.GetLayerColor(line.Layer)
+	cr.SetLineWidth(l.width)
+	startX, startY := opts.ProjectXY(l.start)
+	endX, endY := opts.ProjectXY(l.end)
+	r, g, b := opts.GetLayerColor(l.layer)
 	cr.SetSourceRGB(r, g, b)
 
 	if curX, curY := cr.GetCurrentPoint(); startX != curX || startY != curY {
@@ -116,32 +176,47 @@ func renderLine(line *pcb.ModLine, opts modRenderOptions, da *gtk.DrawingArea, c
 	return nil
 }
 
-func renderCircle(c *pcb.ModCircle, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+type circleOpts struct {
+	width  float64
+	center pcb.XY
+	end    pcb.XY
+	layer  string
+}
+
+func renderCircle(c circleOpts, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
 	cr.SetLineJoin(cairo.LINE_JOIN_ROUND)
 	cr.SetLineCap(cairo.LINE_CAP_ROUND)
-	cr.SetLineWidth(c.Width)
+	cr.SetLineWidth(c.width)
 
-	centerX, centerY := opts.ProjectXY(c.Center)
-	radius := math.Sqrt(math.Pow(c.Center.X-c.End.X, 2) + math.Pow(c.Center.Y-c.End.Y, 2))
-	r, g, b := opts.GetLayerColor(c.Layer)
+	centerX, centerY := opts.ProjectXY(c.center)
+	radius := math.Sqrt(math.Pow(c.center.X-c.end.X, 2) + math.Pow(c.center.Y-c.end.Y, 2))
+	r, g, b := opts.GetLayerColor(c.layer)
 	cr.SetSourceRGB(r, g, b)
 	cr.Arc(centerX, centerY, radius, 0, math.Pi*2)
 	cr.Stroke()
 	return nil
 }
 
-func renderArc(a *pcb.ModArc, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+type arcOpts struct {
+	width float64
+	start pcb.XY
+	end   pcb.XY
+	angle float64
+	layer string
+}
+
+func renderArc(a arcOpts, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
 	cr.SetLineJoin(cairo.LINE_JOIN_ROUND)
 	cr.SetLineCap(cairo.LINE_CAP_ROUND)
-	cr.SetLineWidth(a.Width)
+	cr.SetLineWidth(a.width)
 
-	startX, startY := opts.ProjectXY(a.Start)
-	endX, endY := opts.ProjectXY(a.End)
+	startX, startY := opts.ProjectXY(a.start)
+	endX, endY := opts.ProjectXY(a.end)
 	radius := math.Sqrt(math.Pow(startX-endX, 2) + math.Pow(startY-endY, 2))
 	startAngle := math.Atan2(endY-startY, endX-startX)
-	endAngle := startAngle + (a.Angle * math.Pi / 180)
+	endAngle := startAngle + (a.angle * math.Pi / 180)
 
-	r, g, b := opts.GetLayerColor(a.Layer)
+	r, g, b := opts.GetLayerColor(a.layer)
 	cr.SetSourceRGB(r, g, b)
 	cr.Arc(startX, startY, radius, startAngle, endAngle)
 	cr.Stroke()
