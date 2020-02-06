@@ -96,6 +96,36 @@ func renderPCB(board *pcb.PCB, opts modRenderOptions, da *gtk.DrawingArea, cr *c
 		}
 	}
 
+	for _, segment := range board.Segments {
+		switch s := segment.(type) {
+		case *pcb.Via:
+			if err := renderVia(s, opts, da, cr); err != nil {
+				return fmt.Errorf("rendering via: %v", err)
+			}
+		default:
+			fmt.Printf("Cannot render: %v (%+v)\n", s, s)
+		}
+	}
+
+	return nil
+}
+
+func renderVia(via *pcb.Via, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+	size := via.Size - padClearance
+	centerX, centerY := opts.ProjectXY(via.At)
+	r, g, b := 90.0/255, 90.0/255, 90.0/255
+	cr.SetSourceRGB(r, g, b)
+
+	cr.Scale(1/size, 1/size)
+	defer cr.Scale(1, 1)
+	cr.NewPath()
+	cr.Arc(centerX, centerY, size/2, 0, math.Pi*2)
+	cr.Fill()
+
+	r, g, b = 105.0/255, 100.0/255, 0
+	cr.SetSourceRGB(r, g, b)
+	cr.Arc(centerX, centerY, via.Drill/2, 0, math.Pi*2)
+	cr.Fill()
 	return nil
 }
 

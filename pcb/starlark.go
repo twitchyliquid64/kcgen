@@ -229,7 +229,7 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 
 var MakeVia = starlark.NewBuiltin("Via", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
+		f0 *XY
 		f1 starlark.Float
 		f2 starlark.Float
 		f3 *starlark.List
@@ -252,7 +252,9 @@ var MakeVia = starlark.NewBuiltin("Via", func(t *starlark.Thread, f *starlark.Bu
 	}
 	out := Via{}
 
-	out.At = f0
+	if f0 != nil {
+		out.At = *f0
+	}
 	out.Size = float64(f1)
 	out.Drill = float64(f2)
 	if f3 != nil {

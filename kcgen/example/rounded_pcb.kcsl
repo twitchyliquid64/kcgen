@@ -8,5 +8,6 @@ load("pcb.lib", p="pcb")
 pcb = PCB(
 	# drawings=[p.text(content = "yolo")],
 	drawings = [p.line()],
+	segments = [p.via(XY(2,2))],
 )
 print(pcb.segments)

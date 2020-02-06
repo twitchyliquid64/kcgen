@@ -1,6 +1,17 @@
 package lib
 
 var pcbLib = []byte(`
+# mk_via returns a PCB via with the specified parameters.
+def mk_via(at=XY(), size = 0.8, drill = 0.4, layers=[layers.front.copper,layers.back.copper], net=1):
+    return Via(
+        at = at,
+        size = size,
+        drill = drill,
+        layers = layers,
+        net_index = net,
+    )
+
+
 # mk_line returns a PCB line with the specified parameters.
 def mk_line(start=XY(), end=XY(), layer=layers.edge, width=defaults.width):
     return Line(
@@ -34,5 +45,6 @@ pcb = struct(
     line = mk_line,
     arc  = mk_arc,
     text = mk_text,
+    via  = mk_via,
 )
 `)
