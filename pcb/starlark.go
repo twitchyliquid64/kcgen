@@ -395,8 +395,8 @@ func (p *Via) SetField(name string, val starlark.Value) error {
 
 var MakeTrack = starlark.NewBuiltin("Track", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		f0 XY
-		f1 XY
+		f0 *XY
+		f1 *XY
 		f2 starlark.Float
 		f3 starlark.String
 		f4 starlark.Int
@@ -420,8 +420,12 @@ var MakeTrack = starlark.NewBuiltin("Track", func(t *starlark.Thread, f *starlar
 	}
 	out := Track{}
 
-	out.Start = f0
-	out.End = f1
+	if f0 != nil {
+		out.Start = *f0
+	}
+	if f1 != nil {
+		out.End = *f1
+	}
 	out.Width = float64(f2)
 	out.Layer = string(f3)
 
@@ -2668,7 +2672,7 @@ func (p *ModPlacement) SetField(name string, val starlark.Value) error {
 var MakeModule = starlark.NewBuiltin("Module", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
 		f0  starlark.String
-		f1  ModPlacement
+		f1  *ModPlacement
 		f2  starlark.Bool
 		f3  starlark.Bool
 		f4  starlark.String
@@ -2717,7 +2721,9 @@ var MakeModule = starlark.NewBuiltin("Module", func(t *starlark.Thread, f *starl
 	out := Module{}
 
 	out.Name = string(f0)
-	out.Placement = f1
+	if f1 != nil {
+		out.Placement = *f1
+	}
 	out.Placed = bool(f2)
 	out.Locked = bool(f3)
 	out.Layer = string(f4)

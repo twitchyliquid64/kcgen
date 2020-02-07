@@ -1,6 +1,16 @@
 package lib
 
 var pcbLib = []byte(`
+# mk_track returns a PCB track with the specified parameters.
+def mk_track(start = XY(), end = XY(), width = 0.25, layer=layers.front.copper, net=1):
+    return Track(
+        start = start,
+        end = end,
+        width = width,
+        layer = layer,
+        net_index = net,
+    )
+
 # mk_via returns a PCB via with the specified parameters.
 def mk_via(at=XY(), size = 0.8, drill = 0.4, layers=[layers.front.copper,layers.back.copper], net=1):
     return Via(
@@ -10,7 +20,6 @@ def mk_via(at=XY(), size = 0.8, drill = 0.4, layers=[layers.front.copper,layers.
         layers = layers,
         net_index = net,
     )
-
 
 # mk_line returns a PCB line with the specified parameters.
 def mk_line(start=XY(), end=XY(), layer=layers.edge, width=defaults.width):
@@ -42,9 +51,10 @@ def mk_text(pos=XYZ(), layer=layers.front.silkscreen, size=XY(1,1), thickness=de
     )
 
 pcb = struct(
-    line = mk_line,
-    arc  = mk_arc,
-    text = mk_text,
-    via  = mk_via,
+    line  = mk_line,
+    arc   = mk_arc,
+    text  = mk_text,
+    via   = mk_via,
+    track = mk_track,
 )
 `)

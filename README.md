@@ -173,6 +173,8 @@ load("pcb.lib", p="pcb")
 | `p.line()`    | Places a line.<br>You can also specify `layer` and `width` attributes. | `pcb.line(start=XY(), end=XY(2,2))` - Add a line from `XY(0,0)` to `XY(2,2)`. |
 | `p.arc()`     | Draws an arc.<br>You can also specify `layer` and `width` attributes.  | `pcb.arc(center=XY(), end=XY(5), angle=45.0, layer = layer.edge)` |
 | `p.text()`    | Draws text on the PCB.                                                 |         |
+| `p.via()`     | Places a via on the PCB.                                               |         |
+| `p.track()`   | Draws a track on the PCB.                                              |         |
 
 #### `draw.lib`
 

@@ -69,6 +69,9 @@ func (o modRenderOptions) GetColorFromLayers(l []string) (r, g, b float64) {
 }
 
 func renderPCB(board *pcb.PCB, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+	m := cr.GetMatrix()
+	defer cr.SetMatrix(m)
+
 	for _, graphic := range board.Drawings {
 		switch g := graphic.(type) {
 		case *pcb.Line:
@@ -102,8 +105,20 @@ func renderPCB(board *pcb.PCB, opts modRenderOptions, da *gtk.DrawingArea, cr *c
 			if err := renderVia(s, opts, da, cr); err != nil {
 				return fmt.Errorf("rendering via: %v", err)
 			}
+		case *pcb.Track:
+			if err := renderTrack(s, opts, da, cr); err != nil {
+				return fmt.Errorf("rendering track: %v", err)
+			}
 		default:
 			fmt.Printf("Cannot render: %v (%+v)\n", s, s)
+		}
+	}
+
+	for _, mod := range board.Modules {
+		cr.SetMatrix(m)
+		cr.Translate(mod.Placement.At.X, mod.Placement.At.Y)
+		if err := renderModule(&mod, opts, da, cr); err != nil {
+			return fmt.Errorf("rendering module in PCB: %v", err)
 		}
 	}
 
@@ -126,6 +141,25 @@ func renderVia(via *pcb.Via, opts modRenderOptions, da *gtk.DrawingArea, cr *cai
 	cr.SetSourceRGB(r, g, b)
 	cr.Arc(centerX, centerY, via.Drill/2, 0, math.Pi*2)
 	cr.Fill()
+	return nil
+}
+
+func renderTrack(t *pcb.Track, opts modRenderOptions, da *gtk.DrawingArea, cr *cairo.Context) error {
+	cr.SetLineWidth(t.Width)
+	var r, g, b float64
+	switch t.Layer {
+	case kcgen.LayerFrontCopper.Strictname():
+		r, g, b = 150.0/255.0, 0, 0
+	case kcgen.LayerBackCopper.Strictname():
+		r, g, b = 0, 150.0/255.0, 0
+	default:
+		r, g, b = 80.0/255.0, 80.0/255.0, 0
+	}
+	cr.SetSourceRGB(r, g, b)
+
+	cr.MoveTo(opts.ProjectXY(t.Start))
+	cr.LineTo(opts.ProjectXY(t.End))
+	cr.Stroke()
 	return nil
 }
 
