@@ -214,3 +214,4 @@ load("math.lib", "math")
 | `math.point_on_circle()` | Computes the point `radius` distance from `center`, at the angle denoted by `angle` in radians. | TODO |
 | `math.point_on_circle_degrees()` | Computes the point `radius` distance from `center`, at the angle denoted by `angle` in degrees. | TODO |
 | `math.point_arc()` | Computes the set of points which interpolate an arc from `start_angle` to `end_angle` (radians) around `center`, with a radius denoted by `radius`. | TODO |
+| `math.x_array_within()` | Computes `num_cols` number of XY positions between `width`, centered at `offset`. | TODO |

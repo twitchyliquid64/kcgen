@@ -25,10 +25,20 @@ def point_arc(center=XY(),
     for i in range(c)
   ] + [point_on_circle_degrees(center=center, radius=radius, angle=end_angle)]
 
+
+# x_array_within returns a list of points of len num_cols, where each point is
+# evenly distributed among the width with space on either side. Offset moves
+# the centerpoint of the points.
+def x_array_within(num_cols, width, offset):
+  spacing = width / (num_cols*2)
+  return [XY(spacing + offset.x - width/2 + 2 * i * spacing, offset.y) for i in range(num_cols)]
+
+
 m = struct(
   point_on_circle         = point_on_circle,
   point_on_circle_degrees = point_on_circle_degrees,
   point_arc               = point_arc,
+  x_array_within          = x_array_within,
 )
 
 `)

@@ -1,6 +1,7 @@
 load("shapes.lib", "shapes")
 load("draw.lib", "draw")
 load("mod.lib", "pads")
+load("math.lib", "x_array_within")
 load("pcb.lib", p="pcb")
 
 mount_dia = XY(3.1, 3.1)
@@ -23,9 +24,11 @@ def make_hole(x, y):
 		placement = ModPlacement(XYZ(x, y, 0)),
 	)
 
+print(x_array_within(num_cols,  size.x, XY(0, -size.y / 4)))
+
 pcb = PCB(
 	drawings = outline,
 	#segments = [p.via(XY(2,2)), p.track(end = XY(2,2))],
-	modules = [make_hole(start_holes_x + i*mount_size.x*2, -size.y / 4) for i in range(num_cols)] +
-		  [make_hole(start_holes_x + i*mount_size.x*2, +size.y / 4) for i in range(num_cols)],
+	modules = [make_hole(p.x, p.y) for p in x_array_within(num_cols,  size.x, XY(0, -size.y / 4))] +
+		  [make_hole(p.x, p.y) for p in x_array_within(num_cols,  size.x, XY(0, +size.y / 4))],
 )
