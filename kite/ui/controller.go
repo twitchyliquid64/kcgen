@@ -23,6 +23,26 @@ type Controller struct {
 	preview *preview.Preview
 }
 
+func (c *Controller) Exit() bool {
+	if c.win.Model.dirty {
+		d, _ := gtk.DialogNewWithButtons("Save before exiting?", c.win.win, gtk.DIALOG_MODAL, "Save changes", "Discard changes")
+		ca, _ := d.GetContentArea()
+		l, _ := gtk.LabelNew("Your script has changes that have not been saved. Would you like to save your changes?")
+		ca.PackStart(l, true, true, 2)
+		l.Show()
+
+		switch d.Run() {
+		case 0: // Save changes
+			c.Save()
+		case gtk.RESPONSE_DELETE_EVENT: // Cancel
+			return true
+		}
+	}
+
+	gtk.MainQuit()
+	return false
+}
+
 func (c *Controller) LoadFromFile(path string) error {
 	d, err := ioutil.ReadFile(path)
 	if err != nil {

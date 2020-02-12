@@ -108,7 +108,7 @@ func (w *Win) build() error {
 	})
 
 	w.win.SetDefaultSize(1000, 700)
-	w.win.Connect("destroy", gtk.MainQuit)
+	w.win.Connect("delete-event", w.Controller.Exit)
 	w.win.SetResizable(true)
 	w.win.ShowAll()
 
