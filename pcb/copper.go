@@ -3,6 +3,7 @@ package pcb
 import (
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/nsf/sexp"
 )
@@ -11,6 +12,10 @@ import (
 type XY struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
+}
+
+func (xy XY) Distance(xy2 XY) float64 {
+	return math.Sqrt(math.Pow(xy2.X-xy.X, 2) + math.Pow(xy2.Y-xy.Y, 2))
 }
 
 // XYX represents a point in 3d space.
