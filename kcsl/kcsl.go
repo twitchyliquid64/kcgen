@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/twitchyliquid64/kcgen"
+	"github.com/twitchyliquid64/kcgen/kcsl/adv"
 	"github.com/twitchyliquid64/kcgen/pcb"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -49,6 +50,15 @@ var (
 		// aux
 		"crash": starlark.NewBuiltin("crash", func(thread *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 			return nil, errors.New("soft crash: " + args[0].String())
+		}),
+		// region manipulation Carve
+		"carve": starlark.NewBuiltin("carve", func(thread *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+			var p *pcb.PCB
+			var from, to *pcb.XY
+			if err := starlark.UnpackArgs("carve", args, kwargs, "pcb", &p, "from", &from, "to", &to); err != nil {
+				return starlark.None, err
+			}
+			return p, adv.Carve(p, adv.MakeRegion(*from, *to))
 		}),
 		// textpoly
 		"TextPoly": makeTextPoly,

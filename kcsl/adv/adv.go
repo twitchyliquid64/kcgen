@@ -48,12 +48,16 @@ func (r Region) BottomBoundary() *pcb.Line {
 	}
 }
 
+func (r Region) Center() pcb.XY {
+	return pcb.XY{X: r.To.X - r.From.X, Y: r.To.Y - r.From.Y}
+}
+
 func (r Region) Within(p pcb.XY) bool {
 	return r.From.X <= p.X && r.To.X >= p.X &&
 		r.From.Y <= p.Y && r.To.Y >= p.Y
 }
 
-func makeRegion(p1, p2 pcb.XY) Region {
+func MakeRegion(p1, p2 pcb.XY) Region {
 	return Region{
 		From: pcb.XY{X: math.Min(p1.X, p2.X), Y: math.Min(p1.Y, p2.Y)},
 		To:   pcb.XY{X: math.Max(p1.X, p2.X), Y: math.Max(p1.Y, p2.Y)},
@@ -73,9 +77,9 @@ func Carve(p *pcb.PCB, region Region) error {
 		switch g := d.(type) {
 		case *pcb.Line:
 			var newLines []newLinePair
-			newLines, err = carveLine(g, region)
+			remove, newLines, err = carveLine(g, region)
+			// fmt.Println(g, region, newLines)
 			for _, line := range newLines {
-				remove = true
 				dupe := *g
 				dupe.Start = line.Start
 				dupe.End = line.End

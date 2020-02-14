@@ -76,14 +76,19 @@ func linesIntersect(l1, l2 *pcb.Line) bool {
 	p := linesIntercept(l1, l2)
 	// fmt.Printf("y1: %+v\ny2: %+v\np: %+v\n\n", l1, l2, p)
 	// Test if the point is between the bounds of the line.
-	return makeRegion(l1.Start, l1.End).Within(p) && makeRegion(l2.Start, l2.End).Within(p)
+	return MakeRegion(l1.Start, l1.End).Within(p) && MakeRegion(l2.Start, l2.End).Within(p)
 }
 
 type newLinePair struct {
 	Start, End pcb.XY
 }
 
-func carveLine(l *pcb.Line, re Region) ([]newLinePair, error) {
+func carveLine(l *pcb.Line, re Region) (bool, []newLinePair, error) {
+	if re.Within(l.Start) && re.Within(l.End) {
+		return true, nil, nil
+	}
+	c := re.Center()
+
 	cutPoints := make([]pcb.XY, 0, 4)
 	for _, bound := range []*pcb.Line{
 		re.TopBoundary(),
@@ -97,26 +102,26 @@ func carveLine(l *pcb.Line, re Region) ([]newLinePair, error) {
 		}
 	}
 	if len(cutPoints) == 0 {
-		return nil, nil
+		return false, nil, nil
 	}
 
 	switch len(cutPoints) {
 	case 1:
-		pt := cutPoints[0]
-		if pt.Distance(l.Start) < pt.Distance(l.End) {
-			return []newLinePair{{Start: pt, End: l.End}}, nil
+		if c.Distance(l.Start) < c.Distance(l.End) {
+			return true, []newLinePair{{Start: cutPoints[0], End: l.End}}, nil
 		}
-		return []newLinePair{newLinePair{Start: l.Start, End: pt}}, nil
+		return true, []newLinePair{newLinePair{Start: l.Start, End: cutPoints[0]}}, nil
 
 	case 2:
-		pt := cutPoints[0]
-		out := []newLinePair{newLinePair{Start: l.Start, End: cutPoints[0]}, newLinePair{Start: cutPoints[1], End: l.End}}
-		if pt.Distance(l.Start) < pt.Distance(l.End) {
-			out = []newLinePair{newLinePair{Start: cutPoints[0], End: l.End}, newLinePair{Start: cutPoints[1], End: l.End}}
+		p1, p2 := cutPoints[0], cutPoints[1]
+		out := []newLinePair{newLinePair{Start: l.Start, End: p1}, newLinePair{Start: p2, End: l.End}}
+		// TODO: Maybe the point ordering should be determined by distance to center point?
+		if p1.Distance(l.Start) < p1.Distance(l.End) {
+			out[0] = newLinePair{Start: p1, End: l.End}
 		}
-		return out, nil
+		return true, out, nil
 
 	default:
-		return nil, fmt.Errorf("cannot handle %d cutpoints", len(cutPoints))
+		return false, nil, fmt.Errorf("cannot handle %d cutpoints", len(cutPoints))
 	}
 }

@@ -24,11 +24,10 @@ def make_hole(x, y):
 		placement = ModPlacement(XYZ(x, y, 0)),
 	)
 
-print(x_array_within(num_cols,  size.x, XY(0, -size.y / 4)))
 
-pcb = PCB(
-	drawings = outline,
+pcb = carve(PCB(
+	drawings = outline + [p.line()],
 	#segments = [p.via(XY(2,2)), p.track(end = XY(2,2))],
 	modules = [make_hole(p.x, p.y) for p in x_array_within(num_cols,  size.x, XY(0, -size.y / 4))] +
 		  [make_hole(p.x, p.y) for p in x_array_within(num_cols,  size.x, XY(0, +size.y / 4))],
-)
+), XY(-21.9, 3), XY(25, 50))

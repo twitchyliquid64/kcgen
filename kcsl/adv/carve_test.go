@@ -8,11 +8,13 @@ import (
 )
 
 func TestCarveLines(t *testing.T) {
-	re := makeRegion(pcb.XY{X: 10, Y: 10}, pcb.XY{X: 50, Y: 50})
+	re := MakeRegion(pcb.XY{X: 10, Y: 10}, pcb.XY{X: 50, Y: 50})
+	altRegion1 := MakeRegion(pcb.XY{X: -21.9, Y: 3}, pcb.XY{X: 25, Y: 50})
 	tcs := []struct {
-		name     string
-		line     *pcb.Line
-		expected []newLinePair
+		name           string
+		overrideRegion *Region
+		line           *pcb.Line
+		expected       []newLinePair
 	}{
 		{
 			name:     "no intersect 1",
@@ -64,11 +66,31 @@ func TestCarveLines(t *testing.T) {
 			line:     &pcb.Line{End: pcb.XY{X: 30, Y: 80}, Start: pcb.XY{X: 30, Y: 40}},
 			expected: []newLinePair{{End: pcb.XY{X: 30, Y: 80}, Start: pcb.XY{X: 30, Y: 50}}},
 		},
+		{
+			name:     "cut 1",
+			line:     &pcb.Line{End: pcb.XY{X: 60, Y: 20}},
+			expected: []newLinePair{{End: pcb.XY{X: 30, Y: 10}}, {Start: pcb.XY{X: 50, Y: 16.666666666666664}, End: pcb.XY{X: 60, Y: 20}}},
+		},
+		{
+			name:     "cut 2",
+			line:     &pcb.Line{Start: pcb.XY{X: 60, Y: 20}},
+			expected: []newLinePair{{Start: pcb.XY{X: 60, Y: 20}, End: pcb.XY{X: 30, Y: 10}}, {Start: pcb.XY{X: 50, Y: 16.666666666666664}}},
+		},
+		{
+			name:           "within 1",
+			overrideRegion: &altRegion1, // XY(-21.9, 3), XY(25, 50)
+			line:           &pcb.Line{Start: pcb.XY{X: 22.5, Y: 8.5}, End: pcb.XY{X: -22.5, Y: 8.5}},
+			expected:       []newLinePair{{Start: pcb.XY{X: -21.9, Y: 8.5}, End: pcb.XY{X: -22.5, Y: 8.5}}},
+		},
 	}
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := carveLine(tc.line, re)
+			region := re
+			if tc.overrideRegion != nil {
+				region = *tc.overrideRegion
+			}
+			_, got, err := carveLine(tc.line, region)
 			if err != nil {
 				t.Fatalf("carveLine(%v) failed: %v", tc.line, err)
 			}
