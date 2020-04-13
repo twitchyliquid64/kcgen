@@ -24,10 +24,12 @@ type Win struct {
 
 	Model      WindowModel
 	Controller Controller
+
+	gladePath string
 }
 
 func (w *Win) build() error {
-	b, err := gtk.BuilderNewFromFile("kite/kite.glade")
+	b, err := gtk.BuilderNewFromFile(w.gladePath)
 	if err != nil {
 		return err
 	}
@@ -144,9 +146,10 @@ func (w *Win) flushState() {
 }
 
 // New creates and initializes a new KiTE window.
-func New() (*Win, error) {
+func New(gladePath string) (*Win, error) {
 	out := Win{
 		Controller: Controller{},
+		gladePath:  gladePath,
 	}
 	out.Controller.win = &out
 
