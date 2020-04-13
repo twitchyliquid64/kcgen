@@ -1,0 +1,5 @@
+Package: kite
+Version: 0.0.1
+Architecture: amd64
+Maintainer: Twitch <twitchyliquid64@ciphersink.net>
+Description: GUI for writing kcsl scripts.

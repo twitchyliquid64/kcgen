@@ -1,0 +1,42 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: golang
+    tag: 'buster'
+
+inputs:
+- name: kcgen
+  path: .
+
+outputs:
+- name: output
+
+run:
+  path: sh
+  args:
+  - -ec
+  - |
+    bash ci/debian-install-base.sh
+    echo ========================================
+    go version
+    go build -v -o output/kcgen kcgen/*.go
+    go build -v -o output/kite kite/*.go
+    cp -v kite/*.glade output/
+    echo ========================================
+    mkdir kcgen_pkg
+    mkdir -pv kcgen_pkg/DEBIAN
+    mkdir -pv kcgen_pkg/usr/bin
+    cp ci/kcgen_control kcgen_pkg/DEBIAN/control
+    cp output/kcgen kcgen_pkg/usr/bin
+    dpkg-deb --build kcgen_pkg ./output
+    echo ========================================
+    mkdir kite_pkg
+    mkdir -pv kite_pkg/DEBIAN
+    mkdir -pv kite_pkg/usr/bin
+    mkdir -pv kite_pkg/usr/share/kite
+    cp ci/kite_control kite_pkg/DEBIAN/control
+    cp output/kite kite_pkg/usr/bin
+    cp output/*.glade kite_pkg/usr/share/kite
+    dpkg-deb --build kite_pkg ./output

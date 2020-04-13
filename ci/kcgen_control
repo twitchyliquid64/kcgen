@@ -1,0 +1,5 @@
+Package: kcgen
+Version: 0.0.1
+Architecture: amd64
+Maintainer: Twitch <twitchyliquid64@ciphersink.net>
+Description: Generates KiCad files from kcsl scripts.
