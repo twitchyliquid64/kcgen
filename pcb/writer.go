@@ -769,8 +769,8 @@ func (l *EditorSetup) write(sw *swriter.SExpWriter) error {
 	if l.GridOrigin[0] != 0 || l.GridOrigin[1] != 0 {
 		sw.StartList(true)
 		sw.StringScalar("grid_origin")
-		sw.IntScalar(l.GridOrigin[0])
-		sw.IntScalar(l.GridOrigin[1])
+		sw.StringScalar(f(l.GridOrigin[0]))
+		sw.StringScalar(f(l.GridOrigin[1]))
 		if err := sw.CloseList(false); err != nil {
 			return err
 		}
