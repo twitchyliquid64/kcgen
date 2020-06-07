@@ -27,6 +27,16 @@ type XYZ struct {
 	Unlocked bool    `json:"unlocked,omitempty"`
 }
 
+// ViaType represents a via Type
+type ViaType int
+
+// Via Types
+const (
+	ViaThrough = ViaType(iota),
+	ViaMicro,
+	ViaBlind,
+)
+
 // Via represents a via.
 type Via struct {
 	At       XY       `json:"position"`
@@ -36,7 +46,7 @@ type Via struct {
 	NetIndex int      `json:"net_index"`
 
 	StatusFlags string `json:"status_flags"`
-	IsBlind     bool
+	Type        ViaType
 
 	order int
 }
@@ -130,9 +140,14 @@ func parseVia(n sexp.Helper, ordering int) (Via, error) {
 				}
 			}
 		} else {
-			switch c.MustString() {
+			// must be via type
+			switch t := c.MustString(); t {
 			case "blind":
-				v.IsBlind = true
+				v.Type = ViaBlind;
+			case "micro":
+				v.Type = ViaMicro;
+			default:
+				return v, errors.New("via invalid type " + t)
 			}
 		}
 	}
