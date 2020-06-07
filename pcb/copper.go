@@ -32,9 +32,9 @@ type ViaType int
 
 // Via Types
 const (
-	ViaThrough = ViaType(iota),
-	ViaMicro,
-	ViaBlind,
+	ViaThrough = ViaType(iota)
+	ViaMicro
+	ViaBlind
 )
 
 // Via represents a via.
@@ -46,7 +46,7 @@ type Via struct {
 	NetIndex int      `json:"net_index"`
 
 	StatusFlags string `json:"status_flags"`
-	Type        ViaType
+	ViaType     ViaType
 
 	order int
 }
@@ -143,9 +143,9 @@ func parseVia(n sexp.Helper, ordering int) (Via, error) {
 			// must be via type
 			switch t := c.MustString(); t {
 			case "blind":
-				v.Type = ViaBlind;
+				v.ViaType = ViaBlind
 			case "micro":
-				v.Type = ViaMicro;
+				v.ViaType = ViaMicro
 			default:
 				return v, errors.New("via invalid type " + t)
 			}
