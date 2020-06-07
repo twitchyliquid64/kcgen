@@ -36,6 +36,7 @@ type Via struct {
 	NetIndex int      `json:"net_index"`
 
 	StatusFlags string `json:"status_flags"`
+	IsBlind     bool
 
 	order int
 }
@@ -110,21 +111,28 @@ func parseVia(n sexp.Helper, ordering int) (Via, error) {
 	v := Via{order: ordering}
 	for x := 1; x < n.MustNode().NumChildren(); x++ {
 		c := n.Child(x)
-		switch c.Child(0).MustString() {
-		case "size":
-			v.Size = c.Child(1).MustFloat64()
-		case "drill":
-			v.Drill = c.Child(1).MustFloat64()
-		case "net":
-			v.NetIndex = c.Child(1).MustInt()
-		case "at":
-			v.At.X = c.Child(1).MustFloat64()
-			v.At.Y = c.Child(2).MustFloat64()
-		case "status":
-			v.StatusFlags = c.Child(1).MustString()
-		case "layers":
-			for j := 1; j < c.MustNode().NumChildren(); j++ {
-				v.Layers = append(v.Layers, c.Child(j).MustString())
+		if c.IsList() {
+			switch c.Child(0).MustString() {
+			case "size":
+				v.Size = c.Child(1).MustFloat64()
+			case "drill":
+				v.Drill = c.Child(1).MustFloat64()
+			case "net":
+				v.NetIndex = c.Child(1).MustInt()
+			case "at":
+				v.At.X = c.Child(1).MustFloat64()
+				v.At.Y = c.Child(2).MustFloat64()
+			case "status":
+				v.StatusFlags = c.Child(1).MustString()
+			case "layers":
+				for j := 1; j < c.MustNode().NumChildren(); j++ {
+					v.Layers = append(v.Layers, c.Child(j).MustString())
+				}
+			}
+		} else {
+			switch c.MustString() {
+			case "blind":
+				v.IsBlind = true
 			}
 		}
 	}
