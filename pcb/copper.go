@@ -163,11 +163,13 @@ func parseZone(n sexp.Helper, ordering int) (*Zone, error) {
 		case "connect_pads":
 			for y := 1; y < c.MustNode().NumChildren(); y++ {
 				c2 := c.Child(y)
-				switch c2.Child(0).MustString() {
-				case "clearance":
-					z.ConnectPads.Clearance = c2.Child(1).MustFloat64()
-				default:
-					z.ConnectPads.Mode = c2.Child(1).MustString()
+				if c2.IsList() {
+					switch c2.Child(0).MustString() {
+					case "clearance":
+						z.ConnectPads.Clearance = c2.Child(1).MustFloat64()
+					}
+				} else {
+					z.ConnectPads.Mode = c2.MustString()
 				}
 			}
 		case "fill":
