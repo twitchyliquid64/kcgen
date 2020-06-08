@@ -4,10 +4,21 @@ import (
 	"github.com/twitchyliquid64/kcgen/swriter"
 )
 
+// write generates an s-expression describing a the type
+func (p *ViaType) write(sw *swriter.SExpWriter) {
+	if *p == ViaThrough {
+		return
+	}
+	
+	sw.StringScalar(p.String())
+}
+
 // write generates an s-expression describing the via.
 func (v *Via) write(sw *swriter.SExpWriter) error {
 	sw.StartList(false)
 	sw.StringScalar("via")
+	v.ViaType.write(sw)
+
 	if err := v.At.write("at", sw); err != nil {
 		return err
 	}

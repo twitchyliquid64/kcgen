@@ -227,6 +227,39 @@ func (p *XYZ) SetField(name string, val starlark.Value) error {
 	return errors.New("no such assignable field: " + name)
 }
 
+// String implements starlark.Value.
+func (t ViaType) String() string {
+	switch t {
+	case ViaMicro:
+		return "micro"
+	case ViaBlind:
+		return "blind"
+	case ViaThrough:
+		return "through"
+	}
+
+	return "unknown"
+}
+
+// Type implements starlark.Value.
+func (v ViaType) Type() string {
+	return "ViaType"
+}
+
+// Freeze implements starlark.Value.
+func (p ViaType) Freeze() {
+}
+
+// Truth implements starlark.Value.
+func (p ViaType) Truth() starlark.Bool {
+	return starlark.Bool(true)
+}
+
+// Hash implements starlark.Value.
+func (t ViaType) Hash() (uint32, error) {
+	return uint32(t), nil
+}
+
 var MakeVia = starlark.NewBuiltin("Via", func(t *starlark.Thread, f *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
 		f0 *XY
@@ -235,6 +268,7 @@ var MakeVia = starlark.NewBuiltin("Via", func(t *starlark.Thread, f *starlark.Bu
 		f3 *starlark.List
 		f4 starlark.Int
 		f5 starlark.String
+		f6 ViaType
 	)
 	unpackErr := starlark.UnpackArgs(
 		"Via",
@@ -246,6 +280,7 @@ var MakeVia = starlark.NewBuiltin("Via", func(t *starlark.Thread, f *starlark.Bu
 		"layers?", &f3,
 		"net_index?", &f4,
 		"status_flags?", &f5,
+		"type?", &f6,
 	)
 	if unpackErr != nil {
 		return starlark.None, unpackErr
@@ -271,6 +306,8 @@ var MakeVia = starlark.NewBuiltin("Via", func(t *starlark.Thread, f *starlark.Bu
 		out.NetIndex = int(v)
 	}
 	out.StatusFlags = string(f5)
+	out.ViaType = f6
+
 	return &out, nil
 })
 
