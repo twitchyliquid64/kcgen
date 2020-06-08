@@ -128,7 +128,7 @@ type EditorSetup struct {
 
 	UserVia                [2]float64
 	BlindBuriedViasAllowed bool
-	GridOrigin             [2]int
+	GridOrigin             [2]float64
 
 	ModEdgeWidth       float64
 	ModTextSize        []float64
@@ -514,7 +514,7 @@ func parseSetup(n sexp.Helper, ordering int) (*EditorSetup, error) {
 		case "blind_buried_vias_allowed":
 			e.BlindBuriedViasAllowed = c.Child(1).MustString() == "yes"
 		case "grid_origin":
-			e.GridOrigin = [2]int{c.Child(1).MustInt(), c.Child(2).MustInt()}
+			e.GridOrigin = [2]float64{c.Child(1).MustFloat64(), c.Child(2).MustFloat64()}
 
 		case "pcbplotparams":
 			e.PlotParams = map[string]PlotParam{}
