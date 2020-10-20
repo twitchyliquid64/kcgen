@@ -1,0 +1,11 @@
+name: 'Setup'
+description: 'Prepares the build environment'
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        set -xe
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libcairo2-dev libglib2.0-dev build-essential make cmake
+        mkdir -p output/
