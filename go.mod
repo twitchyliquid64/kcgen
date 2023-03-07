@@ -17,5 +17,5 @@ require (
 	github.com/sergi/go-diff v1.0.0
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.starlark.net v0.0.0-20191016215632-c9eda478e54e
-	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8
+	golang.org/x/image v0.5.0
 )
